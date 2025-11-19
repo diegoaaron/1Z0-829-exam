@@ -647,3 +647,22 @@ Varias de las interfaces funcionales comunes proporcionan una serie de métodos 
 
 La tabla muestra los métodos convenientes en las interfaces funcionales principales, BiConsumer, BiFunction y BiPredicate tienen similares métodos. 
 
+```java
+Predicate<String> egg = s -> s.contains("egg");
+Predicate<String> brown = s -> s.contains("brown");
+
+Predicate<String> brownEggs = s -> s.contains("egg") && s.contains("brown");
+Predicate<String> otherEggs = s -> s.contains("egg") && !s.contains("brown");
+
+Predicate<String> brownEggs = egg.and(brown);
+Predicate<String> brownEggs = egg.and(brown.negate());
+```
+
+En la primera parte del ejemplo se muestra como definir un, Predicate usando un metodo genera que cumpla el, Predicate. 
+
+En la segúnda parte se muestra como se utiliza el mismo metodo pero combinado par cumplir con lo que se requiere, pero 
+no es muy eficiente. 
+
+En la tercera parte se muestra como se utiliza uno de los metodos comunes de la interfaz junto con los que he creado para 
+hacer más facil el uso de Predicate. 
+
