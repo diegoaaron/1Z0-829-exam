@@ -666,3 +666,42 @@ no es muy eficiente.
 En la tercera parte se muestra como se utiliza uno de los metodos comunes de la interfaz junto con los que he creado para 
 hacer más facil el uso de Predicate. 
 
+```java
+Consumer<String> c1 = x -> System.out.print("1:" + x);
+Consumer<String> c2 = x -> System.out.print(",2:" + x);
+
+Consumer<String> combined = c1.andThen(c2);
+combined.accept("Annie"); // Imprime: 1: Annie,2: Annie
+```
+
+En la primera parte del ejemplo anterior se muestra la definición de un Consumer
+
+La siguiente parte muestra como usamos un método conveniente de la interfaz. Con `andThen()`, el mismo parámetro 
+se pasa a ambos consumers en secuencia. Son independientes entre sí.
+
+```java
+Function<Integer, Integer> before = x -> x + 1;
+Function<Integer, Integer> after = x -> x * 2;
+
+Function<Integer, Integer> combined = after.compose(before);
+System.out.println(combined.apply(3)); // Resultado: 8
+```
+
+En la primera parte del ejemplo anterior se muestra la definición de un Function
+
+Con `compose()`, el output de una función se convierte en el input de la otra:
+
+* Primero ejecuta before: 3 + 1 = 4
+* Luego ejecuta after: 4 * 2 = 8
+
+### Interfaces Funcionales para Primitivos
+
+Existe una gran cantidad de interfaces funcionales especiales para tipos primitivos. 
+
+La mayoría son para los tipos double, int y long.  Existe una excepción que es `BooleanSupplier`. 
+
+### Interfaz funcional para boolean
+
+BooleanSupplier es un tipo separado y su método de implementacion es:
+
+
