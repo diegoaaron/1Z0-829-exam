@@ -739,5 +739,16 @@ a las que se hace referencia desde el cuerpo de la lambda.
 
 ![ch08_01_06.png](images/ch08_01_06.png)
 
-#### Listing Parameters
+#### Declaracion de parámetros
 
+Esta sección enseña cómo declarar parámetros en las lambdas y cómo inferir sus tipos basándose en el contexto.
+
+Tres formas equivalentes de declarar parámetros:
+
+```java
+Predicate<String> p = x -> true;              // Sin tipo (inferido)
+Predicate<String> p = (var x) -> true;        // Con var
+Predicate<String> p = (String x) -> true;     // Con tipo explícito
+```
+
+Una lambda infiere los tipos del contexto circundante. 
