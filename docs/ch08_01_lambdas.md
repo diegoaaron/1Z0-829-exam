@@ -732,3 +732,12 @@ En lugar de solo `apply()`, se usa `applyAsInt()`, `applyAsDouble()`, etc. Esto 
 
 ### Trabajando con variables en lambdas
 
+Las interfaces funcionales permite mostrar diferentes enfoques para las variables en una lambda. 
+
+La lista de parámetros, las variables locales declaradas dentro del cuerpo de la lambda y las variables 
+a las que se hace referencia desde el cuerpo de la lambda.
+
+![ch08_01_06.png](images/ch08_01_06.png)
+
+#### Listing Parameters
+
