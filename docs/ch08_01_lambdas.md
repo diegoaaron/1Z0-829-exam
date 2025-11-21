@@ -700,8 +700,35 @@ Existe una gran cantidad de interfaces funcionales especiales para tipos primiti
 
 La mayoría son para los tipos double, int y long.  Existe una excepción que es `BooleanSupplier`. 
 
-### Interfaz funcional para boolean
+#### Interfaz funcional para boolean
 
 BooleanSupplier es un tipo separado y su método de implementacion es:
 
+```java
+@FunctionalInterface
+public interface BooleanSupplier{
+    boolean getAsBoolean();
+}
+
+BooleanSupplier b1 = () -> true;
+BooleanSupplier b2 = () -> Math.random() > .5;
+System.out.println(b1.getAsBoolean()); // true
+System.out.println(b2.getAsBoolean()); // false
+```
+
+Las líneas anteriores crean un BooleanSupplier, que es la única interfaz funcional para boolean.
+
+#### Interfaz funcional para double, int y long
+
+La mayoría de las interfaces funcionales son para double, int y long como se ve en la siguiente imagen
+
+![ch08_01_05.png](images/ch08_01_05.png)
+
+Los genéricos desaparecen en algunos casos: El nombre de la interfaz ya indica qué tipo primitivo está involucrado.
+Por ejemplo, `IntFunction<R>` solo necesita el genérico `R` para el tipo de retorno, porque ya sabemos por el nombre que recibe un `int`.
+
+Los métodos abstractos se renombran: Cuando se retorna un tipo primitivo, el método cambia de nombre. 
+En lugar de solo `apply()`, se usa `applyAsInt()`, `applyAsDouble()`, etc. Esto hace explícito qué tipo primitivo se está retornando.
+
+### Trabajando con variables en lambdas
 
