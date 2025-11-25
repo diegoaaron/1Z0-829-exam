@@ -782,4 +782,22 @@ Dentro del cuerpo de una lambda, puedes declarar variables locales como lo harí
 }
 ```
 
+El siguiente ejemplo tiene algunos errores: 
+
+```java
+11: public void variables(int a) {
+12:     int b = 1;
+13:     Predicate<Integer> p1 = a -> {
+14:         int b = 0;
+15:         int c = 0;
+16:         return b == c;}
+17: }
+```
+
+En la línea 13, el parámetro `a` de la lambda entra en conflicto con el parámetro `a` del método.
+
+En la línea 14, la variable `b` de la lambda entra en conflicto con la variable `b` del método.
+
+Falta el punto y coma `(;)` después de la llave de cierre `}` en la línea 16. 
+El punto y coma de la línea 16 está dentro del bloque de la lambda, no después de la asignación completa.
 
