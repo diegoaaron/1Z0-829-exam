@@ -801,3 +801,58 @@ En la línea 14, la variable `b` de la lambda entra en conflicto con la variable
 Falta el punto y coma `(;)` después de la llave de cierre `}` en la línea 16. 
 El punto y coma de la línea 16 está dentro del bloque de la lambda, no después de la asignación completa.
 
+#### Referenciando variables desde el cuerpo de la lambda
+
+La lambda pueden acceder a:
+
+* Variables de instancia (instance variables)
+* Variables de clase (class variables/static)
+* Parámetros de método (si son effectively final)
+* Variables locales (si son effectively final)
+
+NO pueden acceder a variables que no sean final o effectively final
+
+**¿Qué es "Effectively Final"?**
+
+* No está declarada explícitamente como final, PERO su valor nunca cambia después de ser inicializada. 
+* Se comporta "como si fuera final"
+
+```java
+public class Crow {
+  private String color;
+  
+  public void caw(String name) {
+    String volume = "loudly";
+    Consumer<String> consumer = s ->
+      System.out.println(name + " says "
+        + volume + " that she is " + color);
+  }
+}
+```
+
+* name → parámetro del método → siempre es permitido (los parámetros son `implicitly final`).
+* volume → variable local inicializada una sola vez → `effectively final`.
+* color → variable de instancia → siempre está permitido (las variables de instancia no necesitan ser final).
+
+```java
+2: public class Crow {
+3:   private String color;
+4:   public void caw(String name) {
+        5:     String volume = "loudly";
+        6:     name = "Caty";              // ❌ Modifica name
+        7:     color = "black";             // ✅ OK (variable de instancia)
+        8:
+        9:     Consumer<String> consumer = s ->
+                10:      System.out.println(name + " says "      // ❌ DOES NOT COMPILE
+                11:        + volume + " that she is " + color);  // ❌ DOES NOT COMPILE
+        12:    volume = "softly";           // ❌ Modifica volume
+        13:  }
+14: }
+```
+
+* `name` se reasigna en la línea 6 → deja de ser effectively final. 
+  * Aunque los parámetros de método normalmente se consideran implicitly final, si los reasignas explícitamente, pierden la propiedad de `effectively final` y la lambda ya no puede usarlos.
+* En la línea 12 se vuelve a asignar a `volume` → ¡ya no es `effectively final`!
+  * Aunque el error de compilación aparece en las líneas 10-11 (donde se usa volume dentro de la lambda), la verdadera causa es la línea 12.
+  * El compilador dice: “volume might have been modified, so the lambda is not allowed to use it”.
+
