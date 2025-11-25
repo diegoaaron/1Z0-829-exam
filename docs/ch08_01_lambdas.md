@@ -752,3 +752,34 @@ Predicate<String> p = (String x) -> true;     // Con tipo explícito
 ```
 
 Una lambda infiere los tipos del contexto circundante. 
+
+```java
+public void counts(List<Integer>list){
+    list.sort((var x,var y) -> x.compareTo(y));
+}
+```
+
+Como el método sort recibe una `List<Integer>`, el compilador sabe que los parámetros de la lambda son de tipo Integer. 
+
+Por eso puede inferir automáticamente el tipo y permite usar la palabra clave `var` en ambos parámetros.
+
+Regla clave: dentro de una misma lambda, todos los parámetros deben ser coherentes en su declaración.
+
+| Formato               |              Ejemplo              | Descripción                                      |
+|-----------------------|:---------------------------------:|:-------------------------------------------------|
+| Sin tipos (inferidos) |         `(a, b) -> a + b`         | El compilador infiere el tipo por el contexto    |
+| Con tipos explícitos  | `(Integer a, Integer b) -> a + b` | Se escriben los tipos completos                  |
+| Con var               |     `(var a, var b) -> a + b`     | Java 11+ permite usar var (todos deben usar var) |
+
+#### Usando variables locales dentro del cuerpo de la lambda
+
+Dentro del cuerpo de una lambda, puedes declarar variables locales como lo harías en un método normal.
+
+```java
+(a, b) -> { 
+    int c = 0;    // variable local, solo visible dentro del bloque
+    return 5; 
+}
+```
+
+
