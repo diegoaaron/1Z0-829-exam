@@ -839,13 +839,13 @@ public class Crow {
 3:   private String color;
 4:   public void caw(String name) {
         5:     String volume = "loudly";
-        6:     name = "Caty";              // ❌ Modifica name
-        7:     color = "black";             // ✅ OK (variable de instancia)
+        6:     name = "Caty";              // Modifica name
+        7:     color = "black";             // OK (variable de instancia)
         8:
         9:     Consumer<String> consumer = s ->
-                10:      System.out.println(name + " says "      // ❌ DOES NOT COMPILE
-                11:        + volume + " that she is " + color);  // ❌ DOES NOT COMPILE
-        12:    volume = "softly";           // ❌ Modifica volume
+                10:      System.out.println(name + " says "      // No compila
+                11:        + volume + " that she is " + color);  // No compila
+        12:    volume = "softly";           // Modifica volume
         13:  }
 14: }
 ```
@@ -855,4 +855,14 @@ public class Crow {
 * En la línea 12 se vuelve a asignar a `volume` → ¡ya no es `effectively final`!
   * Aunque el error de compilación aparece en las líneas 10-11 (donde se usa volume dentro de la lambda), la verdadera causa es la línea 12.
   * El compilador dice: “volume might have been modified, so the lambda is not allowed to use it”.
+
+Esta tabla muestra qué variables puede usar una lambda dentro de un método:
+
+| Tipo de variable      | Regla                                       |
+|-----------------------|---------------------------------------------|
+| Variable de instancia | Permitida                                   |
+| Variable estática     | Permitida                                   |
+| Variable local        | Permitida si es final o efectivamente final |
+| Parámetro de método   | Permitido si es final o efectivamente final |
+| Parámetro de lambda   | Permitido                                   |
 
