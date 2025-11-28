@@ -270,3 +270,44 @@ Java nos protege de muchos problemas con Collections. Sin embargo, aún es posib
 ## Usando la interfaz List
 
 Pasemos a interfaces específicas. Se usa una `list` cuando quieres una colección ordenada
+
+En una lista de nombres puede contener duplicados, ya que dos animales pueden tener el mismo nombre. 
+* Los elementos pueden ser recuperados e insertados en posiciones específicas en la lista basándose en un índice `int`, muy parecido a un `array`. 
+* A diferencia de un array, sin embargo, muchas implementaciones de List pueden cambiar de tamaño después de ser declaradas.
+* Uso común; Las listas se usan donde necesitas mantener un registro de una lista de objetos. 
+  * Por ejemplo, podrías hacer una lista de lo que quieres ver en el zoológico: primero, ver los leones; segundo, ver los pandas y así sucesivamente.
+
+* A veces no te importa el orden de elementos en una lista. List es como el tipo de datos "go to". 
+* Cuando hacemos una lista de compras antes de ir a la tienda, el orden de la lista resulta ser el orden en el cual pensamos en los artículos. 
+  * Probablemente, no estamos apegados a ese orden particular, pero no está haciendo daño.
+
+### Comparando implementación de listas
+
+ArrayList: Un ArrayList es como un array redimensionable. 
+* Cuando se agregan elementos, el ArrayList crece automáticamente. Cuando no estás seguro qué colección usar, usa un ArrayList.
+* El principal beneficio de un ArrayList es que puedes buscar cualquier elemento en tiempo constante. 
+* Agregar o remover un elemento es más lento que acceder a un elemento. 
+* Esto hace a un ArrayList una buena elección cuando estás leyendo más a menudo que (o la misma cantidad que) escribiendo al ArrayList.
+
+LinkedList: Un LinkedList es especial porque implementa tanto List como Deque. 
+* Tiene todos los métodos de una List. También tiene métodos adicionales para facilitar agregar o remover desde el principio y/o fin de la lista.
+* Los principales beneficios de una LinkedList son que puedes acceder, agregar y remover desde el principio y fin de la lista en tiempo constante. 
+* El trade-off es que tratar con un índice arbitrario toma tiempo lineal. 
+* Esto hace a una LinkedList una buena elección cuando la usarás como Deque. 
+
+### Creating una lista con Factory
+
+Cuando creas una `List` de tipo ArrayList o LinkedList, conoces el tipo. 
+
+Hay unos pocos métodos especiales donde obtienes una List de vuelta, pero no conoces el tipo. 
+
+Estos métodos te permiten crear una List incluyendo datos en una línea usando un factory method. 
+
+Esto es conveniente, especialmente cuando haces testing. 
+
+Algunos de estos métodos retornan un immutable object. 
+
+Como vimos en Chapter 6, "Class Design," un immutable object no puede ser cambiado o modificado. 
+
+![ch09_01_02.png](images/ch09_01_02.png)
+
