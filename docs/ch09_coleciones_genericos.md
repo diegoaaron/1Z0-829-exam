@@ -203,8 +203,33 @@ Método `forEach()`:
 * Puedes llamarlo en una Collection en lugar de escribir un loop. Usa un Consumer que toma un único parámetro y no retorna nada.
 * Firma: `public void forEach(Consumer<? super T> action)`
 
-Ejemplo:
-A los gatos les gusta explorar, así que imprimamos dos de ellos usando tanto referencias a método como lambdas:
-
+Ejemplo: A los gatos les gusta explorar, así que imprimamos dos de ellos usando tanto referencias a método como lambdas:
 
 ```java
+Collection<String> cats = List.of("Annie", "Ripley");
+cats.forEach(System.out::println);
+cats.forEach(c -> System.out.println(c));
+```
+
+**Otras formas de iteración**
+
+Hay otras maneras de iterar a través de una Collection cómo hacer loop a través de una lista usando un enhanced for loop.
+
+```java
+for (String element: coll)
+    System.out.println(element);
+
+// un enfoque más antiguo es: 
+Iterator<String> iter = coll.iterator();
+while(iter.hasNext()) {
+String string = iter.next();
+    System.out.println(string);
+}
+```
+
+El método `hasNext()` verifica si hay un siguiente valor. En otras palabras, te dice si `next()` se ejecutará sin lanzar una excepción. 
+
+El método `next()` realmente mueve el Iterator al siguiente elemento.
+
+### Determinando igualdad
+
