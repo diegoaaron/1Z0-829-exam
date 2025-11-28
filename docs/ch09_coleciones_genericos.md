@@ -233,3 +233,40 @@ El método `next()` realmente mueve el Iterator al siguiente elemento.
 
 ### Determinando igualdad
 
+Implementación personalizada de equals():
+* Permite comparar dos Collections y comparar el tipo y contenidos. La implementación varía. 
+  * Por ejemplo, ArrayList verifica el orden, mientras que HashSet no.
+* La firma es `public boolean equals(Object object)`
+
+```java
+23: var list1 = List.of(1, 2);
+24: var list2 = List.of(2, 1);
+25: var set1 = Set.of(1, 2);
+26: var set2 = Set.of(2, 1);
+27:
+28: System.out.println(list1.equals(list2)); // false
+29: System.out.println(set1.equals(set2));   // true
+30: System.out.println(list1.equals(set1));  // false
+```
+
+* Línea 28 imprime false porque los elementos están en diferente orden, y una List se preocupa por el orden
+* En contraste, línea 29 imprime true porque un Set no es sensible al orden
+* Finalmente, línea 30 imprime false porque los tipos son diferentes
+
+**Desempaquetando nulos**
+
+Java nos protege de muchos problemas con Collections. Sin embargo, aún es posible escribir un NullPointerException:
+
+```java
+3: var heights = new ArrayList<Integer>();
+4: heights.add(null);
+5: int h = heights.get(0); // NullPointerException
+```
+
+* Línea 4: agregamos un null a la lista. Esto es legal porque una referencia null puede ser asignada a cualquier variable de referencia
+* Línea 5: intentamos hacer unbox de ese `null` a un primitivo `int`. Esto es un problema
+* Java intenta obtener el valor int de `null`. Como llamar cualquier método en null genera un `NullPointerException`, eso es justo lo que obtenemos
+
+## Usando la interfaz List
+
+Pasemos a interfaces específicas. Se usa una `list` cuando quieres una colección ordenada
