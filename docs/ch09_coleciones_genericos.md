@@ -357,3 +357,46 @@ var list2 = new ArrayList<String>(list1);
 var list3 = new ArrayList<String>(10);}
 ```
 
+* Los primeros dos son los constructores comunes que necesitas conocer para todas las Collections. 
+* El ejemplo final dice crear un ArrayList conteniendo un número específico de slots, pero nuevamente no asignar ninguno. 
+* Puedes pensar en esto como el tamaño del array subyacente.
+
+**Usando var con ArrayList**
+
+Primer ejemplo - var con generics:
+Considera este código, que mezcla var y generics:
+
+```java
+var strings = new ArrayList<String>();
+strings.add("a");
+for (String s: strings) { }
+```
+
+El tipo de var es `ArrayList<String>`. Esto significa que puedes agregar un String o hacer loop a través de los objetos String. 
+
+¿Qué pasa si usamos el diamond operator con var?
+
+```java
+var list = new ArrayList<>();
+```
+
+Esto compila. El tipo del var es `ArrayList<Object>`. 
+
+Como no hay un tipo especificado para él `generic`, Java tiene que asumir la última superclase. 
+
+Esto es un poco tonto e inesperado, así que por favor no lo escribas. Pero si lo ves en el examen, sabrás qué esperar. 
+
+```java
+var list = new ArrayList<>();
+list.add("a");
+for (String s: list) { } // DOES NOT COMPILE
+```
+
+El tipo de var es `ArrayList<Object>`. Como no hay un tipo en el diamond operator, Java tiene que asumir la opción genérica más amplia que puede. 
+
+Por lo tanto, elige `Object`, la última superclase. Agregar un String a la lista está bien. 
+
+Puedes agregar cualquier subclase de Object. Sin embargo, en el loop, necesitamos usar el tipo Object en lugar de String.
+
+### Trabajando con métodos de List
+
