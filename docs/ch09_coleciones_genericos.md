@@ -311,3 +311,49 @@ Como vimos en Chapter 6, "Class Design," un immutable object no puede ser cambia
 
 ![ch09_01_02.png](images/ch09_01_02.png)
 
+```java
+16: String[] array = new String[] {"a", "b", "c"};
+17: List<String> asList = Arrays.asList(array); // [a, b, c]
+18: List<String> of = List.of(array);           // [a, b, c]
+19: List<String> copy = List.copyOf(asList);    // [a, b, c]
+20:
+21: array[0] = "z";
+22:
+23: System.out.println(asList);  // [z, b, c]
+24: System.out.println(of);      // [a, b, c]
+25: System.out.println(copy);    // [a, b, c]
+26:
+27: asList.set(0, "x");
+28: System.out.println(Arrays.toString(array)); // [x, b, c]
+29:
+30: copy.add("y");  // UnsupportedOperationException
+```
+
+* Línea 17 crea una List que está respaldada por un array
+* Línea 21 cambia el array, y línea 23 refleja ese cambio
+* Líneas 27 y 28 muestran la otra dirección donde cambiar la List actualiza el array subyacente
+* Líneas 18 y 19 crean una immutable List
+* Línea 30 muestra que es immutable al lanzar una excepción cuando se intenta agregar un valor
+* Las tres listas lanzarían una excepción al agregar o remover un valor. Las listas of y copy también lanzarían una al intentar actualizar un elemento
+
+### Creando una lista con un constructor
+
+La mayoría de `Collections` tienen dos constructores. Lo siguiente los muestra para `LinkedList`:
+
+```java
+var linked1 = new LinkedList<String>();
+var linked2 = new LinkedList<String>(linked1);
+```
+
+* El primero dice crear una LinkedList vacía conteniendo todos los defaults
+* El segundo le dice a Java que queremos hacer una copia de otra LinkedList
+* Dado que linked1 está vacío en este ejemplo, no es particularmente interesante
+
+ArrayList tiene un constructor extra que necesitas conocer. Ahora mostramos los tres constructores:
+
+```java
+var list1 = new ArrayList<String>();
+var list2 = new ArrayList<String>(list1);
+var list3 = new ArrayList<String>(10);}
+```
+
