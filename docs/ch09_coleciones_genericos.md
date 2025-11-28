@@ -103,11 +103,51 @@ Método `remove()`:
 * Retorna un boolean indicando si fue exitoso
 * La firma del método es `public boolean remove(Object object)`
 
-Explicación: El valor boolean de retorno indica si se encontró y removió una coincidencia.
+Explicación: El valor boolean de retorno indica si se encontró y removió una coincidencia (solo remueve 1 por intento).
 
 ```java
 3: Collection<String> birds = new ArrayList<>();
 4: birds.add("hawk");  // [hawk]
+5: birds.add("hawk");  // [hawk, hawk]
+6: System.out.println(birds.remove("cardinal")); // false
+7: System.out.println(birds.remove("hawk"));     // true
+8: System.out.println(birds);                    // [hawk]
 ```
 
-continuar en la hoja 3 
+### Contando elementos
+
+Métodos: `size()` y `isEmpty()`
+* `size()` retorna el número de elementos en la Collection
+* `isEmpty()` retorna `true` si la Collection no tiene elementos
+* Su firma es:
+  * `public int size()`
+  * `public boolean isEmpty()`
+
+```java
+Collection<String> birds = new ArrayList<>();
+System.out.println(birds.isEmpty()); // true
+System.out.println(birds.size());    // 0
+birds.add("hawk");                   // [hawk]
+birds.add("hawk");                   // [hawk, hawk]
+
+System.out.println(birds.isEmpty()); // false
+System.out.println(birds.size());    // 2
+```
+
+### Limpiando colecciones
+
+Método clear():
+* Proporciona una manera fácil de descartar todos los elementos de la Collection.
+* Su firma es `public void clear()`
+
+```java
+Collection<String> birds = new ArrayList<>();
+birds.add("hawk");                   // [hawk]
+birds.add("hawk");                   // [hawk, hawk]
+System.out.println(birds.isEmpty()); // false
+System.out.println(birds.size());    // 2
+birds.clear();                       // []
+System.out.println(birds.isEmpty()); // true
+System.out.println(birds.size());    // 0
+```
+
