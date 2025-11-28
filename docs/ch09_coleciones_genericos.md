@@ -136,7 +136,7 @@ System.out.println(birds.size());    // 2
 
 ### Limpiando colecciones
 
-Método clear():
+Método `clear()`:
 * Proporciona una manera fácil de descartar todos los elementos de la Collection.
 * Su firma es `public void clear()`
 
@@ -151,3 +151,60 @@ System.out.println(birds.isEmpty()); // true
 System.out.println(birds.size());    // 0
 ```
 
+Después de llamar `clear()`, birds vuelve a ser un ArrayList vacío de tamaño 0.
+
+### Validando contenido
+
+Método `contains()`:
+* Verifica si un elemento específico está en la Collection
+* Su firma es `public boolean contains(Object object)`
+* Funcionamiento; el método `contains()` llama a `equals()` en los elementos del ArrayList para ver si hay coincidencias.
+
+```java
+Collection<String> birds = new ArrayList<>();
+birds.add("hawk"); // [hawk]
+System.out.println(birds.contains("hawk"));  // true
+System.out.println(birds.contains("robin")); // false
+```
+
+### Removiendo con condiciones
+
+Método `removeIf()`:
+* Remueve todos los elementos que coinciden con una condición. 
+* Podemos especificar qué debe eliminarse usando un bloque de código o incluso una referencia a método.
+* Firma: `public boolean removeIf(Predicate<? super E> filter)`
+  * Nota: La signatura parece así. (Se explica qué significa él `? super` más adelante en este capítulo)
+* Funcionamiento; Usa un, `Predicate`, que toma un parámetro y retorna un boolean.
+
+```java
+4: Collection<String> list = new ArrayList<>();
+5: list.add("Magician");
+6: list.add("Assistant");
+7: System.out.println(list);  // [Magician, Assistant]
+8: list.removeIf(s -> s.startsWith("A"));
+9: System.out.println(list);  // [Magician]
+```
+
+Explicación línea 8; Remueve todos los valores String que comienzan con la letra A.
+
+```java
+11: Collection<String> set = new HashSet<>();
+12: set.add("Wand");
+13: set.add("");
+14: set.removeIf(String::isEmpty); // s -> s.isEmpty()
+15: System.out.println(set);  // [Wand]
+```
+
+Explicación línea 14; Remueve todos los valores String que están vacíos usando una referencia a método.
+
+### Iterando sobre colecciones
+
+Método `forEach()`:
+* Puedes llamarlo en una Collection en lugar de escribir un loop. Usa un Consumer que toma un único parámetro y no retorna nada.
+* Firma: `public void forEach(Consumer<? super T> action)`
+
+Ejemplo:
+A los gatos les gusta explorar, así que imprimamos dos de ellos usando tanto referencias a método como lambdas:
+
+
+```java
