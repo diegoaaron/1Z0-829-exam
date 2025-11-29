@@ -459,3 +459,41 @@ Esto se vuelve complicado cuando tienes un tipo Integer. ¿Qué crees que imprim
 37: System.out.println(list);
 ```
 
+* La respuesta correcta es [3]. Veamos cómo llegamos ahí. 
+* Al final de línea 34, tenemos [3, 2, 1]. Línea 35 pasa un primitivo, lo que significa que estamos solicitando eliminación del elemento en index 2. 
+* Esto nos deja con [3, 2]. Luego línea 36 pasa un objeto Integer, lo que significa que estamos eliminando el valor 2. Eso nos lleva a que quede [3].
+
+* Cuando se llama a `remove()` con un `int` usa el índice, un índice que no existe lanzará una excepción. 
+* Por ejemplo, list.remove(100) lanza un `IndexOutOfBoundsException`.
+
+### Convirtiendo de una lista a un array
+
+Como un array puede ser pasado como `vararg`, la tabla 9.1 cubrió cómo convertir un array a una List. 
+Veamos como convertir una List en un array:
+
+```java
+13: List<String> list = new ArrayList<>();
+14: list.add("hawk");
+15: list.add("robin");
+16: Object[] objectArray = list.toArray();
+17: String[] stringArray = list.toArray(new String[0]);
+18: list.clear();
+19: System.out.println(objectArray.length);  // 2
+20: System.out.println(stringArray.length);  // 2
+```
+
+* Línea 16 muestra que una List sabe cómo convertirse a sí misma en un array. 
+* El único problema es que por defecto resulta en un array de clase Object. Esto usualmente no es lo que quieres. 
+* Línea 17 especifica el tipo del array y hace lo que queremos. 
+* La ventaja de especificar un tamaño de 0 para el parámetro es que Java creará un nuevo array del tamaño apropiado para el valor de retorno. 
+* Si gustas, puedes sugerir un array más grande para ser usado en su lugar. 
+* Si la List cabe en ese array, será retornado. De lo contrario, se creará un nuevo array.
+* También, nota que línea 18 limpia la List original. Esto no afecta a ninguno de los arrays. 
+* El array es un objeto recién creado sin relación con la List original. Es simplemente una copia.
+
+## Usando la interfaz Set
+
+* Usas un `Set` cuando no quieres permitir entradas duplicadas. 
+* Por ejemplo, podrías querer mantener un registro de los animales únicos que quieres ver en el zoológico. 
+* No te preocupa el orden en el cual ves estos animales, pero no hay tiempo para verlos más de una vez. Solo quieres asegurarte
+
