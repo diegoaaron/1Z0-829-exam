@@ -417,10 +417,45 @@ Los siguientes statements demuestran la mayoría de estos métodos para trabajar
 10: list.set(0, "?");       // IndexOutOfBoundsException
 ```
 
-En línea 3, list comienza vacía. Línea 4 agrega un elemento al final de la lista. Línea 5 agrega un elemento en index 0 que empuja el original index 0 a index 1. Nota cómo el ArrayList es ahora automáticamente uno más grande. Línea 6 reemplaza el elemento en index 1 con un nuevo valor.
-Línea 7 usa el método get() para imprimir el elemento en un índice específico. Línea 8 remueve el elemento que coincide con NY. Finalmente, línea 9 remueve el elemento en index 0, y list está vacía de nuevo.
-Línea 10 lanza un IndexOutOfBoundsException porque no hay elementos en la List. Como no hay elementos para reemplazar, incluso el index 0 no está permitido. Si línea 10 se moviera entre líneas 4 y 5, la llamada tendría éxito.
-Nota sobre LinkedList:
-El output sería el mismo si intentaras estos ejemplos con LinkedList. Aunque el código sería menos eficiente, no sería notorio hasta que tuvieras listas muy grandes.
-Método replaceAll():
-Ahora veamos el método replaceAll(). Usa un UnaryOperator que toma un parámetro y retorna un valor del mismo tipo:
+* Línea 3, list comienza vacía. 
+* Línea 4 agrega un elemento al final de la lista. 
+* Línea 5 agrega un elemento en index 0 que empuja el original index 0 a index 1. Nota cómo el ArrayList es ahora automáticamente uno más grande. 
+* Línea 6 reemplaza el elemento en index 1 con un nuevo valor.
+* Línea 7 usa el método `get()` para imprimir el elemento en un índice específico. 
+* Línea 8 remueve el elemento que coincide con NY. 
+* Finalmente, línea 9 remueve el elemento en index 0, y list está vacía de nuevo.
+* Línea 10 lanza un `IndexOutOfBoundsException` porque no hay elementos en la List. Como no hay elementos para reemplazar, incluso el index 0 no está permitido. 
+* Si línea 10 se moviera entre líneas 4 y 5, la llamada tendría éxito.
+
+**Nota sobre LinkedList:** El output sería el mismo si intentaras estos ejemplos con LinkedList. 
+Aunque el código sería menos eficiente, no sería notorio hasta que tuvieras listas muy grandes.
+
+Método `replaceAll()`:
+Ahora veamos el método `replaceAll()`. Usa un **UnaryOperator** que toma un parámetro y retorna un valor del mismo tipo:
+
+```java
+var numbers = Arrays.asList(1, 2, 3);
+numbers.replaceAll(x -> x*2);
+System.out.println(numbers); // [2, 4, 6]
+```
+
+Esta lambda duplica el valor de cada elemento en la lista. El método `replaceAll()` llama a la lambda en cada elemento de la lista y reemplaza el valor en ese índice.
+
+**Método `remove()` sobrecargado**
+
+* Hemos visto ahora dos métodos `remove()` sobrecargados. El de Collection remueve un objeto que coincide con el parámetro. 
+* En contraste, el de List remueve un elemento en un índice especificado.
+
+Problema con tipo Integer:
+Esto se vuelve complicado cuando tienes un tipo Integer. ¿Qué crees que imprime lo siguiente?
+
+```java
+31: var list = new LinkedList<Integer>();
+32: list.add(3);
+33: list.add(2);
+34: list.add(1);
+35: list.remove(2);
+36: list.remove(Integer.valueOf(2));
+37: System.out.println(list);
+```
+
