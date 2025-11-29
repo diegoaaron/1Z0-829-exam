@@ -400,4 +400,27 @@ Puedes agregar cualquier subclase de Object. Sin embargo, en el loop, necesitamo
 
 ### Trabajando con métodos de List
 
-continuar en la página 11 
+Los métodos en la interfaz List son para trabajar con índices. Además de los métodos heredados de Collection
+
+![ch09_01_03.png](images/ch09_01_03.png)
+
+Los siguientes statements demuestran la mayoría de estos métodos para trabajar con una List:
+
+```java
+3: List<String> list = new ArrayList<>();
+4: list.add("SD");          // [SD]
+5: list.add(0, "NY");       // [NY,SD]
+6: list.set(1, "FL");       // [NY,FL]
+7: System.out.println(list.get(0)); // NY
+8: list.remove("NY");       // [FL]
+9: list.remove(0);          // []
+10: list.set(0, "?");       // IndexOutOfBoundsException
+```
+
+En línea 3, list comienza vacía. Línea 4 agrega un elemento al final de la lista. Línea 5 agrega un elemento en index 0 que empuja el original index 0 a index 1. Nota cómo el ArrayList es ahora automáticamente uno más grande. Línea 6 reemplaza el elemento en index 1 con un nuevo valor.
+Línea 7 usa el método get() para imprimir el elemento en un índice específico. Línea 8 remueve el elemento que coincide con NY. Finalmente, línea 9 remueve el elemento en index 0, y list está vacía de nuevo.
+Línea 10 lanza un IndexOutOfBoundsException porque no hay elementos en la List. Como no hay elementos para reemplazar, incluso el index 0 no está permitido. Si línea 10 se moviera entre líneas 4 y 5, la llamada tendría éxito.
+Nota sobre LinkedList:
+El output sería el mismo si intentaras estos ejemplos con LinkedList. Aunque el código sería menos eficiente, no sería notorio hasta que tuvieras listas muy grandes.
+Método replaceAll():
+Ahora veamos el método replaceAll(). Usa un UnaryOperator que toma un parámetro y retorna un valor del mismo tipo:
