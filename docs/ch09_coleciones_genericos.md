@@ -632,3 +632,26 @@ Deque<Integer> deque = new LinkedList<>();
 * Las líneas 16 y 17 remueven los elementos de la cola, uno de cada extremo. Esto resulta en una cola vacía. 
 * Las líneas 18 y 19 intentan mirar el primer elemento de la cola, lo que resulta en `null`.
 
+* Además de las colas FIFO, existen colas LIFO (last-in, first-out), que comúnmente se denominan **stacks**. 
+* Imagina una pila de platos. Siempre agregas o remueves desde la parte superior de la pila para evitar un desastre. 
+* Afortunadamente, podemos usar las mismas implementaciones de cola de doble extremo. 
+* Se usan diferentes métodos para mayor claridad, como se muestra en la Tabla 9.5.
+
+![ch09_01_10.png](images/ch09_01_10.png)
+
+Intentemos otro usando la Deque como stack:
+
+```java
+Deque<Integer> stack = new ArrayDeque<>();
+```
+
+![ch09_01_11.png](images/ch09_01_11.png)
+
+* Esta vez, la Figura 9.7 muestra cómo se ve el stack en cada paso del código. 
+* Las líneas 13 y 14 colocan exitosamente un elemento en el frente/top del stack. 
+* El código restante mira el frente también.
+
+* Al usar una Deque, es realmente importante determinar si se está usando como una cola FIFO, un stack LIFO, o una cola de doble extremo. 
+* Para revisar, una cola FIFO es como una línea de personas. Entras por atrás y sales por el frente. 
+* Un stack LIFO es como una pila de platos. Pones el plato en la parte superior y lo sacas de la parte superior. 
+* Una cola de doble extremo usa ambos extremos.
