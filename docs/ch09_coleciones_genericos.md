@@ -549,3 +549,40 @@ Este código imprime tres líneas:
 * Línea 8 imprime los elementos del `set` en un orden arbitrario. 
 * En este caso, resulta no ser ni orden ordenado ni el orden en el cual agregamos los elementos.
 
+* Recuerda que el método `equals()` se usa para determinar igualdad. 
+* El método `hashCode()` se usa para saber en qué bucket buscar de manera que Java no tenga que buscar a través de todo el set para averiguar si un objeto está ahí. 
+* El mejor caso es que los hashcode sean únicos y Java tenga que llamar a `equals()` solo en un objeto. 
+* El peor caso es que todas las implementaciones retornen el mismo `hashCode()` y Java tenga que llamar a `equals()` en cada elemento del set de todas formas.
+
+Comencemos con TreeSet:
+
+```java
+3: Set<Integer> set = new TreeSet<>();
+4: boolean b1 = set.add(66);  // true
+5: boolean b2 = set.add(10);  // true
+6: boolean b3 = set.add(66);  // false
+7: boolean b4 = set.add(8);   // true
+8: set.forEach(System.out::println);
+```
+
+**Output:**
+
+Esta vez, el código imprime lo siguiente:
+```
+8
+10
+66
+```
+
+* El texto menciona que los elementos se imprimen en su orden natural ordenado. 
+* Los números implementan la interfaz `Comparable` en Java, usada para ordenamiento. 
+
+## Usando las interfaces Queue y Deque
+
+* Se usa una Queue cuando los elementos se agregan y remueven en un orden específico. 
+* Se puede pensar en una cola como una línea. Por ejemplo, al entrar a un estadio y alguien está esperando en la fila, te pones detrás de esa persona. 
+* Esta es una cola FIFO (first-in, first-out).
+* Una Deque (cola de doble extremo), pronunciada "deck", es diferente de una cola regular en la que puedes insertar y remover elementos tanto del frente (head) como de la parte trasera (tail). 
+
+![ch09_01_06.png](images/ch09_01_06.png)
+
