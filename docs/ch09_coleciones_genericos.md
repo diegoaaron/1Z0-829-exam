@@ -494,6 +494,9 @@ Veamos como convertir una List en un array:
 ## Usando la interfaz Set
 
 * Usas un `Set` cuando no quieres permitir entradas duplicadas. 
-* Por ejemplo, podrías querer mantener un registro de los animales únicos que quieres ver en el zoológico. 
-* No te preocupa el orden en el cual ves estos animales, pero no hay tiempo para verlos más de una vez. Solo quieres asegurarte
+* Tampoco es importante el orden de los elementos en un Set.
+
+![ch09_01_04.png](images/ch09_01_04.png)
+
+
 
