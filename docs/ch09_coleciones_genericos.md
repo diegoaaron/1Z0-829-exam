@@ -586,3 +586,35 @@ Esta vez, el código imprime lo siguiente:
 
 ![ch09_01_06.png](images/ch09_01_06.png)
 
+### Comparando implementaciones de Deque
+
+* Se vio `LinkedList` anteriormente en la sección de List. Además de ser una lista, es una Deque. 
+* El beneficio principal de una `LinkedList` es que implementa tanto las interfaces List como Deque. 
+* El trade-off es que no es tan eficiente como una cola "pura". 
+* Puedes usar la clase `ArrayDeque` si no necesitas los métodos de List.
+
+### Trabajando con métodos Deque y Queue 
+
+* La interfaz Queue contiene seis métodos, mostrados en la Tabla 9.3. 
+* Hay tres piezas de funcionalidad y versiones de los métodos que lanzan una excepción o usan el tipo de retorno, como `null`, para toda la información. 
+
+![ch09_01_07.png](images/ch09_01_07.png)
+
+```java
+4: Queue<Integer> queue = new LinkedList<>();
+5: queue.add(10);
+6: queue.add(4);
+7: System.out.println(queue.remove()); // 10
+8: System.out.println(queue.peek());   // 4
+```
+
+* Las líneas 5 y 6 agregan elementos a la cola. 
+* La línea 7 solicita que el primer elemento esperando más tiempo salga de la cola. 
+* La línea 8 verifica la siguiente entrada en la cola mientras la deja en su lugar.
+
+* A continuación, pasamos a la interfaz Deque. 
+* Dado que la interfaz Deque soporta colas de doble extremo, hereda todos los métodos de Queue y agrega más para que esté claro si estamos trabajando con el frente o la parte trasera de la cola. 
+* La Tabla 9.4 muestra los métodos cuando se usa como una cola de doble extremo.
+
+![ch09_01_08.png](images/ch09_01_08.png)
+
