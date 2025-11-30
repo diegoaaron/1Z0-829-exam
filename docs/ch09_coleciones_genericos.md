@@ -618,3 +618,17 @@ Esta vez, el código imprime lo siguiente:
 
 ![ch09_01_08.png](images/ch09_01_08.png)
 
+Intentemos un ejemplo que trabaje con ambos extremos de la cola:
+
+```java
+Deque<Integer> deque = new LinkedList<>();
+```
+
+![ch09_01_09.png](images/ch09_01_09.png)
+
+* Las líneas 13 y 14 agregan exitosamente un elemento al frente y atrás de la cola, respectivamente. 
+* Algunas colas están limitadas en tamaño, lo que causaría que ofrecer un elemento a la cola falle. 
+* La línea 15 mira el primer elemento en la cola, pero no lo remueve. 
+* Las líneas 16 y 17 remueven los elementos de la cola, uno de cada extremo. Esto resulta en una cola vacía. 
+* Las líneas 18 y 19 intentan mirar el primer elemento de la cola, lo que resulta en `null`.
+
