@@ -498,5 +498,54 @@ Veamos como convertir una List en un array:
 
 ![ch09_01_04.png](images/ch09_01_04.png)
 
+### Comparando implementaciones de Set
 
+`HashSet`:
+* Un HashSet almacena sus elementos en una hash table, lo que significa que las claves son un hash y los valores son un Object. 
+* Esto significa que el HashSet usa el método `hashCode()` de los objetos para recuperarlos más eficientemente. 
+* Recuerda que un `hashCode()` válido no significa que cada objeto obtendrá un valor único, pero el método a menudo está escrito de manera que los valores hash se distribuyan sobre un rango amplio para reducir colisiones.
+* El principal beneficio es que agregar elementos y verificar si un elemento está en el set ambos tienen tiempo constante. 
+* El trade-off es que pierdes el orden en el cual insertaste los elementos. La mayoría del tiempo, no te preocupa esto en un Set de todas formas, haciendo al HashSet el set más común.
+
+`TreeSet`:
+* Un TreeSet almacena sus elementos en una estructura de árbol ordenado. 
+* El principal beneficio es que el set está siempre en orden ordenado. 
+* El trade-off es que agregar y verificar si un elemento existe toma más tiempo que con un HashSet, especialmente a medida que el árbol crece.
+
+![ch09_01_05.png](images/ch09_01_05.png)
+
+### Trabajando con métodos Set
+
+Como una `List`, puedes crear un `Set` inmutable en una línea o hacer una copia de uno existente.
+
+```java
+Set<Character> letters = Set.of('z', 'o', 'o');
+Set<Character> copy = Set.copyOf(letters);
+```
+
+Tienes que saber cómo los sets se comportan con respecto a los métodos tradicionales de Collection. 
+
+Comencemos con HashSet:
+
+```java
+3: Set<Integer> set = new HashSet<>();
+4: boolean b1 = set.add(66);  // true
+5: boolean b2 = set.add(10);  // true
+6: boolean b3 = set.add(66);  // false
+7: boolean b4 = set.add(8);   // true
+8: set.forEach(System.out::println);
+```
+
+**Output:**
+Este código imprime tres líneas:
+```
+66
+8
+10
+```
+
+* Los métodos `add()` son directos. Retornan `true` a menos que el Integer ya esté en él `set`. 
+* Línea 6 retorna `false`, porque ya tenemos 66 en él `set`, y un `set` debe preservar unicidad. 
+* Línea 8 imprime los elementos del `set` en un orden arbitrario. 
+* En este caso, resulta no ser ni orden ordenado ni el orden en el cual agregamos los elementos.
 
