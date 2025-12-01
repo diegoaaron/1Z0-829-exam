@@ -655,3 +655,72 @@ Deque<Integer> stack = new ArrayDeque<>();
 * Para revisar, una cola FIFO es como una línea de personas. Entras por atrás y sales por el frente. 
 * Un stack LIFO es como una pila de platos. Pones el plato en la parte superior y lo sacas de la parte superior. 
 * Una cola de doble extremo usa ambos extremos.
+
+## Usando la interfaz Map
+
+* Usas un Map cuando quieres identificar valores por una clave. 
+* Por ejemplo, cuando usas la lista de contactos en tu teléfono, buscas "George" en lugar de revisar cada número telefónico por turno.
+* No necesitas conocer los nombres de las interfaces específicas que los diferentes maps implementan, pero sí necesitas saber que `TreeMap` es ordenado.
+* La cosa principal que todas las clases `Map` tienen en común es que tienen claves y valores. 
+
+![ch09_01_12.png](images/ch09_01_12.png)
+
+**`Map.of()` y `Map.copyOf()`**
+
+Así como `List` y `Set`, existe un método factory para crear un `Map`. Pasas cualquier número de pares de claves y valores.
+
+```java
+Map.of("key1", "value1", "key2", "value2");
+```
+
+A diferencia de List y Set, esto es menos que ideal.
+Pasar claves y valores es más difícil de leer porque tienes que mantener registro de qué parámetro es cuál. 
+Afortunadamente, existe una mejor manera. Map también proporciona un método que te permite suministrar pares clave/valor.
+
+```java
+Map.ofEntries(
+   Map.entry("key1", "value1"),
+   Map.entry("key2", "value2"));
+```
+
+* Ahora no podemos olvidar pasar un valor. 
+* Si omitimos un parámetro, el método `entry()` no compilará. 
+* Convenientemente, `Map.copyOf(map)` funciona igual que los métodos `copyOf()` de las interfaces `List` y `Set`.
+
+### Comparando implementaciones de Map
+
+* Un `HashMap` almacena las claves en una tabla hash. 
+* Esto significa que usa el método `hashCode()` de las claves para recuperar sus valores de manera más eficiente.
+* El beneficio principal es que agregar elementos y recuperar el elemento por clave ambos tienen tiempo constante. 
+* El trade-off es que pierdes el orden en el cual insertaste los elementos. 
+* La mayoría del tiempo, no te preocupa esto en un map de todas formas. 
+* Si lo estuvieras, podrías usar `LinkedHashMap`.
+* Un `TreeMap` almacena las claves en una estructura de árbol ordenado. 
+* El beneficio principal es que las claves están siempre en orden ordenado. 
+* Al igual que un `TreeSet`, el trade-off es que agregar y verificar si una clave está presente toma más tiempo a medida que el árbol crece más grande.
+
+### Trabajando con métodos Map
+
+* Dado que Map no extiende Collection, más métodos están especificados en la interfaz Map. 
+* Debido a que hay tanto claves como valores, necesitamos parámetros de tipo genérico para ambos. 
+* La clase usa K para clave y V para valor. 
+
+![ch09_01_13.png](images/ch09_01_13.png)
+
+### Llamando a métodos básicos
+
+Comencemos comparando el mismo código con dos tipos de Map. Primero está HashMap:
+
+```java
+Map<String, String> map = new HashMap<>();
+map.put("koala", "bamboo");
+map.put("lion", "meat");
+map.put("giraffe", "leaf");
+String food = map.get("koala"); // bamboo
+for (String key: map.keySet())
+  System.out.print(key + ","); // koala,giraffe,lion,
+```
+
+* Aquí usamos el método `put()` para agregar pares clave/valor al map y `get()` para obtener un valor dada una clave. 
+* También usamos el método `keySet()` para obtener todas las claves.
+
