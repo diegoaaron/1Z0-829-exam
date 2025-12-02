@@ -737,6 +737,39 @@ for (String key: map.keySet())
   System.out.print(key + ","); // giraffe,koala,lion,
 ```
 
-`TreeMap` ordena las claves como esperaríamos. 
-Si llamáramos `values()` en lugar de `keySet()`, el orden de los valores correspondería al orden de las claves.
+* En `TreeMap` se ordena las claves como esperaríamos. 
+* Si llamáramos `values()` en lugar de `keySet()`, el orden de los valores correspondería al orden de las claves.
+
+Con nuestro mismo map, podemos intentar algunas verificaciones booleanas:
+
+```java
+System.out.println(map.contains("lion")); // DOES NOT COMPILE
+System.out.println(map.containsKey("lion")); // true
+System.out.println(map.containsValue("lion")); // false
+System.out.println(map.size()); // 3
+map.clear();
+System.out.println(map.size()); // 0
+System.out.println(map.isEmpty()); // true
+```
+
+* La primera línea es un poco complicada. El método `contains()` está en la interfaz Collection pero no en la interfaz Map. 
+* Las siguientes dos líneas muestran que las claves y valores se verifican por separado. 
+* Podemos ver que hay tres pares clave/valor en nuestro map. Luego limpiamos el contenido del map y vemos que hay cero elementos y está vacío.
+
+### Iterando a través de Map
+
+* Viste el método `forEach()` anteriormente en el capítulo. 
+* Esta vez, la lambda usada por el método `forEach()` tiene dos parámetros: la clave y el valor. 
+
+```java
+Map<Integer, Character> map = new HashMap<>();
+map.put(1, 'a');
+map.put(2, 'b');
+map.put(3, 'c');
+map.forEach((k, v) -> System.out.println(v));
+```
+
+* La lambda tiene tanto la clave como el valor como parámetros. 
+* Resulta que imprime el valor, pero podría hacer cualquier cosa con la clave y/o valor. 
+
 
