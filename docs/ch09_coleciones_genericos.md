@@ -709,7 +709,7 @@ Map.ofEntries(
 
 ### Llamando a métodos básicos
 
-Comencemos comparando el mismo código con dos tipos de Map. Primero está HashMap:
+Comencemos comparando el mismo código con dos tipos de Map. Primero está `HashMap`:
 
 ```java
 Map<String, String> map = new HashMap<>();
@@ -723,4 +723,20 @@ for (String key: map.keySet())
 
 * Aquí usamos el método `put()` para agregar pares clave/valor al map y `get()` para obtener un valor dada una clave. 
 * También usamos el método `keySet()` para obtener todas las claves.
+* Java usa el `hashCode()` de la clave para determinar el orden.
+
+Ahora veamos `TreeMap`:
+
+```java
+Map<String, String> map = new TreeMap<>();
+map.put("koala", "bamboo");
+map.put("lion", "meat");
+map.put("giraffe", "leaf");
+String food = map.get("koala"); // bamboo
+for (String key: map.keySet())
+  System.out.print(key + ","); // giraffe,koala,lion,
+```
+
+`TreeMap` ordena las claves como esperaríamos. 
+Si llamáramos `values()` en lugar de `keySet()`, el orden de los valores correspondería al orden de las claves.
 
