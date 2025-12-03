@@ -845,10 +845,77 @@ System.out.println(favorites); // {Tom=Tram, Jenny=Bus Tour, Sam=Tram}
 * Sam no estaba allí, así que fue agregado. 
 * Tom estaba presente como clave, pero tenía un valor `null`. Por lo tanto, fue agregado también.
 
+### Uniendo data
 
+* El método `merge()` agrega lógica de qué elegir. Supongamos que queremos elegir el viaje con el nombre más largo. 
+* Podemos escribir código para expresar esto pasando una función de mapeo al método `merge()`:
 
+```java
+11: BiFunction<String, String, String> mapper = (v1, v2)
+12:   -> v1.length() > v2.length() ? v1 : v2;
+13:
+14: Map<String, String> favorites = new HashMap<>();
+15: favorites.put("Jenny", "Bus Tour");
+16: favorites.put("Tom", "Tram");
+17:
+18: String jenny = favorites.merge("Jenny", "Skyride", mapper);
+19: String tom = favorites.merge("Tom", "Skyride", mapper);
+20:
+21: System.out.println(favorites); // {Tom=Skyride, Jenny=Bus Tour}
+22: System.out.println(jenny);  // Bus Tour
+23: System.out.println(tom);    // Skyride
+```
 
-comparing collection types
+* El código en las líneas 11 y 12 toma dos parámetros y retorna un valor. Nuestra implementación retorna el que tiene el nombre más largo. 
+* La línea 18 llama esta función de mapeo, y ve que Bus Tour es más largo que Skyride, así que deja el valor como Bus Tour. 
+* La línea 19 llama esta función de mapeo nuevamente. Esta vez, Tram es más corto que Skyride, así que el map se actualiza. 
+* La línea 21 imprime el contenido del nuevo mapa. Las líneas 22 y 23 muestran que el resultado se devuelve desde `merge()`.
+
+* El método `merge()` también tiene lógica para qué sucede si valores nulos o claves faltantes están involucradas. 
+* En este caso, no llama a la `BiFunction` en absoluto, y simplemente usa el nuevo valor.
+
+```java
+BiFunction<String, String, String> mapper =
+    (v1, v2) -> v1.length() > v2.length() ? v1 : v2;
+Map<String, String> favorites = new HashMap<>();
+favorites.put("Sam", null);
+favorites.merge("Tom", "Skyride", mapper);
+favorites.merge("Sam", "Skyride", mapper);
+System.out.println(favorites); // {Tom=Skyride, Sam=Skyride}
+```
+
+* Observa que la función de mapeo no se llama. Si lo fuera, tendríamos una `NullPointerException`. 
+* La función de mapeo se usa solo cuando hay dos valores reales para decidir entre ellos.
+* Lo último a saber sobre `merge()` es qué sucede cuando la función de mapeo se llama y devuelve `null`. La clave se elimina del mapa cuando esto sucede:
+
+```java
+BiFunction<String, String, String> mapper = (v1, v2) -> null;
+Map<String, String> favorites = new HashMap<>();
+favorites.put("Jenny", "Bus Tour");
+favorites.put("Tom", "Bus Tour");
+
+favorites.merge("Jenny", "Skyride", mapper);
+favorites.merge("Sam", "Skyride", mapper);
+System.out.println(favorites); // {Tom=Bus Tour, Sam=Skyride}
+```
+
+* Tom se dejó solo, ya que no hubo llamada a `merge()` para esa clave. 
+* Sam se agregó, ya que esa clave no estaba en la lista original. 
+* Jenny fue eliminada porque la función de mapeo devolvió `null`.
+
+![ch09_01_14.png](images/ch09_01_14.png)
+
+## Comparando tipos de Collection
+
+Concluimos esta sección con una revisión de todas las clases de colección.
+
+![ch09_01_15.png](images/ch09_01_15.png)
+
+![ch09_01_16.png](images/ch09_01_16.png)
+
+Las estructuras de datos que involucran ordenamiento no permiten valores nulos.
+Recomendamos primero identificar qué tipo de colección está preguntando la pregunta. Averigua si estás buscando
+
 sorting data
 working with generics
 summary
