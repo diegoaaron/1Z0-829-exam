@@ -914,8 +914,32 @@ Concluimos esta sección con una revisión de todas las clases de colección.
 ![ch09_01_16.png](images/ch09_01_16.png)
 
 Las estructuras de datos que involucran ordenamiento no permiten valores nulos.
-Recomendamos primero identificar qué tipo de colección está preguntando la pregunta. Averigua si estás buscando
 
-sorting data
+**Colecciones viejas**
+
+* Hay algunas colecciones que ya no están en el examen, pero que podrías encontrar en código más antiguo. 
+* Las tres fueron estructuras de datos tempranas de Java que podrías usar con hilos:
+
+* Vector: Implements List.
+* Hashtable: Implements Map.
+* Stack: Implements Queue.
+
+Estas clases se usan raramente ahora, ya que hay alternativas concurrentes mucho mejores que cubrimos en Chapter 13.
+
+## Ordenando Data
+
+Discutimos "orden" para las clases `TreeSet` y `TreeMap`. Para números, el orden es obvio orden numérico. 
+Para objetos String, el orden se define según el mapeo de caracteres Unicode.
+
+* Cuando trabajas con un String, recuerda que los números se ordenan antes que las letras, y las letras en mayúsculas se ordenan antes que las letras en minúsculas.
+* Usamos `Collections.sort()` en muchos de estos ejemplos. Devuelve void porque el parámetro del método es lo que se ordena.
+* También puedes ordenar objetos que creas tú mismo. Java proporciona una interfaz llamada `Comparable`. 
+* Si tu clase implementa `Comparable`, puede usarse en estructuras de datos que requieren comparación. 
+* También hay una clase llamada `Comparator`, que se usa para especificar que quieres usar un orden diferente al que el objeto mismo proporciona.
+* El elemento `Comparable` y `Comparator` son lo suficientemente similares como para ser complicados. 
+
+
+continuar en la 29
+
 working with generics
 summary
