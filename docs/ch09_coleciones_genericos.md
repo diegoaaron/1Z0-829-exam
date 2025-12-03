@@ -772,4 +772,83 @@ map.forEach((k, v) -> System.out.println(v));
 * La lambda tiene tanto la clave como el valor como parámetros. 
 * Resulta que imprime el valor, pero podría hacer cualquier cosa con la clave y/o valor. 
 
+Dado que no nos importa la clave, este código en particular podría haber sido escrito con el método `values()` y una referencia a método en su lugar.
 
+```java
+map.values().forEach(System.out::println);
+```
+
+Otra manera de recorrer todos los datos en un `map` es obtener los pares clave/valor en un `Set`. 
+
+Java tiene una interfaz estática dentro de `Map` llamada `Entry`. Proporciona métodos para obtener la clave y el valor de cada par.
+
+```java
+map.entrySet().forEach(e ->
+  System.out.println(e.getKey() + " " + e.getValue()));
+```
+
+### Obteniendo valores de forma segura
+
+* El método `get()` retorna `null` si la clave solicitada no está en él `map`. 
+* Afortunadamente, el método `getOrDefault()` hace esto fácil. Comparemos los dos métodos:
+
+```java
+3: Map<Character, String> map = new HashMap<>();
+4: map.put('x', "spot");
+5: System.out.println("X marks the " + map.get('x'));
+6: System.out.println("X marks the " + map.getOrDefault('x', ""));
+7: System.out.println("Y marks the " + map.get('y'));
+8: System.out.println("Y marks the " + map.getOrDefault('y', ""));
+
+// X marks the spot
+// X marks the spot
+// Y marks the null
+// Y marks the
+```
+
+* Como puedes ver, las líneas 5 y 6 tienen la misma salida porque `get()` y `getOrDefault()` se comportan de la misma manera cuando la clave está presente.
+* Retornan el valor mapeado por esa clave. Las líneas 7 y 8 dan salida diferente, mostrando que `get()` retorna `null` cuando la clave no está presente.
+* Por el contrario, `getOrDefault()` retorna el string vacío que pasamos como parámetro.
+
+### Reemplazando valores
+
+Estos métodos son similares a la versión de `List`, excepto que una clave está involucrada:
+
+```java
+21: Map<Integer, Integer> map = new HashMap<>();
+22: map.put(1, 2);
+23: map.put(2, 4);
+24: Integer original = map.replace(2, 10); // 4
+25: System.out.println(map); // {1=2, 2=10}
+26: map.replaceAll((k, v) -> k + v);
+27: System.out.println(map); // {1=3, 2=12}
+```
+
+* La línea 24 reemplaza el valor para la clave 2 y retorna el valor original. 
+* La línea 26 llama una función y establece el valor de cada elemento del `map` al resultado de esa función. En nuestro caso, sumamos la clave y el valor juntos.
+
+### Poniendo lo ausente
+
+El método `putIfAbsent()` establece un valor en él `map`, pero lo omite si el valor ya está establecido a un valor `no-null`.
+
+```java
+Map<String, String> favorites = new HashMap<>();
+favorites.put("Jenny", "Bus Tour");
+favorites.put("Tom", null);
+favorites.putIfAbsent("Jenny", "Tram");
+favorites.putIfAbsent("Sam", "Tram");
+favorites.putIfAbsent("Tom", "Tram");
+System.out.println(favorites); // {Tom=Tram, Jenny=Bus Tour, Sam=Tram}
+```
+
+* Como puedes ver, el valor de Jenny no se actualiza porque uno ya estaba presente. 
+* Sam no estaba allí, así que fue agregado. 
+* Tom estaba presente como clave, pero tenía un valor `null`. Por lo tanto, fue agregado también.
+
+
+
+
+comparing collection types
+sorting data
+working with generics
+summary
