@@ -1294,5 +1294,60 @@ Hay un truco al trabajar con `binarySearch()`. ¿Qué piensas que producen las s
 * Anteriormente en el capítulo, hablamos sobre colecciones que requieren que las clases implementen Comparable. A diferencia del ordenamiento, no verifican que hayas implementado Comparable en tiempo de compilación.
 * Volviendo a nuestro Rabbit que no implementa Comparable, intentamos agregarlo a un TreeSet:
 
+```java
+2: public class UseTreeSet {
+3:     static class Rabbit{ int id; }
+4:     public static void main(String[] args) {
+5:         Set<Duck> ducks = new TreeSet<>();
+6:         ducks.add(new Duck("Puddles"));
+7:
+8:         Set<Rabbit> rabbits = new TreeSet<>();
+9:         rabbits.add(new Rabbit()); // ClassCastException
+10: } }
+```
+
+La línea 6 está bien. `Duck` implementa `Comparable`. `TreeSet` puede ordenarlo en la posición apropiada en el set. 
+La línea 9 es un problema. Cuando `TreeSet` intenta ordenarlo, Java descubre el hecho de que `Rabbit` no implementa `Comparable`. 
+Java lanza una excepción que se ve así:
+
+```java
+Exception in thread "main" java.lang.ClassCastException:
+    class Rabbit cannot be cast to class java.lang.Comparable
+```
+
+* Puede parecer extraño que esta excepción se lance cuando el primer objeto se agrega al set. 
+* Después de todo, no hay nada con qué comparar todavía. Java funciona de esta manera por consistencia.
+* Tal como buscar y ordenar, puedes decirle a las colecciones que requieren ordenamiento que quieres usar un `Comparator` específico. Por ejemplo:
+
+```java
+8: Set<Rabbit> rabbits = new TreeSet<>((r1, r2) -> r1.id - r2.id);
+9: rabbits.add(new Rabbit());
+```
+
+* Ahora Java sabe que quieres ordenar por ID, y todo está bien. 
+* Un `Comparator` es un objeto útil. Te permite separar el orden de ordenamiento del objeto a ordenar. 
+* Observa que la línea 9 en ambos ejemplos anteriores es la misma. Es la declaración del `TreeSet` la que ha cambiado.
+
+### Ordenando una Lista
+
+Aunque puedes llamar a `Collections.sort(list)`, también puedes ordenar directamente en el objeto list.
+
+```java
+3: List<String> bunnies = new ArrayList<>();
+4: bunnies.add("long ear");
+5: bunnies.add("floppy");
+6: bunnies.add("hoppy");
+7: System.out.println(bunnies);  // [long ear, floppy, hoppy]
+8: bunnies.sort((b1, b2) -> b1.compareTo(b2));
+9: System.out.println(bunnies);  // [floppy, hoppy, long ear]
+```
+
+En la línea 8, ordenamos la lista alfabéticamente. 
+El método `sort()` toma un `Comparator` que proporciona el orden de ordenamiento. 
+Recuerda que `Comparator` toma dos parámetros y devuelve un `int`. Si necesitas un repaso de lo que devuelve
+
+continuar en la pag. 40
+
 working with generics
+
 summary
