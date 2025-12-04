@@ -938,8 +938,58 @@ Para objetos String, el orden se define según el mapeo de caracteres Unicode.
 * También hay una clase llamada `Comparator`, que se usa para especificar que quieres usar un orden diferente al que el objeto mismo proporciona.
 * El elemento `Comparable` y `Comparator` son lo suficientemente similares como para ser complicados. 
 
+### Creando una clase Comparable 
 
-continuar en la 29
+La interfaz Comparable tiene solo un método. De hecho, esta es la interfaz completa:
+
+```java
+public interface Comparable<T> {
+    int compareTo(T o);
+}
+```
+
+* El genérico **T** te permite implementar este método y especificar el tipo de tu objeto. 
+* Esto te permite evitar un cast al implementar `compareTo()`. Cualquier objeto puede ser Comparable. 
+* Por ejemplo, tenemos un grupo de patos y queremos ordenarlos por nombre. 
+* Primero, actualizamos la declaración de la clase para heredar `Comparable<Duck>`, y luego implementamos el método `compareTo()`:
+
+```java
+import java.util.*;
+public class Duck implements Comparable<Duck> {
+    private String name;
+    public Duck(String name) {
+        this.name = name;
+    }
+    public String toString() {  // use readable output
+        return name;
+    }
+    public int compareTo(Duck d) {
+        return name.compareTo(d.name); // sorts ascendingly by name
+    }
+    public static void main(String[] args) {
+        var ducks = new ArrayList<Duck>();
+        ducks.add(new Duck("Quack"));
+        ducks.add(new Duck("Puddles"));
+        Collections.sort(ducks);  // sort by name
+        System.out.println(ducks);  // [Puddles, Quack]
+    }
+}
+```
+
+* Sin implementar esa interfaz, todo lo que tendríamos es un método llamado `compareTo()`, pero no sería un objeto Comparable. 
+* También podríamos implementar `Comparable<Object> `o alguna otra clase para **T**, pero esto no sería tan útil para ordenar un grupo de objetos Duck.
+
+La clase Duck sobrescribe el método toString() de Object. Este override proporciona una salida útil al imprimir patos. Sin este override, 
+la salida sería algo como [Duck@70dea4e, Duck@5c647e05] apenas útil para ver qué nombre de pato viene primero.
+
+La clase Duck implementa `compareTo()`. Como Duck está comparando objetos de tipo String y la clase String ya tiene un método `compareTo()`, puede simplemente delegar.
+Todavía necesitamos saber qué devuelve el método `compareTo()` para que podamos escribir el nuestro. Hay tres reglas que conocer:
+
+* El número 0 se devuelve cuando el objeto actual es equivalente al argumento de `compareTo()`.
+* Un número negativo (menor que 0) se devuelve cuando el objeto actual es más pequeño que el argumento de `compareTo()`.
+* Un número positivo (mayor que 0) se devuelve cuando el objeto actual es más grande que el argumento de `compareTo()`.
+
+Veamos una implementación de `compareTo()` que compara números en lugar de objetos String:
 
 working with generics
 summary
