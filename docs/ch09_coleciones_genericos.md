@@ -1145,7 +1145,77 @@ Comparator<Duck> byWeight = (d1, d2) -> d1.getWeight()-d2.getWeight();
 En el siguiente ejemplo, `Comparator.comparing()` es un método de interfaz estático que crea un `Comparator` dada una expresión lambda o referencia de método. 
 
 ```java
-Comparator<Duck> byWeight = (d1, d2) -> d1.getWeight()-d2.getWeight();
+Comparator<Duck> byWeight = Comparator.comparing(Duck::getWeight);
+```
+
+**¿Es `Comparable` una interfaz funcional?**
+
+* Dijimos que `Comparator` es una interfaz funcional porque tiene un solo método abstracto. 
+* `Comparable` también es una interfaz funcional, ya que también tiene un solo método abstracto. 
+* Sin embargo, usar una lambda para `Comparable` sería tonto. El punto de `Comparable` es implementarlo dentro del objeto que se está comparando.
+
+### Comparando Comparable y Comparator
+
+![ch09_01_17.png](images/ch09_01_17.png)
+
+El examen intentará engañarte mezclando los dos y viendo si puedes detectarlo. ¿Ves por qué esto no compila?
+
+```java
+var byWeight = new Comparator<Duck>() { // DOES NOT COMPILE
+    public int compareTo(Duck d1, Duck d2) {
+        return d1.getWeight()-d2.getWeight();
+    }
+};
+```
+
+* El nombre del método está mal. Un Comparator debe implementar un método llamado `compare()`. 
+* Presta atención especial a los nombres de los métodos y al número de parámetros cuando veas `Comparator` y `Comparable` en preguntas.
+
+### Comparando multiples campos 
+
+* Al escribir un `Comparator` que compara múltiples variables de instancia, el código se vuelve un poco desordenado. 
+* Supongamos que tenemos una clase `Squirrel`, como se muestra aquí:
+
+```java
+public class Squirrel {
+    private int weight;
+    private String species;
+    // Assume getters/setters/constructors provided
+}
+```
+
+Queremos escribir un `Comparator` para ordenar por nombre de especie. 
+
+Si dos ardillas son de la misma especie, queremos ordenar la que pesa menos primero. Podríamos hacer esto con código que se ve así:
+
+```java
+public class MultiFieldComparator implements Comparator<Squirrel> {
+    public int compare(Squirrel s1, Squirrel s2) {
+        int result = s1.getSpecies().compareTo(s2.getSpecies());
+        if (result != 0) return result;
+        return s1.getWeight()-s2.getWeight();
+    }
+}
+```
+
+* Esto funciona asumiendo que ningún nombre de especie es `null`. 
+* Verifica un campo. Si no coinciden, hemos terminado ordenando. Si coinciden, mira el siguiente campo. 
+* Esto no es fácil de leer, sin embargo. También es fácil equivocarse. Cambiar `!=` a `==` rompe el ordenamiento completamente.
+
+Alternativamente, podemos usar referencias de método y construir él `Comparator`. Este código representa lógica para la misma comparación:
+
+```java
+Comparator<Squirrel> c = Comparator.comparing(Squirrel::getSpecies)
+        .thenComparingInt(Squirrel::getWeight);
+```
+
+* Esta vez, encadenamos los métodos. Primero, creamos un `Comparator` en especies ascendente. 
+* Luego, si hay un empate, ordenamos por peso. También podemos ordenar en orden descendente. 
+* Algunos métodos en `Comparator`, como `thenComparingInt()`, son métodos por defecto.
+* Supongamos que queremos ordenar en orden descendente por especies.
+
+```java
+var c = Comparator.comparing(Squirrel::getSpecies).reversed();
 ```
 
 
