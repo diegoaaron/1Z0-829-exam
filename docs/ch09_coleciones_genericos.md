@@ -1217,7 +1217,44 @@ Comparator<Squirrel> c = Comparator.comparing(Squirrel::getSpecies)
 ```java
 var c = Comparator.comparing(Squirrel::getSpecies).reversed();
 ```
+![ch09_01_18.png](images/ch09_01_18.png)
 
+![ch09_01_19.png](images/ch09_01_19.png)
+
+### Ordenamiento y busqueda
+
+Ahora que has aprendido todo sobre `Comparable` y `Comparator`, finalmente podemos hacer algo útil con ellos, como ordenar. 
+El método `Collections.sort()` usa el método `compareTo()` para ordenar. Espera que los objetos a ordenar sean `Comparable`.
+
+```java
+2: public class SortRabbits {
+3:     static record Rabbit(int id) {}
+4:     public static void main(String[] args) {
+5:     List<Rabbit> rabbits = new ArrayList<>();
+6:     rabbits.add(new Rabbit(3));
+7:     rabbits.add(new Rabbit(1));
+8:     Collections.sort(rabbits); // DOES NOT COMPILE
+9: } }
+```
+* Java sabe que el `record` Rabbit no es `Comparable`. Sabe que el ordenamiento fallará, por lo que ni siquiera deja que el código compile. 
+* Puedes arreglar esto pasando un `Comparator` a `sort()`. 
+* Recuerda que un `Comparator` es útil cuando quieres especificar el orden de ordenamiento sin usar un método `compareTo()`.
+
+```java
+8:     Comparator<Rabbit> c = (r1, r2) -> r1.id - r2.id;
+9:     Collections.sort(rabbits, c);
+10:    System.out.println(rabbits); // [Rabbit[id=1], Rabbit[id=3]]
+```
+
+Supongamos que quieres ordenar los conejos en orden descendente. 
+Podrías cambiar él `Comparator` a `r2.id - r1.id`. Alternativamente, podrías invertir el contenido de la lista después:
+
+```java
+8:     Comparator<Rabbit> c = (r1, r2) -> r1.id - r2.id;
+9:     Collections.sort(rabbits, c);
+10:    Collections.reverse(rabbits);
+11:    System.out.println(rabbits); // [Rabbit[id=3], Rabbit[id=1]]
+```
 
 working with generics
 summary
