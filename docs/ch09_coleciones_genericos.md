@@ -991,5 +991,75 @@ Todavía necesitamos saber qué devuelve el método `compareTo()` para que podam
 
 Veamos una implementación de `compareTo()` que compara números en lugar de objetos String:
 
+```java
+1: public class Animal implements Comparable<Animal> {
+2:     private int id;
+3:     public int compareTo(Animal a) {
+4:         return id - a.id;        // sorts ascending by id
+5:     }
+6:     public static void main(String[] args) {
+7:         var a1 = new Animal();
+8:         var a2 = new Animal();
+9:         a1.id = 5;
+10:        a2.id = 7;
+11:        System.out.println(a1.compareTo(a2)); // -2
+12:        System.out.println(a1.compareTo(a1)); // 0
+13:        System.out.println(a2.compareTo(a1)); // 2
+14:    }
+}
+```
+
+* Las líneas 7 y 8 crean dos objetos Animal. Las líneas 9 y 10 establecen sus valores de id. 
+* Esta no es una buena forma de establecer variables de instancia. Sería mejor usar un constructor o método setter. 
+* Las líneas 3–5 muestran una forma de comparar dos valores int. 
+* Podríamos haber usado `Integer.compare(id, a.id)` en su lugar. 
+
+* Las líneas 11–13 confirman que hemos implementado `compareTo()` correctamente. 
+* La línea 11 compara un, id más pequeño con uno más grande, y, por lo tanto, imprime un número negativo. 
+* La línea 12 compara animales con el mismo id, y, por lo tanto, imprime 0. 
+* La línea 13 compara un, id más grande con uno más pequeño, y, por lo tanto, devuelve un número positivo.
+
+### Casteando argumentos de compareTo()
+
+Cuando se trata con código legacy o código que no usa genéricos, el método `compareTo()` requiere un cast, ya que se le pasa un Object.
+
+```java
+public class LegacyDuck implements Comparable {
+    private String name;
+    public int compareTo(Object obj) {
+        LegacyDuck d = (LegacyDuck) obj; // cast because no generics
+        return name.compareTo(d.name);
+    }
+}
+```
+
+Como no especificamos un tipo genérico para `Comparable`, Java asume que queremos un `Object`, lo que significa que tenemos que hacer cast a `LegacyDuck` antes de acceder a las variables de instancia en él.
+
+### Revisando Null
+
+* Cuando trabajas con `Comparable` y `Comparator` en este capítulo, tendemos a asumir que los datos tienen valores, pero esto no es siempre el caso. 
+* Al escribir tus propios métodos `compare`, deberías verificar los datos antes de compararlos si no está validado antes de tiempo.
+
+```java
+public class MissingDuck implements Comparable<MissingDuck> {
+    private String name;
+    public int compareTo(MissingDuck quack) {
+        if (quack == null)
+            throw new IllegalArgumentException("Poorly formed duck!");
+        if (this.name == null && quack.name == null)
+            return 0;
+        else if (this.name == null) return -1;
+        else if (quack.name == null) return 1;
+        else return name.compareTo(quack.name);
+    }
+}
+```
+
+Este método lanza una excepción si se le pasa un objeto `MissingDuck` nulo. 
+
+¿Qué pasa con el ordenamiento? Si el nombre de un pato es `null`, se ordena primero.
+
+
+
 working with generics
 summary
