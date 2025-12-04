@@ -1256,5 +1256,43 @@ Podrías cambiar él `Comparator` a `r2.id - r1.id`. Alternativamente, podrías 
 11:    System.out.println(rabbits); // [Rabbit[id=3], Rabbit[id=1]]
 ```
 
+Los métodos `sort()` y `binarySearch()` te permiten pasar un objeto `Comparator` cuando no quieres usar el orden natural.
+
+**Revisando binarySearch()**
+
+El método `binarySearch()` requiere una List ordenada.
+
+```java
+11: List<Integer> list = Arrays.asList(6,9,1,8);
+12: Collections.sort(list); // [1, 6, 8, 9]
+13: System.out.println(Collections.binarySearch(list, 6)); // 1
+14: System.out.println(Collections.binarySearch(list, 3)); // -2
+```
+
+* La línea 12 ordena la `List` para que podamos llamar a `binarySearch()` apropiadamente. 
+* La línea 13 imprime el índice en el cual se encuentra una coincidencia. 
+* La línea 14 imprime uno menos que el índice negado de donde el valor solicitado necesitaría ser insertado. 
+* El número 3 necesitaría ser insertado en el índice 1 (después del número 1 pero antes del número 6). Negar eso nos da -1, y restar 1 nos da -2.
+
+Hay un truco al trabajar con `binarySearch()`. ¿Qué piensas que producen las siguientes salidas?
+
+```java
+3: var names = Arrays.asList("Fluffy", "Hoppy");
+4: Comparator<String> c = Comparator.reverseOrder();
+5: var index = Collections.binarySearch(names, "Hoppy", c);
+6: System.out.println(index);
+```
+
+* La respuesta resulta ser -1. Antes de que entres en pánico, no necesitas saber que la respuesta es -1. 
+* Sí necesitas saber que la respuesta no está definida. La línea 3 crea una lista, [Fluffy, Hoppy]. 
+* Esta lista resulta estar ordenada en orden ascendente. 
+* La línea 4 crea un Comparator que invierte el orden natural. 
+* La línea 5 solicita una búsqueda binaria en orden descendente. 
+* Como la lista no está en ese orden, no cumplimos la precondición para hacer una búsqueda.
+* Aunque el resultado de llamar a `binarySearch()` en una lista ordenada inapropiadamente es indefinido, a veces puedes tener suerte. 
+* Por ejemplo, la búsqueda comienza en el medio de una lista numerada impar. Si pides el elemento del medio, el índice devuelto será el que esperas.
+* Anteriormente en el capítulo, hablamos sobre colecciones que requieren que las clases implementen Comparable. A diferencia del ordenamiento, no verifican que hayas implementado Comparable en tiempo de compilación.
+* Volviendo a nuestro Rabbit que no implementa Comparable, intentamos agregarlo a un TreeSet:
+
 working with generics
 summary
