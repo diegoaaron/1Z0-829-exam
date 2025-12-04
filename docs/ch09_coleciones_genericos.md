@@ -1059,6 +1059,94 @@ Este método lanza una excepción si se le pasa un objeto `MissingDuck` nulo.
 
 ¿Qué pasa con el ordenamiento? Si el nombre de un pato es `null`, se ordena primero.
 
+### Manteniendo consistencia entre compareTo() and equals()
+
+* Si escribes una clase que implementa `Comparable`, introduces nueva lógica de negocio para determinar igualdad. 
+* El método `compareTo()` devuelve 0 si dos objetos son iguales, mientras que el método `equals()` devuelve true si dos objetos son iguales. 
+* Un natural ordering que usa `compareTo()` se dice que es consistente con `equals` si, y solo si, `x.equals(y)` es **true** cuando `x.compareTo(y)` es igual a **0**.
+* De manera similar, `x.equals(y)` debe ser **false** cuando `x.compareTo(y)` no es **0**. 
+* Se debe asegurar que las clases `Comparable` creadas, sean consistentes con `equals` porque no todas las clases de `Collection` se comportan predeciblemente si los métodos `compareTo()` y `equals()` no son consistentes.
+* Por ejemplo, la siguiente clase `Product` define un método `compareTo()` que no es consistente con `equals`:
+
+```java
+public class Product implements Comparable<Product> {
+    private int id;
+    private String name;
+    
+    public int hashCode() { return id; }
+    public boolean equals(Object obj) {
+        if(!(obj instanceof Product)) return false;
+        var other = (Product) obj;
+        return this.id == other.id;
+    }
+    public int compareTo(Product obj) {
+        return this.name.compareTo(obj.name);
+    }
+}
+```
+
+* Podrías estar ordenando objetos `Product` por nombre, pero los nombres no son únicos. 
+* El método `compareTo()` no tiene que ser consistente con `equals`. 
+* Una forma de arreglar eso es usar un `Comparator` para definir el ordenamiento en otro lugar.
+* Ahora que sabes cómo implementar objetos `Comparable`, puedes mirar un `Comparator` y enfocarte en las diferencias.
+
+### Comparando data con Comparator
+
+* A veces quieres ordenar un objeto que no implementó `Comparable`, o quieres ordenar objetos de diferentes maneras en diferentes momentos. 
+* Supongamos que agregamos peso a nuestra clase Duck. Ahora tenemos lo siguiente:
+
+```java
+1: import java.util.ArrayList;
+2: import java.util.Collections;
+3: import java.util.Comparator;
+4:
+5: public class Duck implements Comparable<Duck> {
+6:     private String name;
+7:     private int weight;
+8:
+9:     // Assume getters/setters/constructors provided
+10:
+11:    public String toString() { return name; }
+12:
+13:    public int compareTo(Duck d) {
+14:        return name.compareTo(d.name);
+15:    }
+16:
+17:    public static void main(String[] args) {
+18:      Comparator<Duck> byWeight = new Comparator<Duck>() {
+19:        public int compare(Duck d1, Duck d2) {
+20:                return d1.getWeight()-d2.getWeight();
+21:        }
+22:      };
+23:      var ducks = new ArrayList<Duck>();
+24:      ducks.add(new Duck("Quack", 7));
+25:      ducks.add(new Duck("Puddles", 10));
+26:      Collections.sort(ducks);
+27:      System.out.println(ducks); // [Puddles, Quack]
+28:      Collections.sort(ducks, byWeight);
+29:      System.out.println(ducks); // [Quack, Puddles]
+30:    }
+31: }
+```
+* Primero, observa que este programa importa `java.util.Comparator` en la línea 3. 
+* Aquí, mostramos él `import` para llamar la atención al hecho de que `Comparable` y `Comparator` están en diferentes paquetes: `java.lang` y `java.util`, respectivamente. 
+* Eso significa que `Comparable` puede usarse sin un `import statement`, mientras que `Comparator` no puede.
+* La clase `Duck` en sí misma solo puede definir un método `compareTo()`. En este caso, se eligió `name`. 
+* Si queremos ordenar por algo más, tenemos que definir ese orden de ordenamiento fuera del método `compareTo()` usando una clase separada o expresión lambda.
+* Las líneas 18–22 del método `main()` muestran cómo definir un `Comparator` usando una clase interna. 
+* En las líneas 26–29, ordenamos sin él `Comparator` y luego con él `Comparator` para ver la diferencia en la salida.
+* Él `Comparator` es una interfaz funcional, ya que solo hay un método abstracto para implementar. 
+* Esto significa que podemos reescribir él `Comparator` en las líneas 18–22 usando una expresión lambda, como se muestra aquí:
+
+```java
+Comparator<Duck> byWeight = (d1, d2) -> d1.getWeight()-d2.getWeight();
+```
+
+En el siguiente ejemplo, `Comparator.comparing()` es un método de interfaz estático que crea un `Comparator` dada una expresión lambda o referencia de método. 
+
+```java
+Comparator<Duck> byWeight = (d1, d2) -> d1.getWeight()-d2.getWeight();
+```
 
 
 working with generics
