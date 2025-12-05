@@ -1671,5 +1671,54 @@ Esto puede llevar a código que se ve interesante:
 2: public class More {
 3:   public static <T> void sink(T t) {}
 4:   public static <T> T identity(T t) { return t; }
+5:   public static T noGood(T t) { return t; } // DOES NOT COMPILE
+6: }
 ```
+
+* La línea 3 muestra el parámetro de tipo formal inmediatamente antes del tipo de retorno `void`. 
+* La línea 4 muestra que el tipo de retorno es el parámetro de tipo formal. 
+* Se ve raro, pero es correcto. La línea 5 omite el parámetro de tipo formal y, por lo tanto, no compila.
+
+```java
+2: public class More {
+3:   public static <T> void sink(T t) {}
+4:   public static <T> T identity(T t) { return t; }
+5:   public static T noGood(T t) { return t; } // DOES NOT COMPILE
+6: }
+```
+
+Cuando tienes un método que declara un parámetro de tipo genérico, es independiente de los `generics` de la clase. 
+Echa un vistazo a esta clase que declara un `generic T` en ambos niveles:
+
+```java
+1: public class TrickyCrate<T> {
+2:   public <T> T tricky(T t) {
+3:     return t;
+4:   }
+5: }
+```
+
+Ve si puedes determinar el tipo de `T` en las líneas 1 y 2 cuando invocamos el código como sigue:
+
+```java
+10: public static String crateName() {
+11:   TrickyCrate<Robot> crate = new TrickyCrate<>();
+12:   return crate.tricky("bot");
+13: }
+```
+
+* Claramente, **"T is for tricky"**. Veamos qué está pasando. En la línea 1, `T` es `Robot` porque eso es lo que se referencia al construir un `Crate`. 
+* En la línea 2, `T` es `String` porque eso es lo que se pasa al método. 
+
+**Sintaxis opcional para invocar un método genérico**
+
+Puedes invocar un método genérico normalmente, y el compilador intentará determinar cuál quieres. 
+Alternativamente, puedes especificar el tipo explícitamente para hacer obvio cuál es el tipo.
+
+```java
+Box.<String>ship("package");
+Box.<String[]>ship(args);
+```
+
+Depende de ti si esto hace las cosas más claras. Debes al menos estar consciente de que esta sintaxis existe.
 
