@@ -1453,5 +1453,50 @@ Robot atDestination = robotCrate.lookInCrate();
 Las clases genéricas no están limitadas a tener un solo parámetro de tipo. Esta clase muestra dos parámetros genéricos:
 
 ```java
-
+public class SizeLimitedCrate<T, U> {
+  private T contents;
+  private U sizeLimit;
+  public SizeLimitedCrate(T contents, U sizeLimit) {
+    this.contents = contents;
+    this.sizeLimit = sizeLimit;
+  }
+}
 ```
+
+`T` representa el tipo que estamos poniendo en la jaula. `U` representa la unidad que estamos usando para medir el tamaño máximo de la jaula. 
+
+Para usar esta clase genérica, podemos escribir lo siguiente:
+
+```java
+Elephant elephant = new Elephant();
+Integer numPounds = 15_000;
+SizeLimitedCrate<Elephant, Integer> c1
+  = new SizeLimitedCrate<>(elephant, numPounds);
+```
+
+Aquí especificamos que el tipo es `Elephant`, y la unidad es `Integer`. También incluimos un recordatorio de que los literales numéricos pueden contener guiones bajos.
+
+### Entendiendo el tipo Erasure
+
+* Especificar un tipo genérico permite al compilador hacer cumplir el uso apropiado del tipo genérico.
+* Por ejemplo, especificar el tipo genérico de `Crate` como `Robot` es como reemplazar la `T` en la clase Crate con `Robot`.
+* Sin embargo, esto es solo para tiempo de compilación.
+* Detrás de escenas, el compilador reemplaza todas las referencias a `T` en Crate con `Object`.
+* En otras palabras, después de que el código compila, tus `generics` son simplemente tipos `Object`.
+* La clase `Crate` se ve como lo siguiente en tiempo de ejecución:
+
+```java
+public class Crate {
+  private Object contents;
+  public Object lookInCrate() {
+    return contents;
+  }
+  public void packCrate(Object contents) {
+    this.contents = contents;
+  }
+}
+```
+* Esto significa que hay solo un archivo de clase. No hay diferentes copias para diferentes tipos parametrizados. (Algunos otros lenguajes funcionan de esa manera.) 
+* Este proceso de remover la sintaxis de generics de tu código es referido como `type erasure`. 
+* Él `Type erasure` permite que tu código sea compatible con versiones antiguas de Java que no contienen generics.
+
