@@ -1633,3 +1633,43 @@ Hay algunas limitaciones sobre lo que puedes hacer con un tipo genérico.
 La mayoría de las limitaciones se deben a `type erasure`. 
 Oracle se refiere a tipos cuya información está completamente disponible en tiempo de ejecución como `reifiable`. 
 Los tipos `reificables` pueden hacer cualquier cosa que Java permita. Los tipos no `reificables` tienen algunas limitaciones.
+
+Aquí están las cosas que no puedes hacer con generics (y por "can't", significa sin recurrir a contorsiones como pasar un objeto de clase):
+
+* Call a constructor: Escribir `new T()` no está permitido porque en tiempo de ejecución, sería `new Object()`.
+* Create an array of that generic type: Esto es lo más molesto, pero tiene sentido porque estarías creando un array de valores `Object`.
+* Call instanceof: Esto no está permitido porque en tiempo de ejecución `List<Integer>` y `List<String>` se ven iguales para Java, gracias a `type erasure`.
+* Use a primitive type as a generic type parameter: Esto no es gran problema porque puedes usar la clase wrapper en su lugar. Si quieres un tipo de `int`, simplemente usa `Integer`.
+* Create a static variable as a generic type parameter: Esto no está permitido porque el tipo está vinculado a la instancia de la clase.
+
+### Escribiendo métodos genéricos
+
+Hasta este punto, has visto parámetros de tipo formal declarados a nivel de clase o interfaz. 
+También es posible declararlos a nivel de método. Esto es a menudo útil para métodos estáticos, ya que no son parte de una instancia que puede declarar el tipo. 
+Sin embargo, también está permitido en métodos no estáticos.
+
+En este ejemplo, ambos métodos usan un parámetro genérico:
+
+```java
+public class Handler {
+    public static <T> void prepare(T t) {
+        System.out.println("Preparing " + t);
+    }
+    public static <T> Crate<T> ship(T t) {
+        System.out.println("Shipping " + t);
+        return new Crate<T>();
+    }
+}
+```
+
+El parámetro del método es el tipo genérico `T`. Antes del tipo de retorno, declaramos el parámetro de tipo formal de `<T>`. 
+En el método `ship()`, mostramos cómo puedes usar el parámetro genérico en el tipo de retorno, `Crate<T>`, para el método.
+A menos que un método esté obteniendo el parámetro de tipo formal genérico de la clase/interfaz, se especifica inmediatamente antes del tipo de retorno del método. 
+Esto puede llevar a código que se ve interesante:
+
+```java
+2: public class More {
+3:   public static <T> void sink(T t) {}
+4:   public static <T> T identity(T t) { return t; }
+```
+
