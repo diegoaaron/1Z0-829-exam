@@ -1550,3 +1550,46 @@ public class Anteater extends LongTailAnimal {
 * El segundo método `chew()` compila también. Sin embargo, es un método sobrecargado porque uno de los argumentos del método es un `List` y el otro es un `ArrayList`. 
 * Al trabajar con métodos genéricos, es importante considerar el tipo subyacente.
 
+### Retornando tipos genericos
+
+* Cuando trabajas con métodos sobrescritos que retornan generics, los valores de retorno deben ser covariantes. 
+* En términos de `generics`, esto significa que el tipo de retorno de la clase o interfaz declarada en el método que sobrescribe debe ser un subtipo de la clase definida en la clase padre. 
+* El parámetro de tipo genérico debe coincidir exactamente con el tipo del padre.
+
+Dada la siguiente declaración para la clase `Mammal`, ¿cuál de las dos subclases, Monkey y Goat, compila?
+
+```java
+public class Mammal {
+  public List<CharSequence> play() { ... }
+  public CharSequence sleep() { ... }
+}
+
+public class Monkey extends Mammal {
+  public ArrayList<CharSequence> play() { ... }
+}
+
+public class Goat extends Mammal {
+  public List<String> play() { ... } // DOES NOT COMPILE
+
+  public String sleep() { ... }
+}
+```
+
+* La clase `Monkey` compila porque `ArrayList` es un subtipo de `List`. El método `play()` en la clase `Goat` no compila, sin embargo. 
+* Para que los tipos de retorno sean covariantes, el parámetro de tipo genérico debe coincidir. 
+* Aunque `String` es un subtipo de `CharSequence`, no coincide exactamente con el tipo genérico definido en la clase `Mammal`. 
+* Por lo tanto, esto se considera un `override` inválido.
+* Nota que el método `sleep()` en la clase `Goat` sí compila ya que `String` es un subtipo de `CharSequence`. 
+* Este ejemplo muestra que la covarianza se aplica al tipo de retorno, no solo al parámetro de tipo genérico.
+* Para el examen, puede ser útil aplicar `type erasure` a preguntas que involucren generics para asegurar que compilen apropiadamente. 
+* Una vez que hayas determinado qué métodos están sobrescritos y cuáles están siendo sobrecargados, trabaja hacia atrás, asegurándote de que los tipos genéricos coincidan para métodos sobrescritos. 
+* Y recuerda, los métodos genéricos no pueden ser sobrecargados cambiando solo el parámetro de tipo genérico.
+
+### Implementando interfaces genéricas
+
+Al igual que una clase, una interfaz puede declarar un parámetro de tipo formal. 
+Por ejemplo, la siguiente interfaz `Shippable` usa un tipo genérico como argumento para su método `ship()`:
+
+```java
+
+```
