@@ -1498,5 +1498,55 @@ public class Crate {
 ```
 * Esto significa que hay solo un archivo de clase. No hay diferentes copias para diferentes tipos parametrizados. (Algunos otros lenguajes funcionan de esa manera.) 
 * Este proceso de remover la sintaxis de generics de tu código es referido como `type erasure`. 
-* Él `Type erasure` permite que tu código sea compatible con versiones antiguas de Java que no contienen generics.
+* Él `Type erasure` permite que tu código sea compatible con versiones antiguas de Java que no contienen generics. 
+* El compilador agrega los casts relevantes para que tu código funcione con este tipo de clase con `type erasure`. Por ejemplo, escribes lo siguiente:
+
+```java
+Robot r = crate.lookInCrate();
+```
+
+El compilador lo convierte en lo siguiente:
+
+```java
+Robot r = (Robot) crate.lookInCrate();
+```
+
+En las siguientes secciones, veremos las implicaciones de los generics para declaraciones de métodos.
+
+### Sobrecarga con un método generico
+
+Solo uno de estos dos métodos está permitido en una clase porque `type erasure` reducirá ambos conjuntos de argumentos a `(List input)`:
+
+```java
+public class LongTailAnimal {
+    protected void chew(List<Object> input) {}
+    protected void chew(List<Double> input) {} // DOES NOT COMPILE
+}
+```
+
+Por la misma razón, tampoco puedes sobrecargar un método genérico desde una clase padre.
+
+```java
+public class LongTailAnimal {
+    protected void chew(List<Object> input) {}
+}
+
+public class Anteater extends LongTailAnimal {
+    protected void chew(List<Double> input) {} // DOES NOT COMPILE
+}
+```
+
+* Ambos ejemplos fallan al compilar debido a `type erasure`. 
+* En la forma compilada, el tipo genérico es eliminado, y aparece como un método sobrecargado inválido. Ahora, veamos una subclase:
+
+```java
+public class Anteater extends LongTailAnimal {
+    protected void chew(List<Object> input) {}
+    protected void chew(ArrayList<Double> input) {}
+}
+```
+
+* El primer método `chew()` compila porque usa el mismo tipo genérico en el método sobrescrito que el definido en la clase padre. 
+* El segundo método `chew()` compila también. Sin embargo, es un método sobrecargado porque uno de los argumentos del método es un `List` y el otro es un `ArrayList`. 
+* Al trabajar con métodos genéricos, es importante considerar el tipo subyacente.
 
