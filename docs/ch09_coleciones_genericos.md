@@ -1316,7 +1316,7 @@ Exception in thread "main" java.lang.ClassCastException:
 ```
 
 * Puede parecer extraño que esta excepción se lance cuando el primer objeto se agrega al set. 
-* Después de todo, no hay nada con qué comparar todavía. Java funciona de esta manera por consistencia.
+* Después de todo, no hay nada con que comparar todavía. Java funciona de esta manera por consistencia.
 * Tal como buscar y ordenar, puedes decirle a las colecciones que requieren ordenamiento que quieres usar un `Comparator` específico. Por ejemplo:
 
 ```java
@@ -1342,12 +1342,46 @@ Aunque puedes llamar a `Collections.sort(list)`, también puedes ordenar directa
 9: System.out.println(bunnies);  // [floppy, hoppy, long ear]
 ```
 
-En la línea 8, ordenamos la lista alfabéticamente. 
-El método `sort()` toma un `Comparator` que proporciona el orden de ordenamiento. 
-Recuerda que `Comparator` toma dos parámetros y devuelve un `int`. Si necesitas un repaso de lo que devuelve
+* En la línea 8, ordenamos la lista alfabéticamente. 
+* El método `sort()` toma un `Comparator` que proporciona el orden de ordenamiento. 
+* Recuerda que `Comparator` toma dos parámetros y devuelve un `int`. 
+* No hay un método sort en Set o Map. Ambos tipos son desordenados, por lo que no tendría sentido ordenarlos.
 
-continuar en la pag. 40
+## Trabajando con Generics
 
-working with generics
+Los generics son una de las características más útiles y a veces más confusas de Java. 
+Han sido usados extensivamente en los dos capítulos anteriores (el tipo entre `<>`).
 
-summary
+```java
+14: static void printNames(List list) {
+15:   for (int i = 0; i < list.size(); i++) {
+16:     String name = (String) list.get(i); // ClassCastException
+17:     System.out.println(name);
+18:   }
+19: }
+20: public static void main(String[] args) {
+21:   List names = new ArrayList();
+22:   names.add(new StringBuilder("Webby"));
+23:   printNames(names);
+24: }
+```
+
+* El código arroja un `ClassCastException`. La línea 22 es legal porque una lista no genérica puede contener cualquier cosa. 
+* Sin embargo, la línea 16 espera que haya un tipo específico (`String`). El cast refleja esa suposición. 
+* Como la suposición es incorrecta, se arroja una excepción indicando que `StringBuilder` no puede ser casteado a `String`.
+
+Solución con Generics:
+* Los generics permiten escribir y usar tipos parametrizados. 
+* Al especificar `ArrayList<String>`, el compilador tiene suficiente información para prevenir este problema desde el principio.
+
+```java
+List<String> names = new ArrayList<String>();
+names.add(new StringBuilder("Webby")); // DOES NOT COMPILE
+```
+
+Obtener un error del compilador es bueno, porque sabes inmediatamente que algo está mal en lugar de descubrirlo después.
+
+### Creando clases genéricas
+
+Puedes introducir generics en tus propias clases, comenzando a explicar la sintaxis.
+
