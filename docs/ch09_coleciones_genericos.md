@@ -1385,3 +1385,43 @@ Obtener un error del compilador es bueno, porque sabes inmediatamente que algo e
 
 Puedes introducir generics en tus propias clases, comenzando a explicar la sintaxis.
 
+Un `generic` se declara dentro de `<>`. 
+Por ejemplo, la siguiente clase `Crate` tiene una variable de tipo genérico declarada después del nombre de la clase:
+
+```java
+public class Crate<T> {
+  private T contents;
+  public T lookInCrate() {
+    return contents;
+  }
+  public void packCrate(T contents) {
+    this.contents = contents;
+  }
+}
+```
+
+* El tipo genérico `T` está disponible en cualquier lugar dentro de la clase `Crate`. 
+* Cuando instancias la clase, le indicas al compilador qué debe ser `T` para esa instancia particular.
+
+**Convención de nombres para Genericos**
+
+* Un parámetro de este tipo puede nombrarse como quieras. 
+* La convención es usar letras mayúsculas solas para hacer obvio que no son nombres de clases reales. 
+* Las siguientes son letras comunes para usar:
+  * E for an element
+  * K for a map key
+  * V for a map value
+  * N for a number
+  * T for a generic data type
+  * S, U, V, and so forth for multiple generic types
+
+Supongamos que existe una clase `Elephant`, y estamos moviendo nuestro elefante a un recinto nuevo y más grande en nuestro zoológico. 
+
+```java
+Elephant elephant = new Elephant();
+Crate<Elephant> crateForElephant = new Crate<>();
+crateForElephant.packCrate(elephant);
+Elephant inNewHome = crateForElephant.lookInCrate();
+```
+
+
