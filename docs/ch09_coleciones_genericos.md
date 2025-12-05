@@ -1424,4 +1424,34 @@ crateForElephant.packCrate(elephant);
 Elephant inNewHome = crateForElephant.lookInCrate();
 ```
 
+* Puedes ver que la clase `Crate` es capaz de trabajar con un Elephant sin saber nada sobre él.
+* Esto probablemente no parece particularmente impresionante. Podría haber simplemente escrito `Elephant` en lugar de `T` al codificar `Crate`. 
 
+¿Qué pasa si quisiéramos crear un Crate para otro animal?
+
+```java
+Crate<Zebra> crateForZebra = new Crate<>();
+```
+
+Ahora no podría haber simplemente hard-coded `Elephant` en la clase `Crate` ya que una Zebra no es un Elephant. 
+Sin embargo, podríamos haber creado una superclase o interfaz Animal y usado eso en `Crate`.
+Las clases genéricas se vuelven útiles cuando las clases usadas como parámetro de tipo no pueden tener absolutamente nada que ver entre sí. 
+
+```java
+Robot joeBot = new Robot();
+Crate<Robot> robotCrate = new Crate<>();
+robotCrate.packCrate(joeBot);
+// ship to Houston
+Robot atDestination = robotCrate.lookInCrate();
+```
+
+* Ahora se está poniendo interesante. La clase `Crate` funciona con cualquier tipo de clase. 
+* Antes de los `generics`, habríamos necesitado que `Crate` usara la clase `Object` para su variable de instancia, lo que habría puesto la carga en el invocador para hacer `cast` del objeto que recibe.
+* Además de que `Crate` no necesita saber sobre los objetos que entran en ella, esos objetos no necesitan saber sobre Crate. 
+* No estamos requiriendo que los objetos implementen una interfaz llamada `Creatable` o similar. Una clase puede ser puesta en `Crate` sin ningún cambio.
+
+Las clases genéricas no están limitadas a tener un solo parámetro de tipo. Esta clase muestra dos parámetros genéricos:
+
+```java
+
+```
