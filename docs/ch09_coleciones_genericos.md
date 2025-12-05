@@ -1591,5 +1591,45 @@ Al igual que una clase, una interfaz puede declarar un parámetro de tipo formal
 Por ejemplo, la siguiente interfaz `Shippable` usa un tipo genérico como argumento para su método `ship()`:
 
 ```java
-
+public interface Shippable<T> {
+  void ship(T t);
+}
 ```
+
+Hay tres formas en que una clase puede abordar la implementación de esta interfaz. 
+La primera es especificar el tipo genérico en la clase. La siguiente clase concreta dice que solo trabaja con robots. 
+Esto le permite declarar el método `ship()` con un parámetro Robot:
+
+```java
+class ShippableRobotCrate implements Shippable<Robot> {
+  public void ship(Robot t) {}
+}
+```
+
+La siguiente forma es crear una clase genérica. La siguiente clase concreta permite al invocador especificar el tipo del generic:
+
+```java
+class ShippableAbstractCrate<U> implements Shippable<U> {
+    public void ship(U t) {}
+}
+```
+
+En este ejemplo, el parámetro de tipo podría haberse nombrado como cualquier cosa, incluyendo `T`. 
+Usamos `U` en el ejemplo para evitar confusión sobre a qué se refiere `T`. 
+
+La forma final es no usar generics en absoluto. Esta es la forma antigua de escribir código. 
+Genera un compiler warning sobre que `Shippable` es un `raw type`, pero sí compila. 
+Aquí el método `ship()` tiene un parámetro `Object` ya que el tipo genérico no está definido:
+
+```java
+class ShippableCrate implements Shippable {
+    public void ship(Object t) {}
+}
+```
+
+**Que se puede hacer con los tipos genéricos**
+
+Hay algunas limitaciones sobre lo que puedes hacer con un tipo genérico. 
+La mayoría de las limitaciones se deben a `type erasure`. 
+Oracle se refiere a tipos cuya información está completamente disponible en tiempo de ejecución como `reifiable`. 
+Los tipos `reificables` pueden hacer cualquier cosa que Java permita. Los tipos no `reificables` tienen algunas limitaciones.
