@@ -1722,3 +1722,44 @@ Box.<String[]>ship(args);
 
 Depende de ti si esto hace las cosas más claras. Debes al menos estar consciente de que esta sintaxis existe.
 
+### Creando un record genérico
+
+Los `generics` también pueden usarse con `records`. Este record toma un solo parámetro de tipo genérico:
+
+```java
+public record CrateRecord<T>(T contents) {
+  @Override
+  public T contents() {
+    if (contents == null)
+      throw new IllegalStateException("missing contents");
+    return contents;
+  }
+}
+```
+
+Esto funciona de la misma manera que las clases. Puedes crear un record del robot:
+
+```java
+Robot robot = new Robot();
+CrateRecord<Robot> record = new CrateRecord<>(robot);
+```
+
+Esto es conveniente. Ahora tenemos un record genérico inmutable.
+
+### Tipos de genéricos delimitadores
+
+* Hasta ahora, habrás notado que los generics no parecen particularmente útiles, ya que son tratados como `Objects` y, por lo tanto, no tienen muchos métodos disponibles. 
+* Los `bounded wildcards` resuelven esto restringiendo qué tipos pueden usarse en un `wildcard`. 
+* Un `bounded parameter type` es un tipo genérico que especifica un `límite (bound)` para él `generic`. 
+* Un `wildcard generic type` es un tipo genérico desconocido representado con un signo de interrogación `(?)`. 
+
+Puedes usar wildcards genéricos de tres formas, como se muestra en Table 9.13. 
+
+![ch09_01_20.png](images/ch09_01_20.png)
+
+### Creando Unbounded Wildcards
+
+Un **unbounded wildcard** representa cualquier tipo de dato. Usas `?` cuando quieres especificar que cualquier tipo está bien contigo. 
+Supongamos que queremos escribir un método que recorra una lista de cualquier tipo.
+
+continuar en la página 50
