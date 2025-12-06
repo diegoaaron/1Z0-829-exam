@@ -1916,3 +1916,6 @@ addSound(objects);
 El problema es que queremos pasar un `List<String>` y un `List<Object>` al mismo método. 
 
 Primero, asegúrate de entender por qué los primeros tres ejemplos en Table 9.14 no resuelven este problema.
+
+![ch09_01_21.png](images/ch09_01_21.png)
+
