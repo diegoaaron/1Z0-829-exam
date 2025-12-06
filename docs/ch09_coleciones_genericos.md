@@ -1919,3 +1919,45 @@ Primero, asegúrate de entender por qué los primeros tres ejemplos en Table 9.1
 
 ![ch09_01_21.png](images/ch09_01_21.png)
 
+Para resolver este problema, necesitamos usar un lower bound.
+
+```java
+public static void addSound(List<? super String> list) {
+  list.add("quack");
+}
+```
+
+* Con un lower bound, le estamos diciendo a Java que la lista será una lista de objetos `String` o una lista de algunos objetos que son una superclase de `String`. 
+* De cualquier forma, es seguro añadir un `String` a esa lista.
+* Al igual que las clases genéricas, probablemente no usarás esto en tu código a menos que estés escribiendo código para que otros lo reutilicen. 
+* Incluso entonces, sería raro. Pero está en el examen, ¡así que ahora es el momento de aprenderlo!
+
+*Entendiendo los supertipos genéricos*
+
+Cuando tienes subclases y superclases, los lower bounds pueden volverse complicados.
+
+```java
+3: List<? super IOException> exceptions = new ArrayList<Exception>();
+4: exceptions.add(new Exception()); // DOES NOT COMPILE
+5: exceptions.add(new IOException());
+6: exceptions.add(new FileNotFoundException());
+```
+
+* La línea 3 referencia un `List` que podría ser `List<IOException>` o `List<Exception>` o `List<Object>`. 
+* La línea 4 no compila porque podría tener un `List<IOException>`, y un objeto `Exception` no encajaría ahí.
+* La línea 5 está bien. `IOException` puede ser añadido a cualquiera de esos tipos. 
+* La línea 6 también está bien. `FileNotFoundException` también puede ser añadido a cualquiera de esos tres tipos. 
+* Esto es complicado porque `FileNotFoundException` es una subclase de `IOException`, y la keyword dice `super`. 
+* Java dice, "Bueno, `FileNotFoundException` también sucede ser un `IOException`, así que todo está bien."
+
+### Combinando declaraciones genéricas
+
+Intentemos un ejemplo. Primero, declaramos tres clases que el ejemplo usará:
+
+```java
+class A {}
+class B extends A {}
+class C extends B {}
+```
+
+¿Listo? ¿Puedes determinar por qué estos compilan o no compilan? Además, intenta determinar qué hacen.
