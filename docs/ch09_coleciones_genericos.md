@@ -1757,9 +1757,162 @@ Puedes usar wildcards genéricos de tres formas, como se muestra en Table 9.13.
 
 ![ch09_01_20.png](images/ch09_01_20.png)
 
-### Creando Unbounded Wildcards
+### Creando comodines con límites
 
 Un **unbounded wildcard** representa cualquier tipo de dato. Usas `?` cuando quieres especificar que cualquier tipo está bien contigo. 
 Supongamos que queremos escribir un método que recorra una lista de cualquier tipo.
 
-continuar en la página 50
+```java
+public static void printList(List<Object> list) {
+  for (Object x: list)
+    System.out.println(x);
+}
+public static void main(String[] args) {
+  List<String> keywords = new ArrayList<>();
+  keywords.add("java");
+  printList(keywords); // DOES NOT COMPILE
+}
+```
+
+Espera. ¿Qué está mal? Un `String` es una subclase de un `Object`. Esto es verdad. 
+Sin embargo, `List<String>` no puede ser asignado a `List<Object>`. 
+Lo sabemos, no suena lógico. Java está tratando de protegernos de nosotros mismos con esto. Imagina si pudiéramos escribir código como este:
+
+```java
+4: List<Integer> numbers = new ArrayList<>();
+5: numbers.add(Integer.valueOf(42));
+6: List<Object> objects = numbers; // DOES NOT COMPILE
+7: objects.add("forty two");
+8: System.out.println(numbers.get(1));
+```
+
+* En la línea 4, el compilador nos promete que solo objetos `Integer` aparecerán en numbers. 
+* Si la línea 6 compilara, la línea 7 rompería esa promesa poniendo un `String` ahí, ya que `numbers` y `objects` son referencias al mismo objeto.
+* Volviendo a imprimir una lista, no podemos asignar un `List<String>` a un `List<Object>`.
+* Eso está bien; no necesitamos un `List<Object>`. Lo que realmente necesitamos es un List de "lo que sea". 
+* Eso es lo que `List<?>` es. El siguiente código hace lo que esperamos:
+
+```java
+public static void printList(List<?> list) {
+    for (Object x: list)
+        System.out.println(x);
+}
+public static void main(String[] args) {
+    List<String> keywords = new ArrayList<>();
+    keywords.add("java");
+    printList(keywords);
+}
+```
+
+* El método `printList()` toma cualquier tipo de lista como parámetro. La variable keywords es de tipo `List<String>`. 
+* Tenemos una coincidencia. `List<String>` es una lista de cualquier cosa. "Anything" simplemente sucede ser un String aquí.
+
+Finalmente, veamos el impacto de var. ¿Crees que estos dos statements son equivalentes?
+
+```java
+List<?> x1 = new ArrayList<>();
+var x2 = new ArrayList<>();
+```
+
+No son equivalentes. Hay dos diferencias clave. Primero, x1 es de tipo `List`, mientras que x2 es de tipo `ArrayList`. 
+Adicionalmente, solo podemos asignar x2 a un `List<Object>`. Estas dos variables tienen una cosa en común. 
+Ambas retornan tipo `Object` cuando se llama el método `get()`.
+
+### Creando comodines con límites superiores
+
+Intentemos escribir un método que sume el total de una lista de números. Hemos establecido que un tipo genérico no puede simplemente usar una subclase.
+
+```java
+ArrayList<Number> list = new ArrayList<Integer>(); // DOES NOT COMPILE
+```
+
+En su lugar, necesitamos usar un wildcard:
+
+```java
+List<? extends Number> list = new ArrayList<Integer>();
+```
+
+El comodin upper-bounded dice que cualquier clase que extienda `Number` o `Number` mismo puede ser usado como parámetro de tipo formal:
+
+```java
+public static long total(List<? extends Number> list) {
+    long count = 0;
+    for (Number number: list)
+        count += number.longValue();
+    return count;
+}
+```
+
+* ¿Recuerda cómo seguíamos diciendo que `type erasure` hace que Java piense que un tipo genérico es un `Object`? 
+* Eso sigue sucediendo aquí. Java convierte el código anterior a algo equivalente a lo siguiente:
+
+```java
+public static long total(List list) {
+    long count = 0;
+    for (Object obj: list) {
+        Number number = (Number) obj;
+        count += number.longValue();
+    }
+    return count;
+}
+```
+
+* Algo interesante sucede cuando trabajamos con `upper bounds` o `unbounded wildcards`. 
+* La lista se vuelve lógicamente inmutable y, por lo tanto, no puede ser modificada. 
+* Técnicamente, puedes remover elementos de la lista, pero el examen no preguntará sobre esto.
+
+```java
+2: static class Sparrow extends Bird {}
+3: static class Bird {}
+4:
+5: public static void main(String[] args) {
+6:   List<? extends Bird> birds = new ArrayList<Bird>();
+7:   birds.add(new Sparrow()); // DOES NOT COMPILE
+8:   birds.add(new Bird());    // DOES NOT COMPILE
+9: }
+```
+
+* El problema proviene del hecho de que Java no sabe qué tipo `List<? extends Bird>` realmente es. 
+* Podría ser `List<Bird>` o `List<Sparrow>` o algún otro tipo genérico que ni siquiera ha sido escrito todavía. 
+* La línea 7 no compila porque no podemos añadir un Sparrow a `List<? extends Bird>`, y la línea 8 no compila porque no podemos añadir un Bird a `List<Sparrow>`. 
+* Desde el punto de vista de Java, ambos escenarios son igualmente posibles, así que ninguno está permitido.
+
+Ahora intentemos un ejemplo con una interfaz. Tenemos una interfaz y dos clases que la implementan.
+
+```java
+interface Flyer { void fly(); }
+class HangGlider implements Flyer { public void fly() {} }
+class Goose implements Flyer { public void fly() {} }
+```
+
+También tenemos dos métodos que la usan. Uno simplemente lista la interfaz, y el otro usa un upper bound.
+
+```java
+private void anyFlyer(List<Flyer> flyer) {}
+private void groupOfFlyers(List<? extends Flyer> flyer) {}
+```
+
+* Nota que usamos la keyword `extends` en lugar de `implements`. 
+* Los upper bounds son como clases anónimas en que usan `extends` sin importar si estamos trabajando con una clase o una interfaz.
+* Ya aprendiste que una variable de tipo `List<Flyer>` puede ser pasada a cualquiera de los dos métodos. 
+* Una variable de tipo `List<Goose>` puede ser pasada solo a la que tiene el upper bound. 
+* Esto muestra un beneficio de los `generics`. Los flyers aleatorios no vuelan juntos. 
+* Queremos que nuestro método `groupOfFlyers()` sea llamado solo con el mismo tipo. Los gansos vuelan juntos, pero no vuelan con hang gliders.
+
+### Creando comodines con límites inferiores 
+
+Intentemos escribir un método que añada un string "quack" a dos listas:
+
+```java
+List<String> strings = new ArrayList<String>();
+strings.add("tweet");
+
+List<Object> objects = new ArrayList<Object>(strings);
+
+addSound(strings);
+addSound(objects);
+```
+
+El problema es que queremos pasar un `List<String>` y un `List<Object>` al mismo método. 
+
+Primero, asegúrate de entender por qué los primeros tres ejemplos en Table 9.14 no resuelven este problema.
