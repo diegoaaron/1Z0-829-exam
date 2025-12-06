@@ -1961,3 +1961,70 @@ class C extends B {}
 ```
 
 ¿Listo? ¿Puedes determinar por qué estos compilan o no compilan? Además, intenta determinar qué hacen.
+
+```java
+6: List<?> list1 = new ArrayList<A>();
+7: List<? extends A> list2 = new ArrayList<A>();
+8: List<? super A> list3 = new ArrayList<A>();
+```
+
+* La línea 6 crea un `ArrayList` que puede contener instancias de la clase A. Se almacena en una variable con un unbounded wildcard. 
+* Cualquier tipo genérico puede ser referenciado desde un unbounded wildcard, haciendo esto válido.
+* La línea 7 intenta almacenar una lista en una declaración de variable con un upper-bounded wildcard. Esto está bien. 
+* Puedes tener `ArrayList<A>`, `ArrayList<B>`, o `ArrayList<C>` almacenado en esa referencia. 
+* La línea 8 también está bien. Esta vez, tienes un lower-bounded wildcard. El tipo más bajo que puedes referenciar es A. 
+
+```java
+9: List<? extends B> list4 = new ArrayList<A>(); // DOES NOT COMPILE
+10: List<? super B> list5 = new ArrayList<A>();
+11: List<?> list6 = new ArrayList<? extends A>(); // DOES NOT COMPILE
+```
+
+* La línea 9 tiene un upper-bounded wildcard que permite que `ArrayList<B>` o `ArrayList<C>` sean referenciados. 
+* Ya que tienes `ArrayList<A>` que está tratando de ser referenciado, el código no compila. 
+* La línea 10 tiene un lower-bounded wildcard, que permite una referencia a `ArrayList<A>`, `ArrayList<B>`, o `ArrayList<Object>`.
+* Finalmente, la línea 11 permite una referencia a cualquier tipo genérico, ya que es un unbounded wildcard. 
+* El problema es que necesitas saber cuál será ese tipo al instanciar él `ArrayList`. 
+* No sería útil de todas formas, porque no puedes añadir ningún elemento a ese `ArrayList`.
+
+### Pasando argumentos genéricos
+
+Ahora con los métodos. Misma pregunta: intenta determinar por qué no compilan o qué hacen. 
+
+```java
+<T> T first(List<? extends T> list) {
+  return list.get(0);
+}
+```
+
+* El primer método, `first()`, es un uso perfectamente normal de generics. Usa un parámetro de tipo específico del método, `T`. 
+* Toma un parámetro de `List<T>`, o alguna subclase de `T`, y retorna un solo objeto de ese tipo `T`. 
+* Por ejemplo, podrías llamarlo con un parámetro `List<String>` y hacer que retorne un `String`. 
+* O podrías llamarlo con un parámetro `List<Number>` y hacer que retorne un `Number`. 
+
+```java
+<T> <? extends T> second(List<? extends T> list) { // DOES NOT COMPILE
+    return list.get(0);
+}
+```
+
+El siguiente método, `second()`, no compila porque el tipo de retorno en realidad no es un tipo. 
+Estás escribiendo el método. Sabes qué tipo se supone que debe retornar. No puedes especificar esto como un wildcard.
+
+```java
+<B extends A> B third(List<B> list) {
+  return new B(); // DOES NOT COMPILE
+}
+```
+
+* Este método, `third()`, no compila. `<B extends A>` dice que quieres usar B como un parámetro de tipo solo para este método y que necesita extender la clase A. 
+* Coincidentemente, `B` también es el nombre de una clase. Bueno, no es una coincidencia. Es un truco malvado. 
+* Dentro del scope del método, B puede representar la clase A, B, o C, porque todas extienden la clase A. 
+* Ya que B ya no se refiere a la clase B en el método, no puedes instanciarla.
+
+```java
+void fourth(List<? super B> list) {}
+```
+
+Finalmente obtenemos un método, fourth(), que es un uso normal de generics. Puedes pasar el tipo List<B>, List<A>, o List<Object>.
+Finalmente, ¿puedes determinar por qué este ejemplo no compila?
