@@ -57,9 +57,28 @@ Obtendríamos una excepción, ya que no hay valor dentro del Optional.
 
 Al crear un Optional, es común querer usar `empty()` cuando el valor es `null`. 
 Puedes hacer esto con un if statement o un operador ternario. 
-Usamos el operador ternario (? :) para simplificar el código.
+Usamos el operador ternario `(? :)` para simplificar el código.
 
 ```java
 Optional o = (value == null) ? Optional.empty() : Optional.of(value);
 ```
 
+Si value es `null`, o se asigna el Optional vacío. De lo contrario, envolvemos el valor. 
+Como este es un patrón tan común, Java proporciona un método factory para hacer lo mismo.
+
+```java
+Optional o = Optional.ofNullable(value);
+```
+
+![ch10_01_02.png](images/ch10_01_02.png)
+
+* Los otros métodos te permiten escribir código que usa un `Optional` en una línea sin tener que usar el operador ternario. 
+* En lugar de usar un `if statement`, que usamos cuando verificamos el average anteriormente, podemos especificar un `Consumer` para ejecutar cuando hay un valor dentro del `Optional`. 
+* Cuando no lo hay, el método simplemente salta ejecutar él `Consumer`.
+
+```java
+Optional<Double> opt = average(90, 100);
+opt.ifPresent(System.out::println);
+```
+
+Continuar en página 3
