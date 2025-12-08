@@ -1,6 +1,6 @@
 # Streams
 
-### Retornando un Optional
+## Retornando un Optional
 
 * ¿Cómo expresamos esta respuesta "no sabemos" o "no aplicable" en Java?
 * Usamos el tipo Optional. Un Optional se crea usando una factory. 
@@ -82,3 +82,9 @@ opt.ifPresent(System.out::println);
 ```
 
 Continuar en página 3
+
+
+using streams
+working with primitive streams
+working with advanced stream pipeline concepts
+summary
