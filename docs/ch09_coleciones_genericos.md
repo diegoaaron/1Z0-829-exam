@@ -2026,5 +2026,13 @@ Estás escribiendo el método. Sabes qué tipo se supone que debe retornar. No p
 void fourth(List<? super B> list) {}
 ```
 
-Finalmente obtenemos un método, fourth(), que es un uso normal de generics. Puedes pasar el tipo List<B>, List<A>, o List<Object>.
-Finalmente, ¿puedes determinar por qué este ejemplo no compila?
+Finalmente, obtenemos un método, `fourth()`, que es un uso normal de generics. Puedes pasar el tipo `List<B>`, `List<A>`, o `List<Object>`.
+
+```java
+<X> void fifth(List<X super B> list) { // DOES NOT COMPILE
+}
+```
+
+* Este último método, `fifth()`, no compila porque intenta mezclar un parámetro de tipo específico del método con un wildcard. 
+* Un wildcard debe tener un `?` en él.
+
