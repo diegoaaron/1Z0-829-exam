@@ -19,7 +19,7 @@ Toma un capitulo del libro mencionado y revisa los apuntes, diagramas y código 
 7. [Beyond Classes](docs/ch07_01_interfaces.md)
 8. [Lambdas and Functional Interfaces](docs/ch08_01_lambdas.md)
 9. [Collections and Generics](docs/ch09_coleciones_genericos.md)
-10. [Streams](docs/ch10.md)
+10. [Streams](docs/ch10_streams.md)
 11. [Exceptions and Localization](docs/ch11.md)
 12. [Modules](docs/ch12.md)
 13. [Concurrency](docs/ch13.md)
