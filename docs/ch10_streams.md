@@ -162,8 +162,34 @@ Un stream en Java es una secuencia de datos. Un stream pipeline consiste de las 
 
 ### Entendiendo el flujo de pipeline
 
-Piensa en un stream pipeline como una línea de ensamblaje en una fábrica. Supongamos que
+* Piensa en un stream pipeline como una línea de ensamblaje en una fábrica. 
+* Supongamos que estamos ejecutando una línea de ensamblaje para hacer letreros para las exhibiciones de animales en el zoológico. 
+* Tenemos varios trabajos. Es el trabajo de una persona sacar los letreros de una caja. 
+* Es el trabajo de una segunda persona pintar el letrero. 
+* Es el trabajo de una tercera persona poner con stencil el nombre del animal en el letrero. 
+* Es el trabajo de la última persona poner el letrero completado en una caja para ser llevado a la exhibición apropiada.
 
+* Nota que la segunda persona no puede hacer nada hasta que un letrero haya sido sacado de la caja por la primera persona. 
+* Similarmente, la tercera persona no puede hacer nada hasta que un letrero haya sido pintado, y la última persona no puede hacer nada hasta que esté con stencil.
+* La línea de ensamblaje para hacer letreros es finita. Una vez que procesamos el contenido de nuestra caja de letreros, hemos terminado. 
+* Los streams Finite tienen un límite. Otras líneas de ensamblaje esencialmente corren para siempre, como una para producción de alimentos. 
+* Por supuesto, se detienen en algún punto cuando la fábrica cierra, pero pretendamos que eso no sucede. 
+* O piensa en un ciclo de amanecer/atardecer como infinite, ya que no termina por un período de tiempo inordinadamente largo.
+* Otra característica importante de una línea de ensamblaje es que cada persona toca cada elemento para hacer su operación, y luego esa pieza de datos se ha ido. 
+* No regresa. La siguiente persona trata con ella en ese punto. Esto es diferente a las listas y colas que viste en el capítulo anterior. 
+* Con una lista, puedes acceder a cualquier elemento en cualquier momento. Con una cola, estás limitado en cuáles elementos puedes acceder, pero todos los elementos están ahí. 
+* Con streams, los datos no se generan por adelantado—se crean cuando se necesitan. Este es un ejemplo de `lazy evaluation`, que retrasa la ejecución hasta que sea necesaria.
+
+* Muchas cosas pueden suceder en las estaciones de la línea de ensamblaje a lo largo del camino. 
+* En programación funcional, estas se llaman `stream operations`. Justo como con la línea de ensamblaje, las operaciones ocurren en un pipeline. 
+* Alguien tiene que comenzar y terminar el trabajo, y puede haber cualquier número de estaciones en el medio. 
+* Después de todo, ¡un trabajo con una persona no es una línea de ensamblaje! Hay tres partes para un stream pipeline, como se muestra en Figure 10.2.
+
+![ch10_01_03.png](images/ch10_01_03.png)
+
+1. **Source**: De dónde viene el stream.
+2. **Intermediate operations**: Transforma el stream en otro. Puede haber tan pocas o tantas operaciones intermedias como quieras. Ya que los streams usan `lazy evaluation`, las operaciones intermedias no se ejecutan hasta que la operación terminal se ejecuta.
+3. **Terminal operation**: Produce un resultado. Ya que los streams solo pueden usarse una vez, el stream ya no es válido después de que una operación terminal se completa.
 
 
 
