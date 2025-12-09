@@ -81,7 +81,50 @@ Optional<Double> opt = average(90, 100);
 opt.ifPresent(System.out::println);
 ```
 
-Continuar en página 3
+`ifPresent()` expresa mejor la intención: ejecutar algo si un valor está presente. Es como un if sin else.
+
+### Tratando con un Empty Optional (opcional vacío)
+
+Los métodos restantes permiten especificar qué hacer si un valor NO está presente. Hay varias opciones. 
+Las primeras dos permiten especificar un valor de retorno directamente o usando un `Supplier`.
+
+```java
+30: Optional<Double> opt = average();
+31: System.out.println(opt.orElse(Double.NaN));
+32: System.out.println(opt.orElseGet(() -> Math.random()));
+
+// impime algo como
+// NaN
+// 0.3746499180811058
+```
+
+* La línea 31 muestra que puedes retornar un valor específico o variable. En este caso, imprimimos el valor "not a number". 
+* La línea 32 muestra usar un `Supplier` para generar un valor en runtime para retornar. 
+
+Alternativamente, podemos hacer que el código lance una excepción si el Optional está vacío.
+
+```java
+30: Optional<Double> opt = average();
+31: System.out.println(opt.orElseThrow());
+
+// arrojando algo como:
+// Exception in thread "main" java.util.NoSuchElementException: No value present at java.base/java.util.Optional.orElseThrow(Optional.java:382)
+```
+
+* Sin especificar un `Supplier` para la excepción, Java lanzará una `NoSuchElementException`. 
+* Alternativamente, podemos hacer que el código lance una excepción personalizada si él `Optional` está vacío. 
+* Recuerda que el stack trace se ve extraño porque las lambdas se generan como clases en lugar de clases con nombre.
+
+```java
+30: Optional<Double> opt = average();
+31: System.out.println(opt.orElseThrow(
+32: () -> new IllegalStateException()));
+
+// arrojando algo como:
+// Exception in thread "main" java.lang.IllegalStateException at optionals.Methods.lambda$orElse$1(Methods.java:31) at java.base/java.util.Optional.orElseThrow(Optional.java:408)
+```
+
+
 
 
 using streams
