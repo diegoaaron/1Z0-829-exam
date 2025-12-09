@@ -124,10 +124,49 @@ Alternativamente, podemos hacer que el código lance una excepción si el Option
 // Exception in thread "main" java.lang.IllegalStateException at optionals.Methods.lambda$orElse$1(Methods.java:31) at java.base/java.util.Optional.orElseThrow(Optional.java:408)
 ```
 
+* La línea 32 muestra usar un `Supplier` para crear una excepción que debería ser lanzada. 
+* Nota que no escribimos `throw new IllegalStateException()`. El método `orElseThrow()` se encarga de realmente lanzar la excepción cuando lo ejecutamos.
+
+Los dos métodos que toman un Supplier tienen nombres diferentes. ¿Ves por qué este código no compila?
+
+```java
+System.out.println(opt.orElseGet(
+  () -> new IllegalStateException())); // DOES NOT COMPILE
+```
+
+* La variable `opt` es un `Optional<Double>`. Esto significa que el Supplier debe retornar un `Double`. 
+* Ya que este `Supplier` retorna una excepción, el tipo no coincide.
+
+El último ejemplo con `Optional` es realmente fácil. ¿Qué crees que hace esto?
+
+```java
+Optional<Double> opt = average(90, 100);
+System.out.println(opt.orElse(Double.NaN));
+System.out.println(opt.orElseGet(() -> Math.random()));
+System.out.println(opt.orElseThrow());
+```
+
+Imprime 95.0 tres veces. Ya que el valor existe, no hay necesidad de usar la lógica "**or else**".
+
+**Optional es igual a Null**
+
+* Una alternativa a `Optional` es retornar `null`. Hay algunos inconvenientes con este enfoque. 
+* Uno es que no hay una forma clara de expresar que `null` podría ser un valor especial. 
+* Por contraste, retornar un `Optional` es un `statement` claro en el API de que podría no haber un valor.
+* Otra ventaja de `Optional` es que puedes usar un estilo de programación funcional con `ifPresent()` y los otros métodos en lugar de necesitar una sentencia `if`. 
+* Finalmente, verás hacia el final del capítulo que puedes encadenar llamadas a `Optional`.
+
+## Usando Streams
+
+Un stream en Java es una secuencia de datos. Un stream pipeline consiste de las operaciones que se ejecutan en un stream para producir un resultado. 
+
+### Entendiendo el flujo de pipeline
+
+Piensa en un stream pipeline como una línea de ensamblaje en una fábrica. Supongamos que
 
 
 
-using streams
+
 working with primitive streams
 working with advanced stream pipeline concepts
 summary
