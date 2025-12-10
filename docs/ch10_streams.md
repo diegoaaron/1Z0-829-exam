@@ -314,7 +314,20 @@ Esto es diferente de una Collection, donde ves el contenido. Lo mencionamos para
 22:     n -> n + 2);    // UnaryOperator to get next value
 ```
 
-Este método toma tres parámetros. Nota cómo están separados por comas `(,) `igual que en todos los otros métodos. El examen puede intentar engañarte...
+Este método toma tres parámetros. Nota cómo están separados por comas `(,) `igual que en todos los otros métodos. 
+El examen puede intentar engañarte usando punto y coma, ya que es similar a un for loop.
+
+### Revisando métodos para crear streams
+
+![ch10_01_07.png](images/ch10_01_07.png)
+
+### Usando Common Terminal Operations (Operaciones terminales comunes)
+
+Puedes realizar una operación terminal sin ninguna operación intermedia pero no al revés. 
+Es por esto que hablamos de operaciones terminales primero. `Reductions` son un tipo especial de operación terminal donde todo el contenido del stream se combina en un solo primitivo u `Object`. 
+Por ejemplo, podrías tener un int o una Collection.
+
+
 
 working with primitive streams
 working with advanced stream pipeline concepts
