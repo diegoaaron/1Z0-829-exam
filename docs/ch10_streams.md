@@ -210,6 +210,76 @@ Un stream en Java es una secuencia de datos. Un stream pipeline consiste de las 
 No estamos usando código en estos ejemplos porque es realmente importante entender el concepto de stream pipeline antes de comenzar a escribir el código. 
 Figure 10.3 muestra un stream pipeline con una operación intermedia.
 
+* Veamos qué sucede desde el punto de vista del capataz. 
+* Primero, ven que el source está sacando letreros de la caja. 
+* El capataz configura un trabajador en la mesa para desempacar la caja y dice que espere una señal para comenzar. 
+* Luego el capataz ve la operación intermedia para pintar el letrero. 
+* Configuran un trabajador con pintura y le dicen que espere una señal para comenzar. 
+* Finalmente, el capataz ve la operación terminal para poner los letreros en una pila. 
+* Configuran un trabajador para hacer esto y gritan que los tres trabajadores deben comenzar.
+
+* Supón que hay dos letreros en la caja. El Step 1 es el primer trabajador sacando un letrero de la caja y pasándolo al segundo trabajador. 
+* El Step 2 es el segundo trabajador pintándolo y pasándolo al tercer trabajador. 
+* El Step 3 es el tercer trabajador poniéndolo en la pila. Los Steps 4–6 son este mismo proceso para el otro letrero. 
+* Luego el capataz ve que no quedan letreros y cierra toda la empresa.
+
+El capataz es inteligente y puede tomar decisiones sobre cómo hacer mejor el trabajo basándose en lo que se necesita. 
+Como ejemplo, exploremos el stream pipeline en Figure 10.4.
+
+![ch10_01_06.png](images/ch10_01_06.png)
+
+* El capataz todavía ve un source de sacar letreros de la caja y asigna un trabajador para hacer eso bajo comando. 
+* Todavía ven una operación intermedia para pintar y configuran otro trabajador con instrucciones de esperar y luego pintar. 
+* Luego ven un step intermedio de que necesitamos solo dos letreros. 
+* Configuran un trabajador para contar los letreros que pasan y notificar al capataz cuando el trabajador haya visto dos. 
+* Finalmente, configuran un trabajador para la operación terminal de poner los letreros en una pila.
+
+* Esta vez, supón que hay 10 letreros en la caja. Empezamos como la última vez. El primer letrero avanza por el pipeline. 
+* El segundo letrero también avanza por el pipeline. Cuando el trabajador encargado de contar ve el segundo letrero, le dice al capataz. 
+* El capataz deja que el trabajador de la operación terminal termine su tarea y luego grita, "¡Detengan la línea!" No importa que haya ocho letreros más en la caja. 
+* No los necesitamos, así que sería trabajo innecesario pintarlos. ¡Y todos queremos evitar trabajo innecesario!
+* Similarmente, el capataz habría detenido la línea después del primer letrero si la operación terminal fuera encontrar el primer letrero que se crea.
+* En las siguientes secciones, cubrimos las tres partes del pipeline. También discutimos tipos especiales de streams para primitivos y cómo imprimir un stream.
+
+### Creando un Stream Source
+
+En Java, los streams de los que hemos estado hablando están representados por la interfaz `Stream<T>`, definida en el paquete `java.util.stream.`
+
+### Creando Streams finitos 
+
+Por simplicidad, empezamos con finite streams. Hay algunas formas de crearlos.
+
+```java
+11: Stream<String> empty = Stream.empty();           // count = 0
+12: Stream<Integer> singleElement = Stream.of(1);    // count = 1
+13: Stream<Integer> fromArray = Stream.of(1, 2, 3);  // count = 3
+```
+
+La línea 11 muestra cómo crear un `stream` vacío. La línea 12 muestra cómo crear un stream con un solo elemento. 
+La línea 13 muestra cómo crear un `stream` desde un `varargs`.
+Java también proporciona una forma conveniente de convertir una `Collection` a un `stream`.
+
+```java
+14: var list = List.of("a", "b", "c");
+15: Stream<String> fromList = list.stream();
+```
+
+La línea 15 muestra que es una simple llamada de método para crear un stream desde una lista. Esto es útil, ya que tales conversiones son comunes.
+
+**Creando un Stream paralelo**
+
+```java
+24: var list = List.of("a", "b", "c");
+25: Stream<String> fromListParallel = list.parallelStream();
+```
+
+* Esta es una gran característica porque puedes escribir código que usa concurrencia antes incluso de aprender qué es un thread. 
+* Usar `parallel streams` es como configurar múltiples mesas de trabajadores que pueden hacer la misma tarea. 
+* Pintar sería mucho más rápido si pudiéramos tener cinco pintores pintando letreros en lugar de solo uno. 
+* Solo ten en cuenta que algunas tareas no pueden hacerse en paralelo, como poner los letreros en el orden en que fueron creados en el stream. 
+* También ten presente que hay un costo en coordinar el trabajo, así que para streams más pequeños, podría ser más rápido hacerlo secuencialmente. 
+
+
 
 working with primitive streams
 working with advanced stream pipeline concepts
