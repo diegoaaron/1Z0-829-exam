@@ -191,6 +191,24 @@ Un stream en Java es una secuencia de datos. Un stream pipeline consiste de las 
 2. **Intermediate operations**: Transforma el stream en otro. Puede haber tan pocas o tantas operaciones intermedias como quieras. Ya que los streams usan `lazy evaluation`, las operaciones intermedias no se ejecutan hasta que la operación terminal se ejecuta.
 3. **Terminal operation**: Produce un resultado. Ya que los streams solo pueden usarse una vez, el stream ya no es válido después de que una operación terminal se completa.
 
+* Nota que las operaciones son desconocidas para nosotros. Al ver la línea de ensamblaje desde afuera, solo te importa qué entra y qué sale. 
+* Lo que sucede en el medio es un detalle de implementación. Necesitarás conocer las diferencias entre operaciones intermedias y terminales bien. 
+
+![ch10_01_04.png](images/ch10_01_04.png)
+
+* Una fábrica típicamente tiene un capataz que supervisa el trabajo. 
+* Java sirve como el capataz cuando trabaja con stream pipelines. 
+* Este es un rol realmente importante, especialmente cuando se trata con `lazy evaluation` y streams infinitos. 
+* Piensa en declarar el stream como dar instrucciones al capataz. 
+* A medida que el capataz descubre qué necesita hacerse, configuran las estaciones y les dicen a los trabajadores cuáles serán sus deberes. 
+* Sin embargo, los trabajadores no comienzan hasta que el capataz les dice que empiecen. 
+* El capataz espera hasta que vean la operación terminal para iniciar el trabajo. 
+* También observan el trabajo y detienen la línea tan pronto como el trabajo se completa.
+
+![ch10_01_05.png](images/ch10_01_05.png)
+
+No estamos usando código en estos ejemplos porque es realmente importante entender el concepto de stream pipeline antes de comenzar a escribir el código. 
+Figure 10.3 muestra un stream pipeline con una operación intermedia.
 
 
 working with primitive streams
