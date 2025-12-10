@@ -279,7 +279,42 @@ La línea 15 muestra que es una simple llamada de método para crear un stream d
 * Solo ten en cuenta que algunas tareas no pueden hacerse en paralelo, como poner los letreros en el orden en que fueron creados en el stream. 
 * También ten presente que hay un costo en coordinar el trabajo, así que para streams más pequeños, podría ser más rápido hacerlo secuencialmente. 
 
+### Creando Infinite Streams (streams infinitos)
 
+* Hasta ahora, esto no es particularmente impresionante. Podríamos hacer todo esto con listas. 
+* No podemos crear una lista infinita, sin embargo, lo cual hace a los streams más poderosos.
+
+```java
+17: Stream<Double> randoms = Stream.generate(Math::random);
+18: Stream<Integer> oddNumbers = Stream.iterate(1, n -> n + 2);
+```
+
+* La línea 17 genera un stream de números aleatorios. ¿Cuántos números aleatorios? Los que necesites. 
+* Si llamas `randoms.forEach(System.out::println)`, el programa imprimirá números aleatorios hasta que lo detengas. 
+* Más adelante en el capítulo, aprenderás sobre operaciones como `limit()` para convertir el stream infinito en uno finito.
+
+* La línea 18 te da más control. El método `iterate()` toma una semilla o valor inicial como primer parámetro. 
+* Este es el primer elemento que será parte del stream. El otro parámetro es una expresión lambda que recibe el valor anterior y genera el siguiente valor. 
+* Como con el ejemplo de números aleatorios, seguirá produciendo números impares mientras los necesites.
+
+**Imprimiendo una referencia de Stream**
+
+Si intentas llamar `System.out.print(stream)`, obtendrás algo como lo siguiente:
+
+`java.util.stream.ReferencePipeline$3@4517d9a3`
+
+Esto es diferente de una Collection, donde ves el contenido. Lo mencionamos para que no te sorprendas cuando escribas código para practicar.
+
+¿Qué pasa si solo quieres números impares menores que 100? Hay una versión sobrecargada de `iterate()` que ayuda:
+
+```java
+19: Stream<Integer> oddNumberUnder100 = Stream.iterate(
+20:     1,              // seed
+21:     n -> n < 100,   // Predicate to specify when done
+22:     n -> n + 2);    // UnaryOperator to get next value
+```
+
+Este método toma tres parámetros. Nota cómo están separados por comas `(,) `igual que en todos los otros métodos. El examen puede intentar engañarte...
 
 working with primitive streams
 working with advanced stream pipeline concepts
