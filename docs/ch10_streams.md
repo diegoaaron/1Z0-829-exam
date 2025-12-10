@@ -327,6 +327,31 @@ Puedes realizar una operación terminal sin ninguna operación intermedia pero n
 Es por esto que hablamos de operaciones terminales primero. `Reductions` son un tipo especial de operación terminal donde todo el contenido del stream se combina en un solo primitivo u `Object`. 
 Por ejemplo, podrías tener un int o una Collection.
 
+![ch10_01_08.png](images/ch10_01_08.png)
+
+### Counting
+
+* El método `count()` determina el número de elementos en un stream finito. 
+* Para un stream infinito, nunca termina. ¿Por qué? Cuenta del 1 al infinito, y avísanos cuando hayas terminado. 
+* El método `count()` es una reducción porque mira cada elemento en el stream y retorna un solo valor. 
+* La firma del método es la siguiente:
+
+`public long count()`
+
+Este ejemplo muestra llamar `count()` en un stream finito:
+
+```java
+Stream<String> s = Stream.of("monkey", "gorilla", "bonobo");
+System.out.println(s.count()); // 3
+```
+
+### Encontrando el máximo y mínimo
+
+* Los métodos `min()` y `max()` te permiten pasar un comparador personalizado y encontrar el valor más pequeño o más grande en un stream finito de acuerdo a ese orden de clasificación. 
+* Como el método `count()`, `min()` y `max()` cuelgan en un stream infinito porque no pueden estar seguros de que un valor más pequeño o más grande no vendrá después en el stream. 
+* Ambos métodos son reducciones porque retornan un solo valor después de mirar todo el stream. Las firmas de los métodos son las siguientes:
+
+continuar en la 12
 
 
 working with primitive streams
