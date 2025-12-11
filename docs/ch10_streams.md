@@ -438,6 +438,21 @@ System.out.println(list.stream().noneMatch(pred));   // false
 System.out.println(infinite.anyMatch(pred));         // true
 ```
 
+* Esto muestra que podemos reutilizar el mismo predicado, pero necesitamos un stream diferente cada vez. 
+* El método `anyMatch()` retorna `true` porque dos de los tres elementos coinciden. 
+* El método `allMatch()` retorna false porque uno no coincide. El método `noneMatch()` también retorna false porque al menos uno coincide. 
+* En el stream infinito, se encuentra una coincidencia, por lo que la llamada termina. Si llamáramos `allMatch()`, se ejecutaría hasta que matáramos el programa.
+
+* Recuerda que `allMatch()`, `anyMatch()`, y `noneMatch()` retornan un boolean. 
+* En contraste, los métodos `find` retornan un `Optional` porque retornan un elemento del stream.
+
+### Iterating
+
+
+
+```java
+
+```
 
 
 working with primitive streams
