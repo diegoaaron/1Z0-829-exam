@@ -351,8 +351,43 @@ System.out.println(s.count()); // 3
 * Como el método `count()`, `min()` y `max()` cuelgan en un stream infinito porque no pueden estar seguros de que un valor más pequeño o más grande no vendrá después en el stream. 
 * Ambos métodos son reducciones porque retornan un solo valor después de mirar todo el stream. Las firmas de los métodos son las siguientes:
 
-continuar en la 12
+```java
+public Optional<T> min(Comparator<? super T> comparator)
+public Optional<T> max(Comparator<? super T> comparator)
+```
 
+Este ejemplo encuentra el animal con el menor número de letras en su nombre:
+
+```java
+Stream<String> s = Stream.of("monkey", "ape", "bonobo");
+Optional<String> min = s.min((s1, s2) -> s1.length()-s2.length());
+min.ifPresent(System.out::println); // ape
+```
+
+* Nota que el código retorna un `Optional` en lugar del valor. Esto permite que el método especifique que no se encontró ningún mínimo o máximo. 
+* Usamos el método Optional `ifPresent()` y una referencia a método para imprimir el mínimo solo si se encuentra uno. 
+* Como ejemplo de dónde no hay un mínimo, veamos un stream vacío:
+
+```java
+Optional<?> minEmpty = Stream.empty().min((s1, s2) -> 0);
+System.out.println(minEmpty.isPresent()); // false
+```
+
+Como el stream está vacío, el comparador nunca se llama, y no hay valor presente en él `Optional`.
+
+* ¿Qué pasa si necesitas tanto los valores de `min()` como de `max()` del mismo stream? 
+* Por ahora, no puedes tener ambos, al menos no usando estos métodos. Recuerda, un stream puede tener solo una operación terminal. 
+* Una vez que una operación terminal ha sido ejecutada, el stream no puede ser usado de nuevo. 
+* Como verás más adelante en este capítulo, hay métodos de resumen incorporados para algunos streams numeric que calcularán un conjunto de valores para ti.
+
+### Buscando un valor
+
+Los métodos `findAny()` y `findFirst()` retornan un elemento del stream a menos que el stream esté vacío. 
+Si el stream está vacío, retornan un `Optional` vacío. Este es el primer método que has visto que puede terminar con un stream infinito. 
+Como Java genera solo la cantidad de stream que necesitas, el stream infinito necesita generar solo un elemento.
+Como su nombre lo implica, el método `findAny()` puede retornar cualquier elemento del stream. 
+Cuando se llama sobre los streams que has visto hasta ahora, comúnmente retorna el primer elemento, aunque este comportamiento no está garantizado.
+Como tú
 
 working with primitive streams
 working with advanced stream pipeline concepts
