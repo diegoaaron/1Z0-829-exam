@@ -382,12 +382,63 @@ Como el stream está vacío, el comparador nunca se llama, y no hay valor presen
 
 ### Buscando un valor
 
-Los métodos `findAny()` y `findFirst()` retornan un elemento del stream a menos que el stream esté vacío. 
-Si el stream está vacío, retornan un `Optional` vacío. Este es el primer método que has visto que puede terminar con un stream infinito. 
-Como Java genera solo la cantidad de stream que necesitas, el stream infinito necesita generar solo un elemento.
-Como su nombre lo implica, el método `findAny()` puede retornar cualquier elemento del stream. 
-Cuando se llama sobre los streams que has visto hasta ahora, comúnmente retorna el primer elemento, aunque este comportamiento no está garantizado.
-Como tú
+* Los métodos `findAny()` y `findFirst()` retornan un elemento del stream a menos que el stream esté vacío. 
+* Si el stream está vacío, retornan un `Optional` vacío. Este es el primer método que has visto que puede terminar con un stream infinito. 
+* Como Java genera solo la cantidad de stream que necesitas, el stream infinito necesita generar solo un elemento.
+* Como su nombre lo implica, el método `findAny()` puede retornar cualquier elemento del stream. 
+* Cuando se llama sobre los streams que has visto hasta ahora, comúnmente retorna el primer elemento, aunque este comportamiento no está garantizado.
+* Como tú verás en el Capítulo 13, el método `findAny()` es más probable que retorne un elemento aleatorio cuando se trabaja con streams paralelos.
+
+* Estos métodos son operaciones terminales pero no reducciones. La razón es que a veces retornan sin procesar todos los elementos. 
+* Esto significa que retornan un valor basado en el stream, pero no reducen el stream completo en un único valor.
+* Las firmas de los métodos son las siguientes:
+
+```java
+public Optional<T> findAny()
+public Optional<T> findFirst()
+```
+
+Este ejemplo encuentra un animal:
+
+```java
+Stream<String> s = Stream.of("monkey", "gorilla", "bonobo");
+Stream<String> infinite = Stream.generate(() -> "chimp");
+
+s.findAny().ifPresent(System.out::println); // monkey (usually)
+infinite.findAny().ifPresent(System.out::println); // chimp
+```
+
+* Encontrar cualquier coincidencia es más útil de lo que suena. 
+* A veces solo queremos muestrear los resultados y obtener un elemento representativo, pero no necesitamos desperdiciar el procesamiento generándolos todos. 
+* Después de todo, si planeamos trabajar con solo un elemento, ¿por qué molestarse en mirar más?
+
+### Matching 
+
+Los métodos `allMatch()`, `anyMatch()`, y `noneMatch()` buscan en un stream y retornan información sobre cómo el stream se relaciona con el predicado. 
+Estos pueden o no terminar para streams infinitos. Depende de los datos. Como los métodos `find`, no son reducciones porque no necesariamente miran todos los elementos.
+
+Las firmas de los métodos son las siguientes:
+
+```java
+public boolean anyMatch(Predicate <? super T> predicate)
+public boolean allMatch(Predicate <? super T> predicate)
+public boolean noneMatch(Predicate <? super T> predicate)
+```
+
+Este ejemplo verifica si los nombres de animales comienzan con letras:
+
+```java
+var list = List.of("monkey", "2", "chimp");
+Stream<String> infinite = Stream.generate(() -> "chimp");
+Predicate<String> pred = x -> Character.isLetter(x.charAt(0));
+
+System.out.println(list.stream().anyMatch(pred));    // true
+System.out.println(list.stream().allMatch(pred));    // false
+System.out.println(list.stream().noneMatch(pred));   // false
+System.out.println(infinite.anyMatch(pred));         // true
+```
+
+
 
 working with primitive streams
 working with advanced stream pipeline concepts
