@@ -448,12 +448,38 @@ System.out.println(infinite.anyMatch(pred));         // true
 
 ### Iterating
 
+* Como en el Java Collections Framework, es común iterar sobre los elementos de un stream. 
+* Como se esperaba, llamar `forEach()` en un stream infinito no termina. Como no hay valor de retorno, no es una reducción.
 
+* Antes de usarlo, considera si otro enfoque sería mejor. Los desarrolladores que aprendieron a escribir loops primero tienden a usarlos para todo. 
+* Por ejemplo, un loop con un `if statement` podría ser escrito con un filter. Aprenderás sobre `filters` en la sección de operaciones intermedias.
+
+La firma del método es la siguiente:
+
+`public void forEach(Consumer<? super T> action)`
+
+* Nota que esta es la única operación terminal con un tipo de retorno `void`. Si quieres que algo suceda, tienes que hacer que suceda en él `Consumer`. 
+* Aquí hay una forma de imprimir los elementos en el stream (hay otras formas, que cubriremos más adelante en el capítulo):
+
+```java
+Stream<String> s = Stream.of("Monkey", "Gorilla", "Bonobo");
+s.forEach(System.out::print); // MonkeyGorillaBonobo
+```
+
+Recuerda que puedes llamar `forEach()` directamente en una `Collection` o en un `Stream`. 
+
+Nota que no puedes usar un loop for tradicional en un stream.
+
+```java
+Stream<Integer> s = Stream.of(1);
+for (Integer i : s) {} // DOES NOT COMPILE
+```
+
+continuar en la 15
 
 ```java
 
 ```
-
 
 working with primitive streams
 working with advanced stream pipeline concepts
