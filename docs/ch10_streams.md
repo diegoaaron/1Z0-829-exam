@@ -815,6 +815,55 @@ Stream<String> s = Stream.of("brown bear-", "grizzly-");
 s.sorted(Comparator::reverseOrder); // DOES NOT COMPILE
 ```
 
+* Echa un vistazo a la segunda firma del método `sorted()` nuevamente. Toma un `Comparator`, que es una interfaz funcional que toma dos parámetros y retorna un `int`. 
+* Sin embargo, `Comparator::reverseOrder` no hace eso. Porque `reverseOrder()` no toma argumentos y retorna un valor, la referencia al método es equivalente a `() -> Comparator.reverseOrder()`, que es realmente un `Supplier<Comparator>`. 
+* Esto no es compatible con `sorted()`. Mencionamos esto para recordarte que realmente necesitas conocer bien las referencias a métodos.
+
+### Taking a peek
+
+* El método `peek()` es nuestra operación intermedia final. Es útil para depuración porque nos permite realizar una operación de stream sin cambiar el stream. 
+* La firma del método es la siguiente:
+
+```java
+public Stream<T> peek(Consumer<? super T> action)
+```
+
+Podrías notar que la operación intermedia `peek()` toma el mismo argumento que la operación terminal `forEach()`. 
+Piensa en `peek()` como una versión intermedia de `forEach()` que te retorna el stream original.
+El uso más común para `peek()` es mostrar los contenidos del stream a medida que pasa. 
+Supón que cometimos un error tipográfico y contamos osos que comienzan con la letra g en lugar de b. 
+Estamos desconcertados por qué el conteo es 1 en lugar de 2. Podemos añadir un método `peek()` para averiguar por qué.
+
+```java
+var stream = Stream.of("black bear", "brown bear", "grizzly");
+long count = stream.filter(s -> s.startsWith("g"))
+  .peek(System.out::println).count();     // grizzly
+System.out.println(count);                 // 1
+```
+
+* En Chapter 9, viste que `peek()` solo mira el primer elemento cuando se trabaja con una Queue. 
+* En un stream, `peek()` mira cada elemento que pasa a través de esa parte del pipeline del stream. 
+* Es como tener un trabajador tomando notas sobre cómo está yendo un paso particular del proceso.
+
+**Nota: Cambiando el estado con peek()**
+
+Recuerda que `peek()` está pensado para realizar una operación sin cambiar el resultado. Aquí hay un pipeline de stream directo que no usa `peek()`:
+
+```java
+var numbers = new ArrayList<>();
+var letters = new ArrayList<>();
+numbers.add(1);
+letters.add('a');
+```
+
+
+
+
+Continuar en la 24
+
+
+
+
 
 ```java
 
