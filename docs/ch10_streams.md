@@ -738,10 +738,10 @@ Recuerda que `String::length` es abreviación para la `lambda x -> x.length()`, 
 
 ### Using flatMap
 
-El método `flatMap()` toma cada elemento en el stream y hace que cualquier elemento que contenga sea un elemento de nivel superior en un único stream. 
-Esto es útil cuando quieres remover elementos vacíos de un stream o combinar un stream de listas. 
-Estamos mostrando la firma del método por consistencia con los otros métodos, así que no pienses que estamos ocultando algo. 
-No se espera que puedas leer esto:
+* El método `flatMap()` toma cada elemento en el stream y hace que cualquier elemento que contenga sea un elemento de nivel superior en un único stream. 
+* Esto es útil cuando quieres remover elementos vacíos de un stream o combinar un stream de listas. 
+* Estamos mostrando la firma del método por consistencia con los otros métodos, así que no pienses que estamos ocultando algo. 
+* No se espera que puedas leer esto:
 
 ```java
 public <R> Stream<R> flatMap(
@@ -772,13 +772,48 @@ Como puedes ver, removió la lista vacía completamente y cambió todos los elem
 Mientras `flatMap()` es bueno para el caso general, hay una forma más conveniente de concatenar dos streams:
 
 ```java
+var one = Stream.of("Bonobo");
+var two = Stream.of("Mama Gorilla", "Baby Gorilla");
 
+Stream.concat(one, two)
+  .forEach(System.out::println);
 ```
 
+Esto produce las mismas tres líneas que el ejemplo anterior. Los dos streams son concatenados, y la operación terminal, `forEach()`, es llamada.
 
+### Sorting
 
+* El método `sorted()` retorna un stream con los elementos ordenados. 
+* Al igual que ordenar arrays, Java usa ordenamiento natural a menos que especifiquemos un comparator. 
+* Las firmas de los métodos son estas:
 
+```java
+public Stream<T> sorted()
+public Stream<T> sorted(Comparator<? super T> comparator)
+```
 
+Llamar a la primera firma usa el orden de ordenamiento por defecto.
+
+```java
+Stream<String> s = Stream.of("brown-", "bear-");
+s.sorted()
+  .forEach(System.out::print); // bear-brown-
+```
+
+Opcionalmente, podemos usar una implementación de `Comparator` vía un método o una lambda. En este ejemplo, estamos usando un método:
+
+```java
+Stream<String> s = Stream.of("brown bear-", "grizzly-");
+s.sorted(Comparator.reverseOrder())
+  .forEach(System.out::print); // grizzly-brown bear-
+```
+
+Aquí pasamos un `Comparator` para especificar que queremos ordenar en el orden inverso del orden natural. ¿Listo para uno complicado? ¿Ves por qué este no compila?
+
+```java
+Stream<String> s = Stream.of("brown bear-", "grizzly-");
+s.sorted(Comparator::reverseOrder); // DOES NOT COMPILE
+```
 
 
 ```java
