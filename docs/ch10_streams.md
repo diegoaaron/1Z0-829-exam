@@ -475,7 +475,63 @@ Stream<Integer> s = Stream.of(1);
 for (Integer i : s) {} // DOES NOT COMPILE
 ```
 
-continuar en la 15
+Aunque `forEach()` suena como un loop, es realmente un operador terminal para streams. 
+Los streams no pueden ser usados como fuente en un for-each loop porque no implementan la interfaz `Iterable`.
+
+
+### Reducing
+
+* El método `reduce()` combina un stream en un único objeto. Es una reducción, lo que significa que procesa todos los elementos. 
+* Las tres firmas de métodos son estas:
+
+```java
+public T reduce(T identity, BinaryOperator<T> accumulator)
+
+public Optional<T> reduce(BinaryOperator<T> accumulator)
+
+public <U> U reduce(U identity,
+  BiFunction<U,? super T,U> accumulator,
+  BinaryOperator<U> combiner)
+```
+
+* Tomémoslos uno a la vez. La forma más común de hacer una reducción es comenzar con un valor inicial y seguir fusionándolo con el siguiente valor. 
+* Piensa en cómo concatenarías un array de objetos String en un único String sin programación funcional. Podría verse algo así:
+
+```java
+var array = new String[] { "w", "o", "l", "f" };
+var result = "";
+for (var s: array) result = result + s;
+System.out.println(result); // wolf
+```
+
+* El **identity** es el valor inicial de la reducción, en este caso un String vacío. 
+* El **accumulator** combina el resultado actual con el valor actual en el stream. 
+* Con lambdas, podemos hacer lo mismo con un stream y reducción:
+
+```java
+Stream<String> stream = Stream.of("w", "o", "l", "f");
+String word = stream.reduce("", (s, c) -> s + c);
+System.out.println(word); // wolf
+```
+
+* Nota cómo todavía tenemos el `String` vacío como `identity`. 
+* También seguimos concatenando los objetos String para obtener el siguiente valor. 
+* Incluso podemos reescribir esto con una referencia a método:
+
+```java
+Stream<String> stream = Stream.of("w", "o", "l", "f");
+String word = stream.reduce("", String::concat);
+System.out.println(word); // wolf
+```
+
+Intentemos otro. ¿Puedes escribir una reducción para multiplicar todos los objetos `Integer` en un stream?  
+Nuestra solución se muestra aquí:
+
+
+
+
+
+
 
 ```java
 
