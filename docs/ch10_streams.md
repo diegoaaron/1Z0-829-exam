@@ -612,7 +612,7 @@ Primer parámetro - `supplier`: Crea el objeto que almacenará los resultados mi
 Segundo parámetro - `accumulator`: Es un `BiConsumer` que toma dos parámetros y no retorna nada. Es responsable de añadir un elemento más a la colección de datos. En este ejemplo, añade el siguiente `String` al `StringBuilder`.
 Tercer parámetro - `combiner`: Es otro `BiConsumer`. Es responsable de tomar dos colecciones de datos y fusionarlas. Esto es útil cuando se está procesando en paralelo. Dos colecciones más pequeñas se forman y luego se fusionan en una. Esto funcionaría con `StringBuilder` solo si nos importara el orden de las letras. En este caso, él `accumulator` y `combiner` tienen lógica similar.
 
-Ahora veamos un ejemplo donde la lógica es diferente en el `accumulator` y `combiner`:
+Ahora veamos un ejemplo donde la lógica es diferente en él `accumulator` y `combiner`:
 
 ```java
 Stream<String> stream = Stream.of("w", "o", "l", "f");
@@ -692,10 +692,49 @@ s.distinct()
   .forEach(System.out::print); // duckgoose
 ```
 
+### Restricting by Position
 
+* Los métodos `limit()` y `skip()` pueden hacer un Stream más pequeño, o `limit()` podría hacer un stream finito a partir de un stream infinito. 
+* Las firmas de los métodos se muestran aquí:
 
+```java
+public Stream<T> limit(long maxSize)
+public Stream<T> skip(long n)
+```
 
+El siguiente código crea un stream infinito de números contando desde 1. 
+La operación `skip()` retorna un stream infinito comenzando con los números contando desde 6, ya que salta los primeros cinco elementos. 
+La llamada `limit()` toma los primeros dos de esos. Ahora tenemos un stream finito con dos elementos, que luego podemos imprimir con el método `forEach()`:
 
+```java
+Stream<Integer> s = Stream.iterate(1, n -> n + 1);
+s.skip(5)
+  .limit(2)
+  .forEach(System.out::print); // 67
+```
+
+### Mapping
+
+* El método `map()` crea un mapeo uno-a-uno desde los elementos en el stream a los elementos del siguiente paso en el stream. 
+* La firma del método es la siguiente:
+
+```java
+public <R> Stream<R> map(Function<? super T, ? extends R> mapper)
+```
+
+* Este se ve más complicado que los otros que has visto. Usa la expresión lambda para deducir el tipo pasado a esa función y el que es retornado. 
+* El tipo de retorno es el stream que es retornado.
+
+* NOTA: El método `map()` en streams es para transformar datos. No lo confundas con la interfaz `Map`, que mapea claves a valores.
+* Como ejemplo, este código convierte una lista de objetos `String` a una lista de objetos `Integer` representando sus longitudes:
+
+```java
+Stream<String> s = Stream.of("monkey", "gorilla", "bonobo");
+s.map(String::length)
+  .forEach(System.out::print); // 676
+```
+
+Recuerda que `String::length` es abreviación para la `lambda x -> x.length()`, que claramente muestra que es una función que convierte un String en un Integer.
 
 
 
