@@ -527,9 +527,50 @@ System.out.println(word); // wolf
 Intentemos otro. ¿Puedes escribir una reducción para multiplicar todos los objetos `Integer` en un stream?  
 Nuestra solución se muestra aquí:
 
+```java
+Stream<Integer> stream = Stream.of(3, 5, 6);
+System.out.println(stream.reduce(1, (a, b) -> a*b)); // 90
+```
 
+* Establecemos el **identity** en 1 y el accumulator en multiplicación. 
+* En muchos casos, el **identity** no es realmente necesario, por lo que Java nos permite omitirlo. 
+* Cuando no especificas un **identity**, se retorna un **Optional** porque podría no haber ningún dato. 
+* Hay tres opciones para lo que está en el Optional:
+  * Si el stream está vacío, se retorna un Optional vacío.
+  * Si el stream tiene un elemento, se retorna.
+  * Si el stream tiene múltiples elementos, el accumulator se aplica para combinarlos.
+* Lo siguiente ilustra cada uno de estos escenarios:
 
+```java
+BinaryOperator<Integer> op = (a, b) -> a * b;
+Stream<Integer> empty = Stream.empty();
+Stream<Integer> oneElement = Stream.of(3);
+Stream<Integer> threeElements = Stream.of(3, 5, 6);
 
+empty.reduce(op).ifPresent(System.out::println);        // no output
+oneElement.reduce(op).ifPresent(System.out::println);   // 3
+threeElements.reduce(op).ifPresent(System.out::println); // 90
+```
+
+* ¿Por qué hay dos métodos similares? ¿Por qué no simplemente siempre requerir el **identity**? Java podría haber hecho eso. 
+* Sin embargo, a veces es bueno diferenciar el caso donde el stream está vacío en lugar del caso donde hay un valor que coincide con el identity siendo retornado del cálculo. 
+* La firma que retorna un **Optional** nos permite diferenciar estos casos. 
+* Por ejemplo, podríamos retornar `Optional.empty()` cuando el stream está vacío y `Optional.of(3)` cuando hay un valor.
+* La tercera firma del método se usa cuando estamos tratando con diferentes tipos. 
+* Permite a Java crear reducciones intermedias y luego combinarlas al final. 
+* Veamos un ejemplo que cuenta el número de caracteres en cada `String`:
+
+```java
+Stream<String> stream = Stream.of("w", "o", "l", "f!");
+int length = stream.reduce(0, (i, s) -> i + s.length(), (a, b) -> a + b);
+System.out.println(length); // 5
+```
+
+* El primer parámetro `(0)` es el valor para el initializer. Si tuviéramos un stream vacío, esta sería la respuesta. 
+* El segundo parámetro es el **accumulator**. A diferencia de los accumulators que viste previamente, este maneja tipos de datos mixtos. 
+* En este ejemplo, el primer argumento, `i`, es un `Integer`, mientras que el segundo argumento, `s`, es un `String`. 
+* Agrega la longitud del `String` actual a nuestro total acumulado. El tercer parámetro se llama el **combiner**, que combina cualquier total intermedio. 
+* En este caso, a y b son ambos valores `Integer`.
 
 
 
