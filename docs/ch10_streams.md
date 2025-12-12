@@ -736,6 +736,48 @@ s.map(String::length)
 
 Recuerda que `String::length` es abreviación para la `lambda x -> x.length()`, que claramente muestra que es una función que convierte un String en un Integer.
 
+### Using flatMap
+
+El método `flatMap()` toma cada elemento en el stream y hace que cualquier elemento que contenga sea un elemento de nivel superior en un único stream. 
+Esto es útil cuando quieres remover elementos vacíos de un stream o combinar un stream de listas. 
+Estamos mostrando la firma del método por consistencia con los otros métodos, así que no pienses que estamos ocultando algo. 
+No se espera que puedas leer esto:
+
+```java
+public <R> Stream<R> flatMap(
+  Function<? super T, ? extends Stream<? extends R>> mapper)
+```
+
+* Este galimatías básicamente dice que retorna un Stream del tipo que la función contiene en un nivel más bajo. 
+* Lo que deberías entender es el ejemplo. Este obtiene todos los animales en el mismo nivel y remueve la lista vacía.
+
+```java
+List<String> zero = List.of();
+var one = List.of("Bonobo");
+var two = List.of("Mama Gorilla", "Baby Gorilla");
+Stream<List<String>> animals = Stream.of(zero, one, two);
+animals.flatMap(m -> m.stream())
+  .forEach(System.out::println);
+
+// Aquí está la salida:
+// Bonobo
+// Mama Gorilla
+// Baby Gorilla
+```
+
+Como puedes ver, removió la lista vacía completamente y cambió todos los elementos de cada lista para que estén en el nivel superior del stream.
+
+**Concatenando Streams**
+
+Mientras `flatMap()` es bueno para el caso general, hay una forma más conveniente de concatenar dos streams:
+
+```java
+
+```
+
+
+
+
 
 
 
