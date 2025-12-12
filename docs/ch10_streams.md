@@ -572,6 +572,92 @@ System.out.println(length); // 5
 * Agrega la longitud del `String` actual a nuestro total acumulado. El tercer parámetro se llama el **combiner**, que combina cualquier total intermedio. 
 * En este caso, a y b son ambos valores `Integer`.
 
+* La operación `reduce()` de tres argumentos es útil cuando se trabaja con streams paralelos porque permite que el stream sea descompuesto y reensamblado por hilos separados. 
+* Por ejemplo, si se necesita contar la longitud de cuatro strings de 100 caracteres, los primeros dos valores y los últimos dos valores podrían ser computados independientemente. 
+* El resultado intermedio (200 + 200) sería entonces combinado en el valor final.
+
+### Collecting
+
+* El método `collect()` es un tipo especial de reducción llamado **mutable reduction**. 
+* Es más eficiente que una reducción regular porque usa el mismo objeto mutable mientras se acumula. 
+* Los objetos mutables comunes incluyen `StringBuilder` y `ArrayList`. 
+* Este método permite obtener datos de los streams y convertirlos a otra forma.
+
+La firma del método es:
+
+```java
+public <R> R collect(Supplier<R> supplier,
+  BiConsumer<R, ? super T> accumulator,
+  BiConsumer<R, R> combiner)
+
+public <R,A> R collect(Collector<? super T, A,R> collector)
+```
+
+Ejemplo de la primera firma:
+
+El ejemplo del "wolf" del `reduce` puede ser convertido para usar `collect()`:
+
+```java
+Stream<String> stream = Stream.of("w", "o", "l", "f");
+
+StringBuilder word = stream.collect(
+  StringBuilder::new,
+  StringBuilder::append,
+  StringBuilder::append);
+
+System.out.println(word); // wolf
+```
+
+Primer parámetro - `supplier`: Crea el objeto que almacenará los resultados mientras se recolectan datos. Un `Supplier` no toma parámetros y retorna un valor. En este caso, construye un nuevo `StringBuilder`.
+Segundo parámetro - `accumulator`: Es un `BiConsumer` que toma dos parámetros y no retorna nada. Es responsable de añadir un elemento más a la colección de datos. En este ejemplo, añade el siguiente `String` al `StringBuilder`.
+Tercer parámetro - `combiner`: Es otro `BiConsumer`. Es responsable de tomar dos colecciones de datos y fusionarlas. Esto es útil cuando se está procesando en paralelo. Dos colecciones más pequeñas se forman y luego se fusionan en una. Esto funcionaría con `StringBuilder` solo si nos importara el orden de las letras. En este caso, él `accumulator` y `combiner` tienen lógica similar.
+
+Ahora veamos un ejemplo donde la lógica es diferente en el `accumulator` y `combiner`:
+
+```java
+Stream<String> stream = Stream.of("w", "o", "l", "f");
+
+TreeSet<String> set = stream.collect(
+  TreeSet::new,
+  TreeSet::add,
+  TreeSet::addAll);
+
+System.out.println(set); // [f, l, o, w]
+```
+
+El collector tiene tres partes como antes. El `supplier` crea un `TreeSet` vacío. El `accumulator` añade un único `String` del Stream al `TreeSet`. 
+El combiner añade todos los elementos de un `TreeSet` a otro en caso de que las operaciones se hicieran en paralelo y necesitaran fusionarse.
+
+* Se comenzó con la firma larga porque así es como se implementa un collector propio. Es importante saber cómo hacer esto para el examen y entender cómo funcionan los `collectors`. 
+* En la práctica, muchos `collectors` comunes aparecen una y otra vez. En lugar de hacer que los desarrolladores sigan reimplementando los mismos, Java proporciona una clase con collectors comunes llamada `Collectors`. 
+* Este enfoque también hace el código más fácil de leer porque es más expresivo. Por ejemplo, podríamos reescribir el ejemplo anterior como sigue:
+
+```java
+Stream<String> stream = Stream.of("w", "o", "l", "f");
+TreeSet<String> set =
+  stream.collect(Collectors.toCollection(TreeSet::new));
+System.out.println(set); // [f, l, o, w]
+```
+
+Si no necesitáramos que él `set` esté ordenado, podríamos hacer el código aún más corto:
+
+```java
+Stream<String> stream = Stream.of("w", "o", "l", "f");
+Set<String> set = stream.collect(Collectors.toSet());
+System.out.println(set); // [f, w, l, o]
+```
+
+* Podrías obtener una salida diferente para este último, ya que `toSet()` no hace garantías sobre qué implementación de `Set` obtendrás. 
+* Es probable que sea un `HashSet`, pero no deberías esperar ni confiar en eso.
+
+
+
+
+
+
+
+
+
 
 
 ```java
