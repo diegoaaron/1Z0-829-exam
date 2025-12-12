@@ -650,7 +650,47 @@ System.out.println(set); // [f, w, l, o]
 * Podrías obtener una salida diferente para este último, ya que `toSet()` no hace garantías sobre qué implementación de `Set` obtendrás. 
 * Es probable que sea un `HashSet`, pero no deberías esperar ni confiar en eso.
 
+### Usando Common Intermediate Operations
 
+* A diferencia de una operación terminal, una operación intermedia produce un stream como su resultado. 
+* Una operación intermedia también puede lidiar con un stream infinito simplemente retornando otro stream infinito. 
+* Como los elementos son producidos solo cuando se necesitan, esto funciona bien. 
+* El trabajador de la línea de ensamblaje no necesita preocuparse por cuántos elementos más están llegando y en su lugar puede enfocarse en el elemento actual.
+
+### Filtering 
+
+El método `filter()` retorna un Stream con elementos que coinciden con una expresión dada. Esta es la firma del método:
+
+```java
+public Stream<T> filter(Predicate<? super T> predicate)
+```
+
+* Esta operación es fácil de recordar y poderosa porque podemos pasar cualquier Predicate a ella. 
+* Por ejemplo, esto retiene todos los elementos que comienzan con la letra m:
+
+```java
+Stream<String> s = Stream.of("monkey", "gorilla", "bonobo");
+s.filter(x -> x.startsWith("m"))
+  .forEach(System.out::print); // monkey
+```
+
+### Removiendo duplicados
+
+* El método `distinct()` retorna un stream con valores duplicados removidos. 
+* Los duplicados no necesitan estar adyacentes para ser removidos. Como podrías imaginar, Java llama a `equals()` para determinar si los objetos son equivalentes. 
+* La firma del método es la siguiente:
+
+```java
+public Stream<T> distinct()
+```
+
+Aquí hay un ejemplo: 
+
+```java
+Stream<String> s = Stream.of("duck", "duck", "duck", "goose");
+s.distinct()
+  .forEach(System.out::print); // duckgoose
+```
 
 
 
