@@ -904,7 +904,7 @@ var list = List.of("Toby", "Anna", "Leroy", "Alex");
 list.stream()
 ```
 
-
+continuar en la  25
 
 ```java
 
