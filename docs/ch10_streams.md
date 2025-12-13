@@ -854,14 +854,55 @@ var numbers = new ArrayList<>();
 var letters = new ArrayList<>();
 numbers.add(1);
 letters.add('a');
+Stream<List<?>> stream = Stream.of(numbers, letters);
+stream.map(List::size).forEach(System.out::print); // 11
 ```
 
+Ahora añadimos una llamada `peek()` y notamos que Java no nos previene de escribir mal código peek:
 
+```java
+Stream<List<?>> bad = Stream.of(numbers, letters);
+bad.peek(x -> x.remove(0))
+  .map(List::size)
+  .forEach(System.out::print); // 00
+```
 
+Este ejemplo es malo porque `peek()` está modificando la estructura de datos que se usa en el stream, lo cual causa que el resultado del pipeline del stream sea diferente que si el peek no estuviera presente.
 
-Continuar en la 24
+### Putting Together the Pipeline
 
+Los streams te permiten usar encadenamiento y expresar lo que quieres lograr en lugar de cómo hacerlo. 
+Digamos que queríamos obtener los primeros dos nombres de nuestros amigos alfabéticamente que tienen cuatro caracteres de largo. 
+Sin streams, tendríamos que escribir algo como lo siguiente:
 
+```java
+var list = List.of("Toby", "Anna", "Leroy", "Alex");
+List<String> filtered = new ArrayList<>();
+for (String name: list)
+  if (name.length() == 4) filtered.add(name);
+
+Collections.sort(filtered);
+var iter = filtered.iterator();
+if (iter.hasNext()) System.out.println(iter.next());
+if (iter.hasNext()) System.out.println(iter.next());
+```
+
+Esto funciona. Requiere algo de lectura y pensamiento para descifrar qué está pasando. 
+El problema que estamos tratando de resolver se pierde en la implementación. 
+También está muy enfocado en el cómo en lugar de en el que. Con streams, el código equivalente es el siguiente:
+
+```java
+var list = List.of("Toby", "Anna", "Leroy", "Alex");
+list.stream().filter(n -> n.length() == 4).sorted()
+  .limit(2).forEach(System.out::println);
+```
+
+Antes de que digas que es más difícil de leer, podemos formatearlo.
+
+```java
+var list = List.of("Toby", "Anna", "Leroy", "Alex");
+list.stream()
+```
 
 
 
