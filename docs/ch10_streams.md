@@ -902,9 +902,21 @@ Antes de que digas que es más difícil de leer, podemos formatearlo.
 ```java
 var list = List.of("Toby", "Anna", "Leroy", "Alex");
 list.stream()
+  .filter(n -> n.length() == 4)
+  .sorted()
+  .limit(2)
+  .forEach(System.out::println);
 ```
 
-continuar en la  25
+La diferencia es que expresamos lo que está ocurriendo. Nos importan objetos `String` de longitud 4. 
+Luego los queremos ordenados. Luego queremos los primeros dos. Luego queremos imprimirlos. 
+Se mapea mejor al problema que estamos tratando de resolver, y es más simple.
+Una vez que comienzas a usar streams en tu código, podrías encontrarte usándolos en muchos lugares. 
+Tener código más corto, más breve y más claro es definitivamente algo bueno.
+En este ejemplo, ves las tres partes del pipeline. 
+
+Figure 10.5 muestra cómo cada operación intermedia en el pipeline alimenta a la siguiente.
+
 
 ```java
 
