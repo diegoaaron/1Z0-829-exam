@@ -908,14 +908,30 @@ list.stream()
   .forEach(System.out::println);
 ```
 
-La diferencia es que expresamos lo que está ocurriendo. Nos importan objetos `String` de longitud 4. 
-Luego los queremos ordenados. Luego queremos los primeros dos. Luego queremos imprimirlos. 
-Se mapea mejor al problema que estamos tratando de resolver, y es más simple.
-Una vez que comienzas a usar streams en tu código, podrías encontrarte usándolos en muchos lugares. 
-Tener código más corto, más breve y más claro es definitivamente algo bueno.
-En este ejemplo, ves las tres partes del pipeline. 
+* La diferencia es que expresamos lo que está ocurriendo. Nos importan objetos `String` de longitud 4. 
+* Luego los queremos ordenados. Luego queremos los primeros dos. Luego queremos imprimirlos. 
+* Se mapea mejor al problema que estamos tratando de resolver, y es más simple.
+* Una vez que comienzas a usar streams en tu código, podrías encontrarte usándolos en muchos lugares. 
+* Tener código más corto, más breve y más claro es definitivamente algo bueno.
+* En este ejemplo, ves las tres partes del pipeline. 
 
 Figure 10.5 muestra cómo cada operación intermedia en el pipeline alimenta a la siguiente.
+
+![ch10_01_09.png](images/ch10_01_09.png)
+
+* Recuerda que el capataz de la línea de ensamblaje está descubriendo cómo implementar mejor el pipeline del stream. 
+* Configuran todas las mesas con instrucciones para esperar antes de comenzar. 
+* Le dicen al trabajador de `limit()` que les informe cuando dos elementos pasen. 
+* Le dicen al trabajador de `sorted()` que deberían simplemente recolectar todos los elementos a medida que llegan y ordenarlos todos de una vez. 
+* Después de ordenar, deberían comenzar a pasarlos al trabajador de `limit()` uno a la vez. 
+
+El flujo de datos se ve así:
+
+1. El método `stream()` envía Toby a filter(). El método filter() ve que la longitud es buena y envía Toby a sorted(). El método sorted() no puede ordenar aún porque necesita todos los datos, así que retiene a Toby.
+2. El método `stream()` envía Anna a filter(). El método filter() ve que la longitud es buena y envía Anna a sorted(). El método sorted() no puede ordenar aún porque necesita todos los datos, así que retiene a Anna.
+3. El método `stream()` envía Leroy a filter(). El método filter() ve que la longitud no coincide, y saca a Leroy de la línea de ensamblado de procesamiento.
+4. El método `stream()` envía Alex a filter(). El método filter() ve que la longitud es buena y envía Alex a sorted(). El método sorted() no puede ordenar aún porque necesita todos los datos, así que retiene a Alex. Resulta que sorted() sí tiene todos los datos requeridos, pero no lo sabe todavía.
+5. El capataz le hace saber a sorted() que es tiempo de ordenar, y el ordenamiento ocurre.
 
 
 ```java
