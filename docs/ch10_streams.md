@@ -932,6 +932,54 @@ El flujo de datos se ve así:
 3. El método `stream()` envía Leroy a `filter()`. El método `filter()` ve que la longitud no coincide, y saca a Leroy de la línea de ensamblado de procesamiento.
 4. El método `stream()` envía Alex a `filter()`. El método `filter()` ve que la longitud es buena y envía Alex a `sorted()`. El método `sorted()` no puede ordenar aún porque necesita todos los datos, así que retiene a Alex. Resulta que `sorted()` sí tiene todos los datos requeridos, pero no lo sabe todavía.
 5. El capataz le hace saber a `sorted()` que es tiempo de ordenar, y el ordenamiento ocurre.
+6. El método `sorted()` envía Alex a `limit()`. El método `limit()` recuerda que ha visto un elemento y envía Alex a `forEach()`, imprimiendo Alex.
+7. El método `sorted()` envía Anna a `limit()`. El método `limit()` recuerda que ha visto dos elementos y envía Anna a `forEach()`, imprimiendo Anna.
+8. El método `limit()` ha visto ahora todos los elementos que se necesitan y le dice al capataz. El capataz detiene la línea, y no ocurre más procesamiento en el pipeline.
+
+¿Tiene sentido? Intentemos algunos ejemplos más para asegurarnos de que entiendes esto bien. ¿Qué piensas que hace lo siguiente?
+
+```java
+Stream.generate(() -> "Elsa")
+  .filter(n -> n.length() == 4)
+  .sorted()
+  .limit(2)
+  .forEach(System.out::println);
+```
+
+* Se cuelga hasta que matas el programa, o lanza una excepción después de quedarse sin memoria. 
+* El capataz ha instruido a `sorted()` a esperar hasta que todo lo que ordenar esté presente. 
+* Eso nunca sucede porque hay un stream infinito. 
+
+¿Qué tal este ejemplo?
+
+```java
+Stream.generate(() -> "Elsa")
+  .filter(n -> n.length() == 4)
+  .limit(2)
+  .sorted()
+  .forEach(System.out::println);
+```
+
+* Este imprime Elsa dos veces. El filtro deja pasar elementos, y `limit()` detiene las operaciones anteriores después de dos elementos. 
+* Ahora `sorted()` puede ordenar porque tenemos una lista finita. 
+
+Finalmente, ¿qué piensas que hace esto?
+
+```java
+Stream.generate(() -> "Olaf Lazisson")
+  .filter(n -> n.length() == 4)
+  .limit(2)
+  .sorted()
+  .forEach(System.out::println);
+```
+
+Este también se cuelga hasta que matamos el programa. El filtro no permite que nada pase, así que `limit()` nunca ve dos elementos. 
+Esto significa que tenemos que seguir esperando y esperar que aparezcan.
+Incluso puedes encadenar dos pipelines juntos. Mira si puedes identificar las dos fuentes y dos operaciones terminales en este código.
+
+
+
+
 
 
 
