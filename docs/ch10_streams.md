@@ -927,11 +927,13 @@ Figure 10.5 muestra cómo cada operación intermedia en el pipeline alimenta a l
 
 El flujo de datos se ve así:
 
-1. El método `stream()` envía Toby a filter(). El método filter() ve que la longitud es buena y envía Toby a sorted(). El método sorted() no puede ordenar aún porque necesita todos los datos, así que retiene a Toby.
-2. El método `stream()` envía Anna a filter(). El método filter() ve que la longitud es buena y envía Anna a sorted(). El método sorted() no puede ordenar aún porque necesita todos los datos, así que retiene a Anna.
-3. El método `stream()` envía Leroy a filter(). El método filter() ve que la longitud no coincide, y saca a Leroy de la línea de ensamblado de procesamiento.
-4. El método `stream()` envía Alex a filter(). El método filter() ve que la longitud es buena y envía Alex a sorted(). El método sorted() no puede ordenar aún porque necesita todos los datos, así que retiene a Alex. Resulta que sorted() sí tiene todos los datos requeridos, pero no lo sabe todavía.
-5. El capataz le hace saber a sorted() que es tiempo de ordenar, y el ordenamiento ocurre.
+1. El método `stream()` envía Toby a `filter()`. El método `filter()` ve que la longitud es buena y envía Toby a `sorted()`. El método `sorted()` no puede ordenar aún porque necesita todos los datos, así que retiene a Toby.
+2. El método `stream()` envía Anna a `filter()`. El método `filter()` ve que la longitud es buena y envía Anna a `sorted()`. El método `sorted()` no puede ordenar aún porque necesita todos los datos, así que retiene a Anna.
+3. El método `stream()` envía Leroy a `filter()`. El método `filter()` ve que la longitud no coincide, y saca a Leroy de la línea de ensamblado de procesamiento.
+4. El método `stream()` envía Alex a `filter()`. El método `filter()` ve que la longitud es buena y envía Alex a `sorted()`. El método `sorted()` no puede ordenar aún porque necesita todos los datos, así que retiene a Alex. Resulta que `sorted()` sí tiene todos los datos requeridos, pero no lo sabe todavía.
+5. El capataz le hace saber a `sorted()` que es tiempo de ordenar, y el ordenamiento ocurre.
+
+
 
 
 ```java
