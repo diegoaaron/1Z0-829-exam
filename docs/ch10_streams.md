@@ -973,9 +973,52 @@ Stream.generate(() -> "Olaf Lazisson")
   .forEach(System.out::println);
 ```
 
-Este también se cuelga hasta que matamos el programa. El filtro no permite que nada pase, así que `limit()` nunca ve dos elementos. 
-Esto significa que tenemos que seguir esperando y esperar que aparezcan.
-Incluso puedes encadenar dos pipelines juntos. Mira si puedes identificar las dos fuentes y dos operaciones terminales en este código.
+* Este también se cuelga hasta que matamos el programa. El filtro no permite que nada pase, así que `limit()` nunca ve dos elementos. 
+* Esto significa que tenemos que seguir esperando y esperar que aparezcan.
+* Incluso puedes encadenar dos pipelines juntos. Mira si puedes identificar las dos fuentes y dos operaciones terminales en este código.
+
+```java
+30: long count = Stream.of("goldfish", "finch")
+31:   .filter(s -> s.length()> 5)
+32:   .collect(Collectors.toList())
+33:   .stream()
+34:   .count();
+35: System.out.println(count); // 1
+```
+
+* Las líneas 30–32 son un pipeline, y las líneas 33 y 34 son otro. Para el primer pipeline, la línea 30 es la fuente, y la línea 32 es la operación terminal. 
+* Para el segundo pipeline, la línea 33 es la fuente, y la línea 34 es la operación terminal. 
+
+Cuando ves pipelines encadenados, nota dónde están las operaciones fuente y terminal. 
+Esto te ayudará a mantener el rastro de lo que está pasando. Incluso puedes reescribir el código en tu cabeza para tener una variable en el medio para que no sea tan largo y complicado. 
+
+Nuestro ejemplo previo puede ser escrito como sigue:
+
+```java
+List<String> helper = Stream.of("goldfish", "finch")
+  .filter(s -> s.length()> 5)
+  .collect(Collectors.toList());
+long count = helper.stream()
+  .count();
+System.out.println(count);
+```
+
+Qué estilo uses depende de ti. Sin embargo, necesitas ser capaz de leer ambos estilos antes de tomar el examen.
+
+## Trabajando con streams primitivos
+
+* Hasta ahora, todos los streams que hemos creado usaron la interfaz Stream con un tipo genérico, como `Stream<String>`, `Stream<Integer>`, y así sucesivamente. 
+* Para valores numéricos, hemos estado usando clases wrapper. Hicimos esto con la API de Collections en Chapter 9, así que debería sentirse natural.
+* Java en realidad incluye otras clases de stream además de Stream que puedes usar para trabajar con primitivos: `int`, `double`, y `long`. 
+* Echemos un vistazo a por qué esto se necesita. Supón que queremos calcular la suma de números en un stream finito:
+
+
+
+
+
+
+
+
 
 
 
@@ -988,7 +1031,6 @@ Incluso puedes encadenar dos pipelines juntos. Mira si puedes identificar las do
 
 ```
 
-working with primitive streams
 working with advanced stream pipeline concepts
 summary
 
