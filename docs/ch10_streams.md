@@ -1012,10 +1012,48 @@ Qué estilo uses depende de ti. Sin embargo, necesitas ser capaz de leer ambos e
 * Java en realidad incluye otras clases de stream además de Stream que puedes usar para trabajar con primitivos: `int`, `double`, y `long`. 
 * Echemos un vistazo a por qué esto se necesita. Supón que queremos calcular la suma de números en un stream finito:
 
+```java
+Stream<Integer> stream = Stream.of(1, 2, 3);
+System.out.println(stream.reduce(0, (s, n) -> s + n)); // 6
+```
 
+No está mal. No fue difícil escribir una reducción. Empezamos el acumulador con cero. 
+Luego añadimos cada número a ese total acumulado a medida que surgió en el stream. Hay otra forma de hacer eso, mostrada aquí:
 
+```java
+Stream<Integer> stream = Stream.of(1, 2, 3);
+System.out.println(stream.mapToInt(x -> x).sum()); // 6
+```
 
+* Esta vez, convertimos nuestro `Stream<Integer>` a un `IntStream` y pedimos al `IntStream` que calculara la suma por nosotros. 
+* Un `IntStream` tiene muchos de los mismos métodos intermedios y terminales que un Stream, pero incluye métodos especializados para trabajar con datos numéricos. 
+* Los **primitive streams** saben cómo realizar ciertas operaciones comunes automáticamente.
 
+* Hasta ahora, esto parece una conveniencia agradable pero no terriblemente importante. 
+* Ahora piensa sobre cómo calcularías un promedio. Necesitas dividir la suma por el número de elementos. 
+* El problema es que los streams solo permiten un pase. Java reconoce que calcular un promedio es algo común de hacer, y proporciona un método para calcular el promedio en las clases de stream para primitivos.
+
+```java
+IntStream intStream = IntStream.of(1, 2, 3);
+OptionalDouble avg = intStream.average();
+System.out.println(avg.getAsDouble()); // 2.0
+```
+
+No solo es posible calcular el promedio, sino que también es fácil de hacer. Claramente, los primitive streams son importantes. 
+Veremos cómo crear y usar tales streams, incluyendo optionals e interfaces funcionales.
+
+### Creando streams primitivos (Creating Primitive Streams)
+
+Aquí están los tres tipos de primitive streams:
+
+* `IntStream`: Usado para los tipos primitivos `int`, `short`, `byte`, y `char`
+* `LongStream`: Usado para el tipo primitivo `long`
+* `DoubleStream`: Usado para los tipos primitivos `double` y `float`
+
+¿Por qué no cada tipo primitivo tiene su propio primitive stream? Estos tres son los más comunes, así que los diseñadores de la API fueron con ellos.
+
+TIP: Cuando veas la palabra stream en el examen, presta atención a las mayúsculas/minúsculas. 
+Con una S mayúscula o en código, Stream es el nombre de una clase que
 
 
 
