@@ -1432,6 +1432,74 @@ private static List<String> createSafe() {
 
 Ahora podemos usar el wrapper seguro en nuestro Supplier sin problema.
 
+```java
+public void wrapped() {
+  Supplier<List<String>> s2 = ExceptionCaseStudy::createSafe;
+}
+```
+
+### Using a Spliterator
+
+* Supón que compras una bolsa de comida para que dos niños puedan alimentar a los animales en el zoológico de mascotas. 
+* Para evitar argumentos, has venido preparado con una bolsa vacía extra. 
+* Tomas aproximadamente la mitad de la comida de la bolsa principal y la pones en la bolsa que trajiste de casa. 
+* La bolsa original todavía existe con la otra mitad de la comida.
+
+* Un `Spliterator` proporciona este nivel de control sobre el procesamiento. 
+* Comienza con una Collection o un stream—esa es tu bolsa de comida. Llamas `trySplit()` para sacar algo de comida de la bolsa. 
+* El resto de la comida permanece en el `Spliterator object` original.
+* Las características de un `Spliterator` dependen de la fuente de datos subyacente. 
+* Una fuente de datos `Collection` es un `Spliterator` básico. 
+* Por contraste, cuando se usa una fuente de datos Stream, él `Spliterator` puede ser paralelo o incluso infinito. 
+* El Stream mismo se ejecuta de forma perezosa en lugar de cuando se crea el Spliterator.
+* Implementar tu propio `Spliterator` puede complicarse y convenientemente no está en el examen. 
+* Necesitas saber cómo trabajar con algunos de los métodos comunes declarados en esta interfaz. 
+* Los métodos simplificados que necesitas conocer están en Table 10.9.
+
+![ch10_01_14.png](images/ch10_01_14.png)
+
+Ahora veamos un ejemplo donde dividimos la bolsa en tres:
+
+```java
+12: var stream = List.of("bird-", "bunny-", "cat-", "dog-", "fish-", "lamb-",
+13:   "mouse-");
+14: Spliterator<String> originalBagOfFood = stream.spliterator();
+15: Spliterator<String> emmasBag = originalBagOfFood.trySplit();
+16: emmasBag.forEachRemaining(System.out::print); // bird-bunny-cat-
+17:
+18: Spliterator<String> jillsBag = originalBagOfFood.trySplit();
+19: jillsBag.tryAdvance(System.out::print);    // dog-
+20: jillsBag.forEachRemaining(System.out::print); // fish-
+21:
+22: originalBagOfFood.forEachRemaining(System.out::print); // lamb-mouse-
+```
+
+* En las líneas 12 y 13, definimos una List. Las líneas 14 y 15 crean dos referencias Spliterator. 
+* La primera es la bolsa original, que contiene todos los siete elementos. L
+* a segunda es nuestra división de la bolsa original, poniendo aproximadamente la mitad de los elementos al frente en la bolsa de Emma. 
+* Luego imprimimos los tres contenidos de la bolsa de Emma en la línea 16.
+* Nuestra bolsa original de comida ahora contiene cuatro elementos. 
+* Creamos un nuevo Spliterator en la línea 18 y ponemos los primeros dos elementos en la bolsa de Jill. 
+* Usamos `tryAdvance()` en la línea 19 para producir un único elemento, y luego la línea 20 imprime todos los elementos restantes (¡solo queda uno!).
+* Comenzamos con siete elementos, removimos tres, y luego removimos dos más. Esto nos deja con dos elementos en la bolsa original creada en la línea 14. 
+* Estos dos ítems se producen en la línea 22. Ahora intentemos un ejemplo con un Stream. Esta es una forma complicada de imprimir 123:
+
+```java
+var originalBag = Stream.iterate(1, n -> ++n)
+  .spliterator();
+
+Spliterator<Integer> newBag = originalBag.trySplit();
+
+newBag.tryAdvance(System.out::print); // 1
+newBag.tryAdvance(System.out::print); // 2
+newBag.tryAdvance(System.out::print); // 3
+```
+
+* Podrías haber notado que este es un stream infinito. ¡No hay problema! El Spliterator reconoce que el stream es infinito y no intenta darte la mitad. 
+* En su lugar, `newBag` contiene un número grande de elementos. Obtenemos los primeros tres, ya que llamamos `tryAdvance()` tres veces. 
+* Sería una mala idea llamar `forEachRemaining()` en un stream infinito.
+
+
 
 
 
