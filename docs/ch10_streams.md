@@ -1193,7 +1193,47 @@ private static Stream<Integer> boxing(IntStream stream) {
 }
 ```
 
-continuar en la 33
+* El primero usa el método `mapToObj()` que vimos anteriormente. El segundo es más sucinto. 
+* No requiere una función de mapeo porque todo lo que hace es autoboxear cada primitivo al objeto wrapper correspondiente. 
+* El método `boxed()` existe en los tres tipos de primitive streams.
+
+### Using Optional with Primitive Streams
+
+* Anteriormente en el capítulo, escribimos un método para calcular el promedio de un `int[]` y prometimos una mejor forma más adelante. 
+* Ahora que sabes sobre primitive streams, puedes calcular el promedio en una línea.
+
+```java
+var stream = IntStream.rangeClosed(1,10);
+OptionalDouble optional = stream.average();
+```
+
+* El tipo de retorno no es el Optional al que te has acostumbrado a usar. Es un nuevo tipo llamado OptionalDouble. 
+* ¿Por qué tenemos un tipo separado, te preguntarás? ¿Por qué no simplemente usar `Optional<Double>`? 
+* La diferencia es que `OptionalDouble` es para un primitivo y `Optional<Double>` es para la clase wrapper `Double`. 
+* Trabajar con la clase optional primitiva se ve similar a trabajar con la clase Optional misma.
+
+```java
+optional.ifPresent(System.out::println); // 5.5
+System.out.println(optional.getAsDouble()); // 5.5
+System.out.println(optional.orElseGet(() -> Double.NaN)); // 5.5
+```
+
+* La única diferencia notable es que llamamos `getAsDouble()` en lugar de `get()`. 
+* Esto deja claro que estamos trabajando con un primitivo. También, `orElseGet()` toma un `DoubleSupplier` en lugar de un `Supplier`.
+
+* Como con los primitive streams, hay tres clases específicas de tipo para primitivos. 
+* Table 10.8 muestra las diferencias menores entre los tres. Probablemente, no te sorprenderá que tengas que memorizar esta tabla también. 
+* Esto es realmente fácil de recordar, ya que el nombre del primitivo es el único cambio. 
+* Como deberías recordar de la sección de operaciones terminales, varios métodos de stream retornan un optional como min() o findAny(). 
+* Estos retornan cada uno el tipo optional correspondiente. Las implementaciones de primitive stream también añaden dos métodos nuevos que necesitas conocer. 
+* El método sum() no retorna un optional. Si intentas sumar un stream vacío, simplemente obtienes cero. 
+* El método average() siempre retorna un OptionalDouble, ya que un promedio puede potencialmente tener datos fraccionarios para cualquier tipo.
+
+![ch10_01_13.png](images/ch10_01_13.png)
+
+
+
+
 
 
 
