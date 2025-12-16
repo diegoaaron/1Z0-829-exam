@@ -1068,6 +1068,54 @@ DoubleStream empty = DoubleStream.empty();
 
 Otra forma es usar el método factory `of()` desde un único valor o usando el overload varargs.
 
+```java
+DoubleStream oneValue = DoubleStream.of(3.14);
+oneValue.forEach(System.out::println);
+
+DoubleStream varargs = DoubleStream.of(1.0, 1.1, 1.2);
+varargs.forEach(System.out::println);
+
+// Este código produce la siguiente salida:
+// 3.14
+// 1.0
+// 1.1
+// 1.2
+```
+
+También puedes usar los dos métodos para crear streams infinitos, justo como hicimos con Stream.
+
+```java
+var random = DoubleStream.generate(Math::random);
+var fractions = DoubleStream.iterate(.5, d -> d / 2);
+random.limit(3).forEach(System.out::println);
+fractions.limit(3).forEach(System.out::println);
+
+// 0.07890654781186413
+// 0.28564363465842346
+// 0.6311403511266134
+// 0.5
+// 0.25
+// 0.125
+```
+
+* Como los streams son infinitos, añadimos una operación intermedia limit para que la salida no imprima valores para siempre. 
+* El primer stream llama un método estático en Math para obtener un double aleatorio. 
+* Como los números son aleatorios, tu salida obviamente será diferente. 
+* El segundo stream sigue creando números más pequeños, dividiendo el valor previo por dos cada vez. 
+
+* No necesitas saber esto para el examen, pero la clase Random proporciona un método para obtener primitive streams de números aleatorios directamente. 
+* ¡Dato curioso! Por ejemplo, `ints()` genera un IntStream infinito de primitivos.
+
+* Funciona de la misma manera para cada tipo de primitive stream. Cuando se trabaja con primitivos `int` o `long`, es común contar. 
+* Supón que queríamos un stream con los números del 1 al 5. Podríamos escribir esto usando lo que hemos explicado hasta ahora:
+
+```java
+IntStream count = IntStream.iterate(1, n -> n+1).limit(5);
+count.forEach(System.out::print); // 12345
+```
+
+
+
 
 
 
