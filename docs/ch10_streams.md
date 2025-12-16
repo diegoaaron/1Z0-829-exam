@@ -1114,13 +1114,86 @@ IntStream count = IntStream.iterate(1, n -> n+1).limit(5);
 count.forEach(System.out::print); // 12345
 ```
 
+Este código imprime los números 1–5. Sin embargo, es mucho código para hacer algo tan simple. 
+Java proporciona un método que puede generar un rango de números.
 
+```java
+IntStream range = IntStream.range(1, 6);
+range.forEach(System.out::print); // 12345
+```
 
+Esto es mejor. Si queríamos números 1–5, ¿por qué pasamos 1–6? El primer parámetro del método `range()` es inclusive, lo que significa que incluye el número. 
+El segundo parámetro del método `range()` es exclusive, lo que significa que se detiene justo antes de ese número. 
+Sin embargo, aún podría ser más claro. Queremos los números 1–5 inclusive. Afortunadamente, hay otro método, `rangeClosed()`, que es inclusivo en ambos parámetros.
 
+```java
+IntStream rangeClosed = IntStream.rangeClosed(1, 5);
+rangeClosed.forEach(System.out::print); // 12345
+```
 
+* Incluso mejor. Esta vez expresamos que queremos un rango cerrado o un rango inclusivo. 
+* Este método coincide mejor con cómo expresamos un rango de números en inglés plano.
 
+### Mapping Streams
 
+* Otra forma de crear un primitive stream es mapeando desde otro stream tipo. 
+* Table 10.6 muestra que hay un método para mapear entre cualquier tipo de stream.
 
+![ch10_01_11.png](images/ch10_01_11.png)
+
+* Obviamente, tienen que ser tipos compatibles para que esto funcione. 
+* Java requiere que se proporcione una función de mapeo como parámetro, por ejemplo:
+
+```java
+Stream<String> objStream = Stream.of("penguin", "fish");
+IntStream intStream = objStream.mapToInt(s -> s.length());
+```
+
+* Esta función toma un `Object`, que es un String en este caso. La función retorna un `int`. Los mapeos de función son intuitivos aquí. 
+* Toman el tipo fuente y retornan el tipo objetivo. En este ejemplo, el tipo de función real es `ToIntFunction`. 
+* Table 10.7 muestra los nombres de función de mapeo. Como puedes ver, hacen lo que podrías esperar.
+
+Tienes que memorizar Table 10.6 y Table 10.7. No es tan difícil como podría parecer. 
+Hay patrones en los nombres si recuerdas unas pocas reglas. 
+Para Table 10.6, mapear al mismo tipo con el que empezaste se llama simplemente `map()`. 
+Cuando retornas un object stream, el método es `mapToObj().` 
+Más allá de eso, es el nombre del tipo primitivo en el nombre del método map.
+
+* Para Table 10.7, puedes empezar pensando sobre los tipos fuente y objetivo. 
+* Cuando el tipo objetivo es un object, eliminas el To del nombre. 
+* Cuando el mapeo es al mismo tipo con el que empezaste, usas un operador unario en lugar de una función para los primitive streams.
+
+**Using flatMap()**
+
+* Podemos usar este enfoque en primitive streams también. 
+* Funciona de la misma manera que en un Stream regular, excepto que el nombre del método es diferente. 
+* Aquí hay un ejemplo:
+
+```java
+var integerList = new ArrayList<Integer>();
+IntStream ints = integerList.stream()
+  .flatMapToInt(x -> IntStream.of(x));
+DoubleStream doubles = integerList.stream()
+  .flatMapToDouble(x -> DoubleStream.of(x));
+LongStream longs = integerList.stream()
+  .flatMapToLong(x -> LongStream.of(x));
+```
+
+![ch10_01_12.png](images/ch10_01_12.png)
+
+Adicionalmente, puedes crear un Stream desde un primitive stream. Estos métodos muestran dos formas de lograr esto:
+
+```java
+private static Stream<Integer> mapping(IntStream stream) {
+  return stream.mapToObj(x -> x);
+}
+
+private static Stream<Integer> boxing(IntStream stream) {
+  return stream.boxed();
+}
+```
+
+continuar en la 33
 
 
 
