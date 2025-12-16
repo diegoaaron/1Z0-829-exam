@@ -1384,6 +1384,54 @@ public class ExceptionCaseStudy {
 
 Ahora lo usamos en un stream: 
 
+```java
+public void good() throws IOException {
+  ExceptionCaseStudy.create().stream().count();
+}
+```
+
+Nada nuevo aquí. El método `create()` lanza una `checked exception`. El método que lo llama la maneja o la declara. Ahora, ¿qué tal este?
+
+```java
+public void bad() throws IOException {
+  Supplier<List<String>> s = ExceptionCaseStudy::create; // DOES NOT
+COMPILE
+}
+
+// El error actual del compilador es el siguiente:
+// unhandled exception type IOException
+```
+
+* ¿Qué decir ahora? El problema es que la lambda a la cual se expande esta referencia de método no declara una excepción. 
+* La interfaz `Supplier` no permite `checked exceptions`. Hay dos enfoques para solucionar este problema. 
+* Uno es capturar la excepción y convertirla en una `unchecked exception`.
+
+```java
+public void ugly() {
+  Supplier<List<String>> s = () -> {
+    try {
+      return ExceptionCaseStudy.create();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  };
+}
+```
+
+* Esto funciona. Pero el código es feo. Uno de los beneficios de la programación funcional es que se supone que el código debe ser fácil de leer y conciso. 
+* Otra alternativa es crear un método wrapper con try/catch.
+
+```java
+private static List<String> createSafe() {
+  try {
+    return ExceptionCaseStudy.create();
+  } catch (IOException e) {
+    throw new RuntimeException(e);
+  }}
+```
+
+Ahora podemos usar el wrapper seguro en nuestro Supplier sin problema.
+
 
 
 
