@@ -1231,6 +1231,49 @@ System.out.println(optional.orElseGet(() -> Double.NaN)); // 5.5
 
 ![ch10_01_13.png](images/ch10_01_13.png)
 
+Intentemos un ejemplo para asegurarnos de que entiendes esto:
+
+```java
+5: LongStream longs = LongStream.of(5, 10);
+6: long sum = longs.sum();
+7: System.out.println(sum); // 15
+8: DoubleStream doubles = DoubleStream.generate(() -> Math.PI);
+9: OptionalDouble min = doubles.min(); // runs infinitely
+```
+
+* La línea 5 crea un stream de primitivos long con dos elementos. 
+* La línea 6 muestra que no usamos un optional para calcular una suma. La línea 8 crea un stream infinito de primitivos double. 
+* La línea 9 está ahí para recordarte que una pregunta sobre código que se ejecuta infinitamente puede aparecer con primitive streams también.
+
+### Summarizing Statistics
+
+Has aprendido suficiente para poder obtener el valor máximo de un stream de primitivos `int`. Si el stream está vacío, queremos lanzar una excepción.
+
+```java
+private static int max(IntStream ints) {
+  OptionalInt optional = ints.max();
+  return optional.orElseThrow(RuntimeException::new);
+}
+```
+
+* Esto debería ser pan comido para ahora. Obtuvimos un `OptionalInt` porque tenemos un `IntStream`. 
+* Si el optional contiene un valor, lo retornamos. De lo contrario, lanzamos una nueva RuntimeException.
+* Ahora queremos cambiar el método para tomar un `IntStream` y retornar un rango. El rango es el valor mínimo restado del valor máximo. 
+* Uh-oh. Tanto `min()` como `max()` son operaciones terminales, lo que significa que usan el stream cuando se ejecutan. 
+* No podemos ejecutar dos operaciones terminales contra el mismo stream. 
+* Afortunadamente, esto es un problema común, y los primitive streams lo resuelven para nosotros con summary statistics. 
+* Statistic es solo una palabra elegante para un número que fue calculado desde datos.
+
+```java
+private static int range(IntStream ints) {
+  IntSummaryStatistics stats = ints.summaryStatistics();
+  if (stats.getCount() == 0) throw new RuntimeException();
+  return stats.getMax()-stats.getMin();
+}
+```
+
+
+
 
 
 
