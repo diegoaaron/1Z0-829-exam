@@ -1272,6 +1272,42 @@ private static int range(IntStream ints) {
 }
 ```
 
+Aquí le pedimos a Java que realice muchos cálculos sobre el stream. Las summary statistics incluyen lo siguiente:
+
+`getCount()`: Retorna un long representando el número de valores.
+`getAverage()`: Retorna un double representando el promedio. Si el stream está vacío, retorna 0.
+`getSum()`: Retorna la suma como un double para `DoubleSummaryStream` y `long` para `IntSummaryStream` y `LongSummaryStream`.
+`getMin()`: Retorna el número más pequeño (mínimo) como un `double`, `int`, o `long`, dependiendo del tipo del stream. Si el stream está vacío, retorna el valor numérico más grande basado en el tipo.
+`getMax()`: Retorna el número más grande (máximo) como un `double`, `int`, o `long` dependiendo del tipo del stream. Si el stream está vacío, retorna el valor numérico más pequeño basado en el tipo.
+
+## Working with Advanced Stream Pipeline Concepts
+
+* Felicidades, solo te quedan unos pocos temas más. En esta última sección de stream, aprendemos sobre la relación entre streams y los datos subyacentes, encadenamiento de `Optional`, y agrupación de `collectors`. 
+* Después de esto, ¡deberías ser un profesional con streams!
+
+### Linking Streams to the Underlying Data
+
+¿Qué piensas que esto produce?
+
+```java
+25: var cats = new ArrayList<String>();
+26: cats.add("Annie");
+27: cats.add("Ripley");
+28: var stream = cats.stream();
+29: cats.add("KC");
+30: System.out.println(stream.count());
+```
+
+* La respuesta correcta es 3. Las líneas 25–27 crean una List con dos elementos. La línea 28 solicita que se cree un stream desde esa `List`. 
+* Recuerda que los streams se evalúan de forma perezosa. Esto significa que el stream no se crea en la línea 28. 
+* Se crea un objeto que sabe dónde buscar los datos cuando se necesita. En la línea 29, la List obtiene un nuevo elemento. 
+* En la línea 30, el pipeline del stream se ejecuta. Primero, mira la fuente y ve tres elementos.
+
+### Chaining Optionals
+
+Para ahora, ya estás familiarizado con los beneficios de encadenar operaciones en un stream pipeline. 
+Algunas de las operaciones intermedias para streams están disponibles para Optional.
+
 
 
 
@@ -1283,6 +1319,3 @@ private static int range(IntStream ints) {
 ```java
 
 ```
-
-working with advanced stream pipeline concepts
-summary
