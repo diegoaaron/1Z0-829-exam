@@ -1499,6 +1499,59 @@ newBag.tryAdvance(System.out::print); // 3
 * En su lugar, `newBag` contiene un número grande de elementos. Obtenemos los primeros tres, ya que llamamos `tryAdvance()` tres veces. 
 * Sería una mala idea llamar `forEachRemaining()` en un stream infinito.
 
+* Nota que un `Spliterator` puede tener un número de características tales como CONCURRENT, ORDERED, SIZED, y SORTED. 
+* Solo verás un `Spliterator` directo en el examen. Por ejemplo, nuestro stream infinito no era SIZED.
+
+### Collecting Results
+
+* Casi has terminado de aprender sobre streams. El último tema construye sobre lo que has aprendido hasta ahora para agrupar los resultados. 
+* Al principio del capítulo, viste la operación terminal `collect()`. Hay muchos collectors predefinidos, incluyendo aquellos mostrados en Table 10.10. 
+* +Estos collectors están disponibles vía métodos estáticos en la clase Collectors. Examinaremos los diferentes tipos de collectors en las siguientes secciones. 
+* Dejamos fuera los tipos genéricos por simplicidad.
+
+NOTA: Hay un collector más llamado `reducing()`. No necesitas conocerlo para el examen. Es una reducción general en caso de que todos los collectors previos no satisfagan tus necesidades.
+
+### Using Basic Collectors
+
+Afortunadamente, muchos de estos collectors funcionan de la misma manera. Veamos un ejemplo:
+
+```java
+var ohMy = Stream.of("lions", "tigers", "bears");
+String result = ohMy.collect(Collectors.joining(", "));
+System.out.println(result); // lions, tigers, bears
+```
+
+* Nota cómo los collectors predefinidos están en la clase Collectors en lugar de la interfaz Collector. 
+* Esta es un tema común, que viste con Collection versus Collections. De hecho, ves este patrón nuevamente en Chapter 14 cuando trabajas con Paths y Path y otros tipos relacionados.
+
+![ch10_01_15.png](images/ch10_01_15.png)
+
+* Pasamos el collector predefinido `joining()` al método `collect()`. Todos los elementos del stream son entonces fusionados en un String con el delimitador especificado entre cada elemento. 
+* Es importante pasar el Collector al método `collect`. Existe para ayudar a recolectar elementos. Un Collector no hace nada por sí mismo.
+
+Intentemos otro. ¿Cuál es la longitud promedio de los tres nombres de animales?
+
+```java
+var ohMy = Stream.of("lions", "tigers", "bears");
+Double result = ohMy.collect(Collectors.averagingInt(String::length));
+System.out.println(result); // 5.333333333333333
+```
+
+* El patrón es el mismo. Pasamos un collector a `collect()`, y realiza el promedio por nosotros. 
+* Esta vez, necesitamos pasar una función para decirle al collector qué promediar. 
+* Usamos una referencia a método, que retorna un `int` al ejecutarse. 
+* Con primitive streams, el resultado de un promedio siempre era un `double`, independientemente del tipo que se estaba promediando. 
+* Para `collectors`, es un `Double`, ya que estos necesitan un `Object`.
+
+* A menudo, te encontrarás interactuando con código que fue escrito sin streams. 
+* Esto significa que esperará un tipo Collection en lugar de un tipo Stream. 
+* No hay problema. Aún puedes expresarte usando un Stream y luego convertir a una Collection al final. Por ejemplo:
+
+```java
+var ohMy = Stream.of("lions", "tigers", "bears");
+TreeSet<String> result = ohMy
+  .filter(s -> s.startsWith("t"))
+```
 
 
 
