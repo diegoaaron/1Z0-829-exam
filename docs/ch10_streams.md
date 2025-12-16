@@ -1052,10 +1052,21 @@ Aquí están los tres tipos de primitive streams:
 
 ¿Por qué no cada tipo primitivo tiene su propio primitive stream? Estos tres son los más comunes, así que los diseñadores de la API fueron con ellos.
 
-TIP: Cuando veas la palabra stream en el examen, presta atención a las mayúsculas/minúsculas. 
-Con una S mayúscula o en código, Stream es el nombre de una clase que
+* TIP: Cuando veas la palabra stream en el examen, presta atención a las mayúsculas/minúsculas. 
+* Con una **S** mayúscula o en código, Stream es el nombre de una clase que contiene un tipo Object. 
+* Con una **s** minúscula, un stream es un concepto que podría ser un `Stream`, `DoubleStream`, `IntStream`, o `LongStream`.
 
+![ch10_01_10.png](images/ch10_01_10.png)
 
+Algunos de los métodos para crear un primitive stream son equivalentes a cómo creamos la fuente para un Stream regular. 
+
+Puedes crear un stream vacío con esto:
+
+```java
+DoubleStream empty = DoubleStream.empty();
+```
+
+Otra forma es usar el método factory `of()` desde un único valor o usando el overload varargs.
 
 
 
@@ -1071,4 +1082,3 @@ Con una S mayúscula o en código, Stream es el nombre de una clase que
 
 working with advanced stream pipeline concepts
 summary
-
