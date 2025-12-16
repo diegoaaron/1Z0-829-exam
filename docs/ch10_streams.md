@@ -1305,9 +1305,84 @@ Aquí le pedimos a Java que realice muchos cálculos sobre el stream. Las summar
 
 ### Chaining Optionals
 
-Para ahora, ya estás familiarizado con los beneficios de encadenar operaciones en un stream pipeline. 
-Algunas de las operaciones intermedias para streams están disponibles para Optional.
+* Para ahora, ya estás familiarizado con los beneficios de encadenar operaciones en un stream pipeline. 
+* Algunas de las operaciones intermedias para streams están disponibles para Optional.
+* Supón que te dan un `Optional<Integer>` y te piden imprimir el valor, pero solo si es un número de tres dígitos. 
+* Sin programación funcional, podrías escribir lo siguiente:
 
+```java
+private static void threeDigit(Optional<Integer> optional) {
+  if (optional.isPresent()) { // outer if
+    var num = optional.get();
+    var string = "" + num;
+    if (string.length() == 3) // inner if
+      System.out.println(string);
+  }
+}
+```
+
+Funciona, pero contiene declaraciones if anidadas. Eso es complejidad extra. 
+Intentemos esto nuevamente con programación funcional:
+
+```java
+private static void threeDigit(Optional<Integer> optional) {
+  optional.map(n -> "" + n)      // part 1
+    .filter(s -> s.length() == 3)  // part 2
+    .ifPresent(System.out::println); // part 3
+}
+```
+
+* Esto es mucho más corto y más expresivo. Con lambdas, el examen es aficionado a presentar una sola declaración e identificar las piezas con un comentario. 
+* Hemos hecho eso aquí para mostrar qué ocurre con ambos enfoques de programación funcional y no funcional.
+* Supón que nos dan un `Optional` vacío. El primer enfoque retorna false para la declaración if exterior. 
+* El segundo enfoque ve un Optional vacío y tiene tanto `map()` como `filter()` pasándolo. 
+* Luego `ifPresent()` ve un `Optional` vacío y no llama al parámetro `Consumer`.
+* El siguiente caso es donde nos dan un `Optional.of(4)`. El primer enfoque retorna `false` para la declaración `if` interna. 
+* El segundo enfoque mapea el número 4 a "4". El `filter()` luego retorna un Optional vacío, ya que el filtro no coincide, y `ifPresent()` no llama al parámetro `Consumer`.
+* El caso final es donde nos dan un `Optional.of(123)`. El primer enfoque retorna true para ambas declaraciones `if`. 
+* El segundo enfoque mapea el número 123 a "123". El `filter()` luego retorna el mismo `Optional`, y `ifPresent()` ahora sí llama al parámetro `Consumer`.
+* Ahora supón que queríamos obtener un `Optional<Integer>` representando la longitud del String contenido en otro `Optional`. Bastante fácil:
+
+```java
+Optional<Integer> result = optional.map(String::length);
+```
+
+* ¿Qué pasa si tuviéramos un método helper que hiciera la lógica de calcular algo por nosotros que retorna `Optional<Integer>`? 
+* Usar map no funciona:
+
+```java
+Optional<Integer> result = optional
+  .map(ChainingOptionals::calculator); // DOES NOT COMPILE
+```
+
+* El problema es que calculator retorna `Optional<Integer>`. El método `map()` añade otro `Optional`, dándonos `Optional<Optional<Integer>>`. 
+* Bueno, eso no es bueno. La solución es llamar `flatMap()`, en su lugar:
+
+```java
+Optional<Integer> result = optional
+  .flatMap(ChainingOptionals::calculator);
+```
+
+* Este funciona porque `flatMap` remueve la capa innecesaria. En otras palabras, aplana el resultado. 
+* Encadenar llamadas a `flatMap()` es útil cuando quieres transformar un tipo Optional a otro.
+
+**Checked Exceptions and Functional Interfaces**
+
+Podrías haber notado a estas alturas que la mayoría de las interfaces funcionales no declaran checked exceptions. 
+Esto es normalmente correcto. Sin embargo, es un problema cuando se trabaja con métodos que declaran checked exceptions. 
+Supón que tenemos una clase con un método que lanza una checked exception:
+
+```java
+import java.io.*;
+import java.util.*;
+public class ExceptionCaseStudy {
+  private static List<String> create() throws IOException {
+    throw new IOException();
+  }
+}
+```
+
+Ahora lo usamos en un stream: 
 
 
 
