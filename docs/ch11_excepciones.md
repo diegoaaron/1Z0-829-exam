@@ -33,9 +33,44 @@ public int indexOf(String[] names, String name) {
 
 * Aunque es común para ciertas tareas como búsqueda, los códigos de retorno generalmente deberían evitarse. 
 * Después de todo, Java proporcionó un framework de excepciones, ¡así que deberías usarlo!
+---------------------------------------------------------------------
+
+### Understanding Exception Types
+
+Una excepción es un evento que altera el flujo del programa. Java tiene una clase `Throwable` para todos los objetos que representan estos eventos. 
+No todos ellos tienen la palabra exception en el nombre de su clase, lo cual puede ser confuso. La Figura 11.1 muestra las subclases clave de Throwable.
+
+![ch10_01_16.png](images/ch10_01_16.png)
+
+### Checked Exceptions
+
+* Una checked exception es una excepción que debe ser declarada o manejada por el código de aplicación donde es lanzada. 
+* En Java, las checked exceptions heredan de Exception pero no de RuntimeException. 
+* Las checked exceptions tienden a ser más anticipadas—por ejemplo, intentar leer un archivo que no existe.
+
+---------------------------------------------------------------------
+Nota sobre `Checked Exceptions`
+Las `checked exceptions` también incluyen cualquier clase que herede de `Throwable` pero no de `Error` o `RuntimeException`, como una clase que directamente extiende `Throwable`. 
+Para el examen, solo necesitas saber sobre `checked exceptions` que extienden `Exception`.
+---------------------------------------------------------------------
+
+* ¿Checked exceptions? ¿Qué estamos chequeando? Java tiene una regla llamada handle or declare rule. 
+* La handle or declare rule significa que todas las `checked exceptions` que podrían ser lanzadas dentro de un método están envueltas en bloques `try` y `catch` compatibles o declaradas en la firma del método.
+* Como las `checked exceptions` tienden a ser anticipadas, Java fuerza la regla de que el programador debe hacer algo para mostrar que la excepción fue considerada.
 
 
-continuar en la 2
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
