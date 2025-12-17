@@ -133,6 +133,113 @@ void fall(String input) {
 
 ![ch10_01_17.png](images/ch10_01_17.png)
 
+### Throwing an Exception
+
+* Cualquier código Java puede lanzar una excepción; esto incluye código que escribes. Algunas excepciones son proporcionadas con Java. 
+* Podrías encontrar una excepción que fue inventada para el examen. Esto está bien. 
+* La pregunta lo hará obvio que es una excepción al hacer que el nombre de la clase termine con Exception. 
+* Por ejemplo, `MyMadeUpException` es claramente una excepción.
+
+En el examen, verás dos tipos de código que resultan en una excepción. El primero es código que está mal. Aquí hay un ejemplo:
+
+```java
+String[] animals = new String[0];
+System.out.println(animals[0]); // ArrayIndexOutOfBoundsException
+```
+
+* Este código lanza una `ArrayIndexOutOfBoundsException` ya que el array no tiene elementos. 
+* Eso significa que las preguntas sobre excepciones pueden estar ocultas en preguntas que parecen ser sobre algo más.
+
+---------------------------------------------------------------------
+**Nota sobre preguntas del examen**
+* En el examen, algunas preguntas tienen una opción sobre no compilar y sobre lanzar una excepción. 
+* Presta atención especial al código que llama un método en una referencia null o que referencia un índice inválido de array o List. 
+* Si detectas esto, sabes que la respuesta correcta es que el código lanza una excepción en tiempo de ejecución.
+---------------------------------------------------------------------
+
+* La segunda forma en que el código resulta en una excepción es solicitar explícitamente a Java que lance una. 
+* Java te permite escribir declaraciones como estas:
+
+```java
+throw new Exception();
+throw new Exception("Ow! I fell.");
+throw new RuntimeException();
+throw new RuntimeException("Ow! I fell.");
+```
+
+* La palabra clave throw le dice a Java que quieres que alguna otra parte del código maneje la excepción. 
+* Esto es lo mismo que la niña pequeña llorando por su papá. Alguien más necesita averiguar qué hacer sobre la excepción.
+
+---------------------------------------------------------------------
+**throw vs. throws**
+Cada vez que veas throw o throws en el examen, asegúrate de que se esté usando el correcto. 
+La palabra clave throw se usa como una declaración dentro de un bloque de código para lanzar una nueva excepción o relanzar una excepción existente, mientras que la palabra clave throws se usa solo al final de una declaración de método para indicar qué excepciones soporta.
+---------------------------------------------------------------------
+
+* Cuando creas una excepción, usualmente puedes pasar un parámetro String con un mensaje, o puedes no pasar parámetros y usar los valores por defecto. 
+* Decimos usually porque esto es una convención. Alguien ha declarado un constructor que toma un String. 
+* Alguien también podría crear una clase de excepción que no tenga un constructor que tome un mensaje.
+
+Adicionalmente, deberías saber que una Exception es un Object. Esto significa que puedes almacenarla en una referencia de objeto, y esto es legal:
+
+```java
+var e = new RuntimeException();
+throw e;
+```
+
+* El código instancia una excepción en una línea y luego la lanza en la siguiente. 
+* La excepción puede venir de cualquier lugar, incluso pasada a un método. Mientras sea una excepción válida, puede ser lanzada.
+
+El examen también podría intentar engañarte. ¿Ves por qué este código no compila?
+
+```java
+throw RuntimeException(); // DOES NOT COMPILE
+```
+
+Si tu respuesta es que falta una palabra clave, tienes absolutamente razón. La excepción nunca es instanciada con la palabra clave `new`.
+
+Veamos otro lugar donde el examen podría intentar engañarte. ¿Puedes ver por qué lo siguiente no compila?
+
+```java
+3: try {
+4:     throw new RuntimeException();
+5:     throw new ArrayIndexOutOfBoundsException(); // DOES NOT COMPILE
+6: } catch (Exception e) {}
+```
+
+* Como la línea 4 se lanza una excepción, la línea 5 nunca puede ser alcanzada durante runtime. 
+* El compilador reconoce esto y reporta un error de código inalcanzable.
+
+### Calling Methods That Throw Exceptions
+
+Cuando estás llamando un método que lanza una excepción, las reglas son las mismas que dentro de un método. ¿Ves por qué lo siguiente no compila?
+
+```java
+class NoMoreCarrotsException extends Exception {}
+
+public class Bunny {
+    public static void main(String[] args) {
+        eatCarrot(); // DOES NOT COMPILE
+    }
+    private static void eatCarrot() throws NoMoreCarrotsException {}
+}
+```
+
+* El problema es que `NoMoreCarrotsException` es una checked exception. Las checked exceptions deben ser manejadas o declaradas. 
+* El código compilaría si cambiaras el método `main()` a cualquiera de estos:
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
