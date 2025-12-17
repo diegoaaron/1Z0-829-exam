@@ -269,13 +269,105 @@ Java sabe que `eatCarrot()` no puede lanzar una checked exception—lo que signi
 * Si no, el código es inalcanzable y no compila. Recuerda que esta regla no se extiende a unchecked exceptions o excepciones declaradas en una firma de método.
 ---------------------------------------------------------------------
 
+### Overriding Methods with Exceptions
 
+* Cuando introdujimos la sobrescritura de métodos en el Capítulo 6, "Class Design", incluimos una regla relacionada con excepciones. 
+* Un método sobrescrito no puede declarar ninguna excepción checked nueva o más amplia que el método que hereda. Por ejemplo, este código no está permitido:
 
+```java
+class CanNotHopException extends Exception {}
 
+class Hopper {
+    public void hop() {}
+}
 
+class Bunny extends Hopper {
+    public void hop() throws CanNotHopException {} // DOES NOT COMPILE
+}
+```
 
+* Java sabe que `hop()` no está permitido lanzar ninguna checked exception porque el método `hop()` en la superclase Hopper no declara ninguna. 
+* Imagina qué pasaría si las versiones de los métodos de las subclases pudieran agregar checked exceptions—podrías escribir código que llame al método `hop()` de Hopper y no manejar ninguna excepción. 
+* Entonces, si Bunny fuera usado en su lugar, el código no sabría manejar o declarar `CanNotHopException`.
+* Un método sobrescrito en una subclase está permitido declarar menos excepciones que la superclase o interfaz. 
+* Esto es legal porque los llamadores ya las están manejando.
 
+```java
+class Hopper {
+    public void hop() throws CanNotHopException {}
+}
 
+class Bunny extends Hopper {
+    public void hop() {} // This is fine
+}
+```
+
+* Un método sobrescrito que no declara una de las excepciones lanzadas por el método padre es similar al método que declara que lanza una excepción que nunca lanza realmente. 
+* Esto es perfectamente legal. Similarmente, una clase está permitida declarar una subclase de un tipo de excepción. 
+* La idea es la misma. La superclase o interfaz ya ha cuidado de un tipo más amplio.
+
+### Printing an Exception
+
+* Hay tres formas de imprimir una excepción. Puedes dejar que Java la imprima, imprimir solo el mensaje, o imprimir de dónde viene el stack trace. 
+* Este ejemplo muestra los tres enfoques:
+
+```java
+5: public static void main(String[] args) {
+6:     try {
+7:         hop();
+8:     } catch (Exception e) {
+9:         System.out.println(e + "\n");
+10:        System.out.println(e.getMessage()+ "\n");
+11:        e.printStackTrace();
+12:    }
+13: }
+14: private static void hop() {
+15:    throw new RuntimeException("cannot hop");
+16: }
+
+// Este código imprime lo siguiente:
+// java.lang.RuntimeException: cannot hop
+// cannot hop
+// java.lang.RuntimeException: cannot hop
+//     at Handling.hop(Handling.java:15)
+//     at Handling.main(Handling.java:7)
+```
+
+* La primera línea muestra lo que Java imprime por defecto: el tipo de excepción y el mensaje. 
+* La segunda línea muestra solo el mensaje. El resto muestra un stack trace. 
+* El stack trace usualmente es el más útil porque muestra la jerarquía de llamadas a métodos que fueron hechas para alcanzar la línea que lanzó la excepción.
+
+## Recognizing Exception Classes
+
+* Necesitas reconocer tres grupos de clases de excepción para el examen: RuntimeException, checked Exception, y Error. 
+* Miramos ejemplos comunes de cada tipo. Para el examen, necesitarás reconocer qué tipo de excepción es y si es lanzada por la Java Virtual Machine (JVM) o por un programador. 
+* Para algunas excepciones, también necesitas saber cuáles son heredadas de una a otra.
+
+### RuntimeException Classes
+
+* RuntimeException y sus subclases son unchecked exceptions que no tienen que ser manejadas o declaradas. 
+* Pueden ser lanzadas por el programador o la JVM. Las clases de unchecked exception comunes están listadas en la Tabla 11.2.
+
+![ch10_01_18.png](images/ch10_01_18.png)
+
+### ArithmeticException
+
+Intentar dividir un int por cero da un resultado indefinido. Cuando esto ocurre, la JVM lanzará una `ArithmeticException`:
+
+```java
+int answer = 11 / 0;
+
+// Ejecutar este código resulta en la siguiente salida:
+// Exception in thread "main" java.lang.ArithmeticException: / by zero
+```
+
+* Java no deletrea la palabra divide. Eso está bien, sin embargo, porque sabemos que / es el operador de división y que Java está intentando decirte que ocurrió una división por cero.
+* El thread "main" te está diciendo que el código fue llamado directa o indirectamente desde un programa con un método main. 
+* En el examen, esto es toda la salida que verás. Luego viene el nombre de la excepción, seguido por información extra (si hay alguna) que va con la excepción.
+
+### ArrayIndexOutOfBoundsException
+
+Ya sabes ahora que los índices de array empiezan con 0 y van hasta 1 menos que la longitud del array—lo que significa que este código lanzará una `ArrayIndexOutOfBoundsException`:
 
 
 
@@ -288,7 +380,7 @@ Java sabe que `eatCarrot()` no puede lanzar una checked exception—lo que signi
 
 ```
 
-Recognizing Exception Classes
+
 Handling Exceptions
 Automating Resource Management
 Formatting Values
