@@ -369,6 +369,62 @@ int answer = 11 / 0;
 
 Ya sabes ahora que los índices de array empiezan con 0 y van hasta 1 menos que la longitud del array—lo que significa que este código lanzará una `ArrayIndexOutOfBoundsException`:
 
+```java
+int[] countsOfMoose = new int[3];
+System.out.println(countsOfMoose[-1]);
+```
+
+Este es un problema porque no existe tal cosa como un índice de array negativo. Ejecutar este código produce la siguiente salida:
+
+`Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: Index -1 out of bounds for length 3`
+
+### ClassCastException
+
+Java intenta protegerte de casts imposibles. Este código no compila porque Integer no es una subclase de String:
+
+```java
+String type = "moose";
+Integer number = (Integer) type; // DOES NOT COMPILE
+```
+
+Código más complicado frustra los intentos de Java de protegerte. Cuando el cast falla en runtime, Java lanzará una `ClassCastException`:
+
+```java
+String type = "moose";
+Object obj = type;
+Integer number = (Integer) obj; // ClassCastException
+```
+
+El compilador ve un cast de Object a Integer. Esto podría estar bien. El compilador no se da cuenta de que hay un String en ese Object. Cuando el código se ejecuta, produce la siguiente salida:
+
+```java
+Exception in thread "main" java.lang.ClassCastException: java.base/
+java.lang.String
+cannot be cast to java.lang.base/java.lang.Integer
+```
+
+Java te dice ambos tipos que estuvieron involucrados en el problema, haciendo evidente qué está mal.
+
+### NullPointerException
+
+Las variables de instancia y los métodos deben ser llamados en una referencia no-null. Si la referencia es null, la JVM lanzará una NullPointerException.
+
+```java
+1: public class Frog {
+2:     public void hop(String name, Integer jump) {
+3:         System.out.print(name.toLowerCase() + " " + jump.intValue());
+4:     }
+5:
+6:     public static void main(String[] args) {
+7:         new Frog().hop(null, 1);
+8:     }
+}
+```
+
+
+
+
+
 
 
 
