@@ -57,7 +57,81 @@ Para el examen, solo necesitas saber sobre `checked exceptions` que extienden `E
 * ¿Checked exceptions? ¿Qué estamos chequeando? Java tiene una regla llamada handle or declare rule. 
 * La handle or declare rule significa que todas las `checked exceptions` que podrían ser lanzadas dentro de un método están envueltas en bloques `try` y `catch` compatibles o declaradas en la firma del método.
 * Como las `checked exceptions` tienden a ser anticipadas, Java fuerza la regla de que el programador debe hacer algo para mostrar que la excepción fue considerada.
+* Tal vez fue manejada en el método. O tal vez el método declara que no puede manejar la excepción y alguien más debería.
 
+Veamos un ejemplo. El siguiente método `fall()` declara que podría lanzar una `IOException`, que es una `checked exception`:
+
+```java
+void fall(int distance) throws IOException {
+    if(distance> 10) {
+        throw new IOException();
+    }
+}
+```
+
+Nota que estás usando dos palabras clave diferentes aquí. La palabra clave `throw` le dice a Java que quieres lanzar una `Exception`, mientras que la palabra clave `throws` simplemente declara que el método podría lanzar una `Exception`. También podría no hacerlo.
+
+Ahora que sabes cómo declarar una excepción, ¿cómo la manejas? La siguiente versión alternativa del método `fall()` maneja la excepción:
+
+```java
+void fall(int distance) {
+    try {
+        if(distance> 10) {
+            throw new IOException();
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+```
+
+* Nota que la declaración `catch` usa `Exception`, no `IOException`. Como `IOException` es una subclase de `Exception`, el bloque catch está permitido para capturarla. 
+* Cubriremos los bloques `try` y `catch` con más detalle más adelante en este capítulo.
+
+### Unchecked Exceptions
+
+Una `unchecked exception` es cualquier excepción que no necesita ser declarada o manejada por el código de aplicación donde es lanzada. 
+Las `unchecked exceptions` a menudo son referidas como runtime exceptions, aunque en Java, las `unchecked exceptions` incluyen cualquier clase que hereda `RuntimeException` o `Error`.
+
+---------------------------------------------------------------------
+**Tip sobre Unchecked Exceptions**
+* Es permisible manejar o declarar una unchecked exception. 
+* Dicho esto, es mejor documentar las unchecked exceptions que los llamadores deberían conocer en un comentario Javadoc en lugar de declarar una unchecked exception.
+---------------------------------------------------------------------
+
+* Una runtime exception se define como la clase RuntimeException y sus subclases. 
+* Las runtime exceptions tienden a ser inesperadas pero no necesariamente fatales. 
+* Por ejemplo, acceder a un índice de array inválido es inesperado. Aunque heredan de la clase Exception, no son checked exceptions.
+
+* Una unchecked exception puede ocurrir en casi cualquier línea de código, ya que no se requiere que sea manejada o declarada. 
+* Por ejemplo, una `NullPointerException` puede ser lanzada en el cuerpo del siguiente método si la referencia de entrada es `null`:
+
+```java
+void fall(String input) {
+    System.out.println(input.toLowerCase());
+}
+```
+
+* Trabajamos con objetos en Java tan frecuentemente que una `NullPointerException` puede ocurrir casi en cualquier lugar. 
+* Si tuvieras que declarar `unchecked exceptions` en todas partes, ¡cada método individual tendría ese desorden! 
+* El código compilará si declaras una unchecked exception. Sin embargo, es redundante.
+
+### Error and Throwable
+
+* Error significa que algo salió tan terriblemente mal que tu programa no debería intentar recuperarse de ello. 
+* Por ejemplo, el disco duro "desapareció" o el programa se quedó sin memoria. 
+* Estas son condiciones anormales que no es probable que encuentres y de las cuales no puedes recuperarte.
+
+* Para el examen, lo único que necesitas saber sobre `Throwable` es que es la clase padre de todas las excepciones, incluyendo la clase `Error`. 
+* Mientras puedes manejar excepciones `Throwable` y `Error`, no se recomienda que lo hagas en tu código de aplicación. 
+* Cuando nos referimos a excepciones en este capítulo, generalmente queremos decir cualquier clase que hereda Throwable, aunque casi siempre estamos trabajando con la clase `Exception` o subclases de ella.
+
+### Reviewing Exception Types
+
+* Asegúrate de estudiar cuidadosamente todo en la Tabla 11.1. Para el examen, recuerda que un `Throwable` es ya sea una `Exception` o un `Error`. 
+* No deberías capturar Throwable directamente en tu código.
+
+![ch10_01_17.png](images/ch10_01_17.png)
 
 
 
