@@ -228,19 +228,46 @@ public class Bunny {
 * El problema es que `NoMoreCarrotsException` es una checked exception. Las checked exceptions deben ser manejadas o declaradas. 
 * El código compilaría si cambiaras el método `main()` a cualquiera de estos:
 
+```java
+public static void main(String[] args) throws NoMoreCarrotsException {
+    eatCarrot();
+}
+```
 
+```java
+public static void main(String[] args) {
+    try {
+        eatCarrot();
+    } catch (NoMoreCarrotsException e) {
+        System.out.print("sad rabbit");
+    }
+}
+```
 
+* Podrías haber notado que `eatCarrot()` no lanzó una excepción; solo declaró que podría hacerlo. 
+* Esto es suficiente para que el compilador requiera que el llamador maneje o declare la excepción.
+* El compilador todavía está buscando código inalcanzable. Declarar una excepción no utilizada no se considera código inalcanzable. 
+* Le da al método la opción de cambiar la implementación para lanzar esa excepción en el futuro. ¿Ves el problema aquí?
 
+```java
+public void bad() {
+    try {
+        eatCarrot();
+    } catch (NoMoreCarrotsException e) { // DOES NOT COMPILE
+        System.out.print("sad rabbit");
+    }
+}
 
+private void eatCarrot() {}
+```
 
+Java sabe que `eatCarrot()` no puede lanzar una checked exception—lo que significa que no hay forma de que el bloque catch en `bad()` sea alcanzado.
 
-
-
-
-
-
-
-
+---------------------------------------------------------------------
+**Nota sobre checked exceptions en bloques catch**
+* Cuando veas una checked exception declarada dentro de un bloque catch en el examen, asegúrate de que el código en el bloque try asociado sea capaz de lanzar la excepción o una subclase de la excepción. 
+* Si no, el código es inalcanzable y no compila. Recuerda que esta regla no se extiende a unchecked exceptions o excepciones declaradas en una firma de método.
+---------------------------------------------------------------------
 
 
 
