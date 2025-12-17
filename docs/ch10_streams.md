@@ -1475,8 +1475,8 @@ Ahora veamos un ejemplo donde dividimos la bolsa en tres:
 ```
 
 * En las líneas 12 y 13, definimos una List. Las líneas 14 y 15 crean dos referencias Spliterator. 
-* La primera es la bolsa original, que contiene todos los siete elementos. L
-* a segunda es nuestra división de la bolsa original, poniendo aproximadamente la mitad de los elementos al frente en la bolsa de Emma. 
+* La primera es la bolsa original, que contiene todos los siete elementos.
+* La segunda es nuestra división de la bolsa original, poniendo aproximadamente la mitad de los elementos al frente en la bolsa de Emma. 
 * Luego imprimimos los tres contenidos de la bolsa de Emma en la línea 16.
 * Nuestra bolsa original de comida ahora contiene cuatro elementos. 
 * Creamos un nuevo Spliterator en la línea 18 y ponemos los primeros dos elementos en la bolsa de Jill. 
@@ -1688,15 +1688,136 @@ System.out.println(map);
 * Partitioning es un caso especial de agrupamiento. Con `partitioning`, solo hay dos grupos posibles: `true` y `false`. 
 * Partitioning es como dividir una lista en dos partes.
 
+* Supón que estamos haciendo un letrero para poner afuera del recinto de cada animal. Tenemos dos tamaños de letreros. 
+* Uno puede acomodar nombres con cinco o menos caracteres. El otro es necesario para nombres más largos. 
+* Podemos particionar la lista según qué letrero necesitamos.
 
+```java
+var ohMy = Stream.of("lions", "tigers", "bears");
+Map<Boolean, List<String>> map = ohMy.collect(
+  Collectors.partitioningBy(s -> s.length() <= 5));
+System.out.println(map); // {false=[tigers], true=[lions, bears]}
+```
 
+* Aquí pasamos un, `Predicate` con la lógica para qué grupo pertenece cada nombre de animal. 
+* Ahora supón que hemos descubierto cómo usar una fuente diferente, y siete caracteres ahora pueden caber en el letrero más pequeño. 
+* No hay problema. Solo cambiamos él, `Predicate`.
 
+```java
+var ohMy = Stream.of("lions", "tigers", "bears");
+Map<Boolean, List<String>> map = ohMy.collect(
+  Collectors.partitioningBy(s -> s.length() <= 7));
+System.out.println(map); // {false=[], true=[lions, tigers, bears]}
+```
 
+* Nota que todavía hay dos claves en el map—una para cada valor booleano. 
+* Sucede que uno de los valores es una lista vacía, pero aún está ahí. 
+* Como con `groupingBy()`, podemos cambiar el tipo de `List` a algo más.
 
+```java
+var ohMy = Stream.of("lions", "tigers", "bears");
+Map<Boolean, Set<String>> map = ohMy.collect(
+  Collectors.partitioningBy(
+    s -> s.length() <= 7,
+    Collectors.toSet()));
+System.out.println(map); // {false=[], true=[lions, tigers, bears]}
+```
 
+* A diferencia de `groupingBy()`, no podemos cambiar el tipo de Map que se retorna. 
+* Sin embargo, solo hay dos claves en el map, así que ¿realmente importa qué tipo de Map usemos?
 
+* En lugar de usar el downstream collector para especificar el tipo, podemos usar cualquiera de los collectors que ya hemos mostrado. 
+* Por ejemplo, podemos agrupar por la longitud del nombre del animal para ver cuántos de cada longitud tenemos.
 
+```java
+var ohMy = Stream.of("lions", "tigers", "bears");
+Map<Integer, Long> map = ohMy.collect(
+  Collectors.groupingBy(
+    String::length,
+    Collectors.counting()));
+System.out.println(map); // {5=2, 6=1}
+```
 
+---------------------------------------------------------------------
+
+**Debugging Complicated Generics**
+
+* Cuando trabajas con `collect()`, a menudo hay muchos niveles de genéricos, haciendo los errores del compilador ilegibles. 
+* Aquí hay tres técnicas útiles para lidiar con esta situación:
+
+* Empieza de nuevo con una declaración simple, y sigue añadiéndole. 
+* Al hacer un pequeño cambio a la vez, sabrás qué código introdujo el error.
+* Extrae partes de la declaración en declaraciones separadas. Por ejemplo, intenta escribir `Collectors.groupingBy(String::length, Collectors.counting());`. 
+* Si compila, sabes que el problema está en otro lado. Si no compila, tienes una declaración mucho más corta para resolver problemas.
+* Usa wildcards genéricos para el tipo de retorno de la declaración final: por ejemplo, `Map<?, ?>`. 
+* Si ese cambio solo permite que el código compile, sabrás que el problema está con el tipo de retorno no siendo lo que esperas.
+
+---------------------------------------------------------------------
+
+* Finalmente, hay un collector `mapping()` que nos permite bajar un nivel y añadir otro collector. 
+* Supón que queríamos obtener la primera letra del primer animal alfabéticamente de cada longitud. 
+* ¿Por qué? Tal vez para muestreo aleatorio. Los ejemplos en esta parte del examen son bastante rebuscados también. 
+* Escribiríamos lo siguiente:
+
+```java
+var ohMy = Stream.of("lions", "tigers", "bears");
+Map<Integer, Optional<Character>> map = ohMy.collect(
+  Collectors.groupingBy(
+    String::length,
+    Collectors.mapping(
+      s -> s.charAt(0),
+      Collectors.minBy((a, b) -> a - b))));
+System.out.println(map); // {5=Optional[b], 6=Optional[t]}
+```
+
+* No vamos a decirte que este código es fácil de leer. Te diremos que es lo más complicado que necesitas entender para el examen. 
+* Comparándolo con el ejemplo previo, puedes ver que reemplazamos `counting()` con `mapping()`. 
+* Sucede que `mapping()` toma dos parámetros: la función para el valor y cómo agruparla más.
+
+* Podrías ver `collectors` usados con un import estático para hacer el código más corto. 
+* El examen incluso podría usar var para el valor de retorno y menos indentación de lo que usamos. 
+* Esto significa que podrías ver algo como esto:
+
+```java
+var ohMy = Stream.of("lions", "tigers", "bears");
+var map = ohMy.collect(groupingBy(String::length,
+  mapping(s -> s.charAt(0), minBy((a, b) -> a - b))));
+System.out.println(map); // {5=Optional[b], 6=Optional[t]}
+```
+
+* El código hace lo mismo que en el ejemplo previo. 
+* Esto significa que es importante reconocer los nombres de collectors porque podrías no tener el nombre de la clase Collectors para llamar tu atención.
+
+### Teeing Collectors
+
+* Supón que quieres retornar dos cosas. Como hemos aprendido, esto es problemático con streams porque solo obtienes un pase. 
+* Las summary statistics son buenas cuando quieres esas operaciones. Afortunadamente, puedes usar `teeing()` para retornar múltiples valores propios.
+
+Primero, define el tipo de retorno. Usamos un record aquí:
+
+```java
+record Separations(String spaceSeparated, String commaSeparated) {}
+```
+
+Ahora escribimos el stream. Mientras lees, presta atención al número de Collectors:
+
+```java
+var list = List.of("x", "y", "z");
+Separations result = list.stream()
+  .collect(Collectors.teeing(
+        Collectors.joining(" "),
+        Collectors.joining(","),
+        (s, c) -> new Separations(s, c)));
+System.out.println(result);
+```
+
+Cuando se ejecuta, el código imprime lo siguiente:
+
+`Separations[spaceSeparated=x y z, commaSeparated=x,y,z]`
+
+* Hay tres Collectors en este código. Dos de ellos son para `joining()` y producen los valores que queremos retornar. 
+* El tercero es `teeing()`, que combina los resultados en el único objeto que queremos retornar. 
+* De esta manera, Java está feliz porque solo un objeto es retornado, y nosotros estamos felices porque no tenemos que pasar a través del stream dos veces.
 
 
 
