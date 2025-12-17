@@ -1642,6 +1642,62 @@ Map<Integer, List<String>> map = ohMy.collect(
 System.out.println(map); // {5=[lions, bears], 6=[tigers]}
 ```
 
+* El collector `groupingBy()` le dice a `collect()` que debe agrupar todos los elementos del stream en un Map. 
+* La función determina las claves en el Map. Cada valor en el Map es una List de todas las entradas que coinciden con esa clave.
+
+NOTA: Nota que la función que llamas en `groupingBy()` no puede retornar `null`. No permite claves `null`.
+
+* Supón que no queremos una List como valor en el map y preferimos un Set en su lugar. No hay problema. 
+* Hay otra firma de método que nos permite pasar un downstream collector. 
+* Este es un segundo collector que hace algo especial con los valores.
+
+```java
+var ohMy = Stream.of("lions", "tigers", "bears");
+Map<Integer, Set<String>> map = ohMy.collect(
+  Collectors.groupingBy(
+    String::length,
+    Collectors.toSet()));
+System.out.println(map); // {5=[lions, bears], 6=[tigers]}
+```
+
+Incluso podemos cambiar el tipo de Map retornado a través de otro parámetro más.
+
+```java
+var ohMy = Stream.of("lions", "tigers", "bears");
+TreeMap<Integer, Set<String>> map = ohMy.collect(
+  Collectors.groupingBy(
+    String::length,
+    TreeMap::new,
+    Collectors.toSet()));
+System.out.println(map); // {5=[lions, bears], 6=[tigers]}
+```
+
+* Esto es muy flexible. ¿Qué pasa si queremos cambiar el tipo de Map retornado, pero dejar el tipo de valores solo como una List? 
+* No hay un método específicamente para esto porque es suficientemente fácil de escribir con los existentes.
+
+```java
+var ohMy = Stream.of("lions", "tigers", "bears");
+TreeMap<Integer, List<String>> map = ohMy.collect(
+  Collectors.groupingBy(
+    String::length,
+    TreeMap::new,
+    Collectors.toList()));
+System.out.println(map);
+```
+
+* Partitioning es un caso especial de agrupamiento. Con `partitioning`, solo hay dos grupos posibles: `true` y `false`. 
+* Partitioning es como dividir una lista en dos partes.
+
+
+
+
+
+
+
+
+
+
+
 
 
 
