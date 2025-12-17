@@ -1551,8 +1551,96 @@ System.out.println(result); // 5.333333333333333
 var ohMy = Stream.of("lions", "tigers", "bears");
 TreeSet<String> result = ohMy
   .filter(s -> s.startsWith("t"))
+  .collect(Collectors.toCollection(TreeSet::new));
+System.out.println(result); // [tigers]
 ```
 
+* Esta vez tenemos las tres partes del stream pipeline. `Stream.of()` es la fuente del stream. 
+* La operación intermedia es `filter()`. Finalmente, la operación terminal es `collect()`, que crea un TreeSet. 
+* Si no nos importara qué implementación de Set obtuvimos, podríamos haber escrito `Collectors.toSet()`, en su lugar.
+
+En este punto, deberías poder usar todos los Collectors en Table 10.10 excepto `groupingBy()`, `mapping()`, `partitioningBy()`, `toMap()`, y `teeing()`.
+
+### Collecting into Maps
+
+* El código usando Collectors involucrando maps puede volverse bastante largo. Lo construiremos lentamente. 
+* Asegúrate de que entiendes cada ejemplo antes de continuar al siguiente. Comencemos con un ejemplo directo para crear un map desde un stream:
+
+```java
+var ohMy = Stream.of("lions", "tigers", "bears");
+Map<String, Integer> map = ohMy.collect(
+  Collectors.toMap(s -> s, String::length));
+System.out.println(map); // {lions=5, bears=5, tigers=6}
+```
+
+* Al crear un map, necesitas especificar dos funciones. La primera función le dice al collector cómo crear la clave. 
+* En nuestro ejemplo, usamos el String proporcionado como la clave. La segunda función le dice al collector cómo crear el valor. 
+* En nuestro ejemplo, usamos la longitud del String como el valor.
+
+* NOTA: Retornar el mismo valor pasado a una lambda es una operación común, así que Java proporciona un método para ello. 
+* Puedes reescribir `s -> s` como `Function.identity()`. No es más corto y puede o no ser más claro, así que usa tu juicio sobre si usarlo.
+
+Ahora queremos hacer lo inverso y mapear la longitud del nombre del animal al nombre mismo. Nuestro primer intento incorrecto se muestra aquí:
+
+```java
+var ohMy = Stream.of("lions", "tigers", "bears");
+Map<Integer, String> map = ohMy.collect(Collectors.toMap(
+  String::length,
+  k -> k)); // BAD
+```
+
+Ejecutar esto produce una excepción similar a la siguiente:
+
+```java
+Exception in thread "main"
+  java.lang.IllegalStateException: Duplicate key 5
+```
+
+* ¿Qué está mal? Dos de los nombres de animales tienen la misma longitud. No le dijimos a Java qué hacer. 
+* ¿Debería el collector elegir el primero que encuentra? ¿El último que encuentra? ¿Concatenar los dos? 
+* Como el collector no tiene idea qué hacer, "resuelve" el problema lanzando una excepción y convirtiéndolo en nuestro problema. 
+* Qué considerado. Supongamos que nuestro requisito es crear un String separado por comas con los nombres de animales. 
+* Podríamos escribir esto:
+
+```java
+var ohMy = Stream.of("lions", "tigers", "bears");
+Map<Integer, String> map = ohMy.collect(Collectors.toMap(
+  String::length,
+  k -> k,
+  (s1, s2) -> s1 + "," + s2));
+System.out.println(map);      // {5=lions,bears, 6=tigers}
+System.out.println(map.getClass()); // class java.util.HashMap
+```
+
+* Resulta que el Map retornado es un HashMap. Este comportamiento no está garantizado. 
+* Supón que queremos mandar que el código retorne un TreeMap en su lugar. No hay problema. 
+* Solo añadiríamos una referencia de constructor como parámetro:
+
+```java
+var ohMy = Stream.of("lions", "tigers", "bears");
+TreeMap<Integer, String> map = ohMy.collect(Collectors.toMap(
+  String::length,
+  k -> k,
+  (s1, s2) -> s1 + "," + s2,
+  TreeMap::new));
+System.out.println(map); //     // {5=lions,bears, 6=tigers}
+System.out.println(map.getClass()); // class java.util.TreeMap
+```
+
+* Esta vez obtenemos el tipo que especificamos. ¿Hasta ahora? Este código es largo pero no particularmente complicado. 
+* Prometimos que el código sería largo.
+
+### Grouping, Partitioning, and Mapping
+
+* Buen trabajo llegando hasta aquí. A los creadores del examen les gusta preguntar sobre `groupingBy()` y `partitioningBy()`, así que asegúrate de entender estas secciones muy bien. 
+* Ahora supón que queremos obtener grupos de nombres por su longitud. Podemos hacer eso diciendo que queremos agrupar por longitud.
+
+```java
+var ohMy = Stream.of("lions", "tigers", "bears");
+Map<Integer, List<String>> map = ohMy.collect(
+  Collectors.groupingBy(String::length));
+System.out.println(map); // {5=[lions, bears], 6=[tigers]}
+```
 
 
 
