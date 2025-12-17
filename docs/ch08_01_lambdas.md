@@ -643,7 +643,7 @@ Por definicion todas las interfaces funcionales tienen un único método abstrac
 
 Varias de las interfaces funcionales comunes proporcionan una serie de métodos de interfaz predeterminados útiles.
 
-![ch08_01_04.png](images/ch08_01_04.png)
+![ch08_01_04.png](images/ch08/ch08_01_04.png)
 
 La tabla muestra los métodos convenientes en las interfaces funcionales principales, BiConsumer, BiFunction y BiPredicate tienen similares métodos. 
 
@@ -722,7 +722,7 @@ Las líneas anteriores crean un BooleanSupplier, que es la única interfaz funci
 
 La mayoría de las interfaces funcionales son para double, int y long como se ve en la siguiente imagen
 
-![ch08_01_05.png](images/ch08_01_05.png)
+![ch08_01_05.png](images/ch08/ch08_01_05.png)
 
 Los genéricos desaparecen en algunos casos: El nombre de la interfaz ya indica qué tipo primitivo está involucrado.
 Por ejemplo, `IntFunction<R>` solo necesita el genérico `R` para el tipo de retorno, porque ya sabemos por el nombre que recibe un `int`.
@@ -737,7 +737,7 @@ Las interfaces funcionales permite mostrar diferentes enfoques para las variable
 La lista de parámetros, las variables locales declaradas dentro del cuerpo de la lambda y las variables 
 a las que se hace referencia desde el cuerpo de la lambda.
 
-![ch08_01_06.png](images/ch08_01_06.png)
+![ch08_01_06.png](images/ch08/ch08_01_06.png)
 
 #### Declaracion de parámetros
 

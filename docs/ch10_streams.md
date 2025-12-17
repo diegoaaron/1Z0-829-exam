@@ -7,7 +7,7 @@
 * Puedes solicitar un Optional vacío o pasar un valor para que el Optional lo envuelva. 
 * Piensa en un Optional como una caja que podría tener algo dentro o podría estar vacía. Figure 10.1 muestra ambas opciones.
 
-![ch10_01_01.png](images/ch10_01_01.png)
+![ch10_01_01.png](images/ch10/ch10_01_01.png)
 
 ### Creando un Optional
 
@@ -70,7 +70,7 @@ Como este es un patrón tan común, Java proporciona un método factory para hac
 Optional o = Optional.ofNullable(value);
 ```
 
-![ch10_01_02.png](images/ch10_01_02.png)
+![ch10_01_02.png](images/ch10/ch10_01_02.png)
 
 * Los otros métodos te permiten escribir código que usa un `Optional` en una línea sin tener que usar el operador ternario. 
 * En lugar de usar un `if statement`, que usamos cuando verificamos el average anteriormente, podemos especificar un `Consumer` para ejecutar cuando hay un valor dentro del `Optional`. 
@@ -185,7 +185,7 @@ Un stream en Java es una secuencia de datos. Un stream pipeline consiste de las 
 * Alguien tiene que comenzar y terminar el trabajo, y puede haber cualquier número de estaciones en el medio. 
 * Después de todo, ¡un trabajo con una persona no es una línea de ensamblaje! Hay tres partes para un stream pipeline, como se muestra en Figure 10.2.
 
-![ch10_01_03.png](images/ch10_01_03.png)
+![ch10_01_03.png](images/ch10/ch10_01_03.png)
 
 1. **Source**: De dónde viene el stream.
 2. **Intermediate operations**: Transforma el stream en otro. Puede haber tan pocas o tantas operaciones intermedias como quieras. Ya que los streams usan `lazy evaluation`, las operaciones intermedias no se ejecutan hasta que la operación terminal se ejecuta.
@@ -194,7 +194,7 @@ Un stream en Java es una secuencia de datos. Un stream pipeline consiste de las 
 * Nota que las operaciones son desconocidas para nosotros. Al ver la línea de ensamblaje desde afuera, solo te importa qué entra y qué sale. 
 * Lo que sucede en el medio es un detalle de implementación. Necesitarás conocer las diferencias entre operaciones intermedias y terminales bien. 
 
-![ch10_01_04.png](images/ch10_01_04.png)
+![ch10_01_04.png](images/ch10/ch10_01_04.png)
 
 * Una fábrica típicamente tiene un capataz que supervisa el trabajo. 
 * Java sirve como el capataz cuando trabaja con stream pipelines. 
@@ -205,7 +205,7 @@ Un stream en Java es una secuencia de datos. Un stream pipeline consiste de las 
 * El capataz espera hasta que vean la operación terminal para iniciar el trabajo. 
 * También observan el trabajo y detienen la línea tan pronto como el trabajo se completa.
 
-![ch10_01_05.png](images/ch10_01_05.png)
+![ch10_01_05.png](images/ch10/ch10_01_05.png)
 
 No estamos usando código en estos ejemplos porque es realmente importante entender el concepto de stream pipeline antes de comenzar a escribir el código. 
 Figure 10.3 muestra un stream pipeline con una operación intermedia.
@@ -226,7 +226,7 @@ Figure 10.3 muestra un stream pipeline con una operación intermedia.
 El capataz es inteligente y puede tomar decisiones sobre cómo hacer mejor el trabajo basándose en lo que se necesita. 
 Como ejemplo, exploremos el stream pipeline en Figure 10.4.
 
-![ch10_01_06.png](images/ch10_01_06.png)
+![ch10_01_06.png](images/ch10/ch10_01_06.png)
 
 * El capataz todavía ve un source de sacar letreros de la caja y asigna un trabajador para hacer eso bajo comando. 
 * Todavía ven una operación intermedia para pintar y configuran otro trabajador con instrucciones de esperar y luego pintar. 
@@ -319,7 +319,7 @@ El examen puede intentar engañarte usando punto y coma, ya que es similar a un 
 
 ### Revisando métodos para crear streams
 
-![ch10_01_07.png](images/ch10_01_07.png)
+![ch10_01_07.png](images/ch10/ch10_01_07.png)
 
 ### Usando Common Terminal Operations (Operaciones terminales comunes)
 
@@ -327,7 +327,7 @@ Puedes realizar una operación terminal sin ninguna operación intermedia pero n
 Es por esto que hablamos de operaciones terminales primero. `Reductions` son un tipo especial de operación terminal donde todo el contenido del stream se combina en un solo primitivo u `Object`. 
 Por ejemplo, podrías tener un int o una Collection.
 
-![ch10_01_08.png](images/ch10_01_08.png)
+![ch10_01_08.png](images/ch10/ch10_01_08.png)
 
 ### Counting
 
@@ -917,7 +917,7 @@ list.stream()
 
 Figure 10.5 muestra cómo cada operación intermedia en el pipeline alimenta a la siguiente.
 
-![ch10_01_09.png](images/ch10_01_09.png)
+![ch10_01_09.png](images/ch10/ch10_01_09.png)
 
 * Recuerda que el capataz de la línea de ensamblaje está descubriendo cómo implementar mejor el pipeline del stream. 
 * Configuran todas las mesas con instrucciones para esperar antes de comenzar. 
@@ -1056,7 +1056,7 @@ Aquí están los tres tipos de primitive streams:
 * Con una **S** mayúscula o en código, Stream es el nombre de una clase que contiene un tipo Object. 
 * Con una **s** minúscula, un stream es un concepto que podría ser un `Stream`, `DoubleStream`, `IntStream`, o `LongStream`.
 
-![ch10_01_10.png](images/ch10_01_10.png)
+![ch10_01_10.png](images/ch10/ch10_01_10.png)
 
 Algunos de los métodos para crear un primitive stream son equivalentes a cómo creamos la fuente para un Stream regular. 
 
@@ -1139,7 +1139,7 @@ rangeClosed.forEach(System.out::print); // 12345
 * Otra forma de crear un primitive stream es mapeando desde otro stream tipo. 
 * Table 10.6 muestra que hay un método para mapear entre cualquier tipo de stream.
 
-![ch10_01_11.png](images/ch10_01_11.png)
+![ch10_01_11.png](images/ch10/ch10_01_11.png)
 
 * Obviamente, tienen que ser tipos compatibles para que esto funcione. 
 * Java requiere que se proporcione una función de mapeo como parámetro, por ejemplo:
@@ -1179,7 +1179,7 @@ LongStream longs = integerList.stream()
   .flatMapToLong(x -> LongStream.of(x));
 ```
 
-![ch10_01_12.png](images/ch10_01_12.png)
+![ch10_01_12.png](images/ch10/ch10_01_12.png)
 
 Adicionalmente, puedes crear un Stream desde un primitive stream. Estos métodos muestran dos formas de lograr esto:
 
@@ -1229,7 +1229,7 @@ System.out.println(optional.orElseGet(() -> Double.NaN)); // 5.5
 * El método sum() no retorna un optional. Si intentas sumar un stream vacío, simplemente obtienes cero. 
 * El método average() siempre retorna un OptionalDouble, ya que un promedio puede potencialmente tener datos fraccionarios para cualquier tipo.
 
-![ch10_01_13.png](images/ch10_01_13.png)
+![ch10_01_13.png](images/ch10/ch10_01_13.png)
 
 Intentemos un ejemplo para asegurarnos de que entiendes esto:
 
@@ -1456,7 +1456,7 @@ public void wrapped() {
 * Necesitas saber cómo trabajar con algunos de los métodos comunes declarados en esta interfaz. 
 * Los métodos simplificados que necesitas conocer están en Table 10.9.
 
-![ch10_01_14.png](images/ch10_01_14.png)
+![ch10_01_14.png](images/ch10/ch10_01_14.png)
 
 Ahora veamos un ejemplo donde dividimos la bolsa en tres:
 
@@ -1524,7 +1524,7 @@ System.out.println(result); // lions, tigers, bears
 * Nota cómo los collectors predefinidos están en la clase Collectors en lugar de la interfaz Collector. 
 * Esta es un tema común, que viste con Collection versus Collections. De hecho, ves este patrón nuevamente en Chapter 14 cuando trabajas con Paths y Path y otros tipos relacionados.
 
-![ch10_01_15.png](images/ch10_01_15.png)
+![ch10_01_15.png](images/ch10/ch10_01_15.png)
 
 * Pasamos el collector predefinido `joining()` al método `collect()`. Todos los elementos del stream son entonces fusionados en un String con el delimitador especificado entre cada elemento. 
 * Es importante pasar el Collector al método `collect`. Existe para ayudar a recolectar elementos. Un Collector no hace nada por sí mismo.

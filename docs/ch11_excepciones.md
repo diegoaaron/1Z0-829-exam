@@ -40,7 +40,7 @@ public int indexOf(String[] names, String name) {
 Una excepción es un evento que altera el flujo del programa. Java tiene una clase `Throwable` para todos los objetos que representan estos eventos. 
 No todos ellos tienen la palabra exception en el nombre de su clase, lo cual puede ser confuso. La Figura 11.1 muestra las subclases clave de Throwable.
 
-![ch10_01_16.png](images/ch10_01_16.png)
+![ch11_01_01.png](images/ch11/ch11_01_01.png)
 
 ### Checked Exceptions
 
@@ -131,7 +131,7 @@ void fall(String input) {
 * Asegúrate de estudiar cuidadosamente todo en la Tabla 11.1. Para el examen, recuerda que un `Throwable` es ya sea una `Exception` o un `Error`. 
 * No deberías capturar Throwable directamente en tu código.
 
-![ch10_01_17.png](images/ch10_01_17.png)
+![ch11_01_02.png](images/ch11/ch11_01_02.png)
 
 ### Throwing an Exception
 
@@ -348,7 +348,7 @@ class Bunny extends Hopper {
 * RuntimeException y sus subclases son unchecked exceptions que no tienen que ser manejadas o declaradas. 
 * Pueden ser lanzadas por el programador o la JVM. Las clases de unchecked exception comunes están listadas en la Tabla 11.2.
 
-![ch10_01_18.png](images/ch10_01_18.png)
+![ch11_01_03.png](images/ch11/ch11_01_03.png)
 
 ### ArithmeticException
 
@@ -420,6 +420,99 @@ Las variables de instancia y los métodos deben ser llamados en una referencia n
 8:     }
 }
 ```
+
+Ejecutar este código resulta en la siguiente salida:
+
+```java
+Exception in thread "main" java.lang.NullPointerException: Cannot invoke
+"String.toLowerCase()" because "<parameter1>" is null
+```
+
+* Si eres nuevo en Java 17, deberías haber notado algo especial sobre la salida. 
+* La JVM ahora te dice la referencia de objeto que desencadenó la `NullPointerException`. 
+* Esta nueva característica se llama Helpful `NullPointerExceptions`.
+
+Como otro ejemplo, supón que cambiamos la línea 7:
+
+`7: new Frog().hop("Kermit", null);`
+
+Entonces la salida en runtime cambia como sigue:
+
+`Exception in thread "main" java.lang.NullPointerException: Cannot invoke "java.lang.Integer.intValue()" because "<parameter2>" is null`
+
+---------------------------------------------------------------------
+**Tip sobre NullPointerException**
+* Por defecto, una `NullPointerException` en una variable local o parámetro de método se imprime con un número indicando el orden en el que aparece en el método, como `<local2>` o `<parameter4>`. 
+* Si eres como nosotros y quieres que el nombre de variable real sea mostrado, compila el código con el flag `-g:vars`, que agrega información de debug. 
+* En los ejemplos previos, `<parameter1>` y `<parameter2>` son entonces reemplazados con name y jump, respectivamente.
+---------------------------------------------------------------------
+
+Como esta es una nueva característica en Java, es posible que la veas en una pregunta del examen.
+
+---------------------------------------------------------------------
+**Enabling/Disabling Helpful NullPointerExceptions**
+
+Cuando las helpful `NullPointerExceptions` fueron agregadas en Java 14, la característica estaba deshabilitada por defecto y tenía que ser habilitada vía un argumento de línea de comando `ShowCodeDetailsInExceptionMessages` a la JVM: `java -XX:+ShowCodeDetailsInExceptionMessages Frog`
+
+En Java 15 y posteriores, el comportamiento por defecto fue cambiado para que esté habilitado por defecto, aunque todavía puede ser deshabilitado vía el argumento de línea de comando. `java -XX:-ShowCodeDetailsInExceptionMessages Frog`
+---------------------------------------------------------------------
+
+### IllegalArgumentException
+
+IllegalArgumentException es una forma en que tu programa se protege a sí mismo. 
+Quieres decirle al llamador que algo está mal—preferiblemente de una manera obvia que el llamador no pueda ignorar para que el programador arregle el problema. 
+Ver que el código termina con una excepción es un gran recordatorio de que algo está mal. 
+Considera este ejemplo cuando es llamado como `setNumberEggs(-2)`:
+
+```java
+public void setNumberEggs(int numberEggs) {
+    if (numberEggs < 0)
+        throw new IllegalArgumentException("# eggs must not be negative");
+    this.numberEggs = numberEggs;
+}
+```
+
+El programa lanza una excepción cuando no está contento con los valores de parámetro. La salida se ve así:
+
+```java
+Exception in thread "main"
+java.lang.IllegalArgumentException: // eggs must not be negative
+```
+
+Claramente, este es un problema que debe ser arreglado si el programador quiere que el programa haga algo útil.
+
+### NumberFormatException
+
+* Java proporciona métodos para convertir strings a números. Cuando estos reciben un valor inválido, lanzan una NumberFormatException. 
+* La idea es similar a IllegalArgumentException. Como este es un problema común, Java le da una clase separada. 
+* De hecho, NumberFormatException es una subclase de IllegalArgumentException. Aquí hay un ejemplo de intentar convertir algo no-numérico en un int:
+
+`Integer.parseInt("abc");`
+
+La salida se ve así:
+
+```java
+Exception in thread "main"
+java.lang.NumberFormatException: For input string: "abc"
+```
+
+* Para el examen, necesitas saber que NumberFormatException es una subclase de IllegalArgumentException. 
+* Cubriremos más sobre por qué eso es importante más adelante en el capítulo.
+
+### Checked Exception Classes
+
+* Las checked exceptions tienen Exception en su jerarquía pero no RuntimeException. Deben ser manejadas o declaradas. 
+* Las checked exceptions comunes están listadas en la Tabla 11.3.
+
+![ch11_01_04.png](images/ch11/ch11_01_04.png)
+
+
+
+
+
+
+
+
 
 
 

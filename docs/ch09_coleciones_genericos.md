@@ -32,7 +32,7 @@ El framework tiene cuatro interfaces principales:
   * Es considerado parte del Collections Framework aunque técnicamente no sea una Collection 
     * Se tratan diferente porque necesitan métodos distintos debido a que trabajan con pares clave/valor, no con elementos individuales.
 
-![ch09_01_01.png](images/ch09_01_01.png)
+![ch09_01_01.png](images/ch09/ch09_01_01.png)
 
 ### Usando el operador diamante 
 
@@ -309,7 +309,7 @@ Algunos de estos métodos retornan un immutable object.
 
 Como vimos en Chapter 6, "Class Design," un immutable object no puede ser cambiado o modificado. 
 
-![ch09_01_02.png](images/ch09_01_02.png)
+![ch09_01_02.png](images/ch09/ch09_01_02.png)
 
 ```java
 16: String[] array = new String[] {"a", "b", "c"};
@@ -402,7 +402,7 @@ Puedes agregar cualquier subclase de Object. Sin embargo, en el loop, necesitamo
 
 Los métodos en la interfaz List son para trabajar con índices. Además de los métodos heredados de Collection
 
-![ch09_01_03.png](images/ch09_01_03.png)
+![ch09_01_03.png](images/ch09/ch09_01_03.png)
 
 Los siguientes statements demuestran la mayoría de estos métodos para trabajar con una List:
 
@@ -496,7 +496,7 @@ Veamos como convertir una List en un array:
 * Usas un `Set` cuando no quieres permitir entradas duplicadas. 
 * Tampoco es importante el orden de los elementos en un Set.
 
-![ch09_01_04.png](images/ch09_01_04.png)
+![ch09_01_04.png](images/ch09/ch09_01_04.png)
 
 ### Comparando implementaciones de Set
 
@@ -512,7 +512,7 @@ Veamos como convertir una List en un array:
 * El principal beneficio es que el set está siempre en orden ordenado. 
 * El trade-off es que agregar y verificar si un elemento existe toma más tiempo que con un HashSet, especialmente a medida que el árbol crece.
 
-![ch09_01_05.png](images/ch09_01_05.png)
+![ch09_01_05.png](images/ch09/ch09_01_05.png)
 
 ### Trabajando con métodos Set
 
@@ -584,7 +584,7 @@ Esta vez, el código imprime lo siguiente:
 * Esta es una cola FIFO (first-in, first-out).
 * Una Deque (cola de doble extremo), pronunciada "deck", es diferente de una cola regular en la que puedes insertar y remover elementos tanto del frente (head) como de la parte trasera (tail). 
 
-![ch09_01_06.png](images/ch09_01_06.png)
+![ch09_01_06.png](images/ch09/ch09_01_06.png)
 
 ### Comparando implementaciones de Deque
 
@@ -598,7 +598,7 @@ Esta vez, el código imprime lo siguiente:
 * La interfaz Queue contiene seis métodos, mostrados en la Tabla 9.3. 
 * Hay tres piezas de funcionalidad y versiones de los métodos que lanzan una excepción o usan el tipo de retorno, como `null`, para toda la información. 
 
-![ch09_01_07.png](images/ch09_01_07.png)
+![ch09_01_07.png](images/ch09/ch09_01_07.png)
 
 ```java
 4: Queue<Integer> queue = new LinkedList<>();
@@ -616,7 +616,7 @@ Esta vez, el código imprime lo siguiente:
 * Dado que la interfaz Deque soporta colas de doble extremo, hereda todos los métodos de Queue y agrega más para que esté claro si estamos trabajando con el frente o la parte trasera de la cola. 
 * La Tabla 9.4 muestra los métodos cuando se usa como una cola de doble extremo.
 
-![ch09_01_08.png](images/ch09_01_08.png)
+![ch09_01_08.png](images/ch09/ch09_01_08.png)
 
 Intentemos un ejemplo que trabaje con ambos extremos de la cola:
 
@@ -624,7 +624,7 @@ Intentemos un ejemplo que trabaje con ambos extremos de la cola:
 Deque<Integer> deque = new LinkedList<>();
 ```
 
-![ch09_01_09.png](images/ch09_01_09.png)
+![ch09_01_09.png](images/ch09/ch09_01_09.png)
 
 * Las líneas 13 y 14 agregan exitosamente un elemento al frente y atrás de la cola, respectivamente. 
 * Algunas colas están limitadas en tamaño, lo que causaría que ofrecer un elemento a la cola falle. 
@@ -637,7 +637,7 @@ Deque<Integer> deque = new LinkedList<>();
 * Afortunadamente, podemos usar las mismas implementaciones de cola de doble extremo. 
 * Se usan diferentes métodos para mayor claridad, como se muestra en la Tabla 9.5.
 
-![ch09_01_10.png](images/ch09_01_10.png)
+![ch09_01_10.png](images/ch09/ch09_01_10.png)
 
 Intentemos otro usando la Deque como stack:
 
@@ -645,7 +645,7 @@ Intentemos otro usando la Deque como stack:
 Deque<Integer> stack = new ArrayDeque<>();
 ```
 
-![ch09_01_11.png](images/ch09_01_11.png)
+![ch09_01_11.png](images/ch09/ch09_01_11.png)
 
 * Esta vez, la Figura 9.7 muestra cómo se ve el stack en cada paso del código. 
 * Las líneas 13 y 14 colocan exitosamente un elemento en el frente/top del stack. 
@@ -663,7 +663,7 @@ Deque<Integer> stack = new ArrayDeque<>();
 * No necesitas conocer los nombres de las interfaces específicas que los diferentes maps implementan, pero sí necesitas saber que `TreeMap` es ordenado.
 * La cosa principal que todas las clases `Map` tienen en común es que tienen claves y valores. 
 
-![ch09_01_12.png](images/ch09_01_12.png)
+![ch09_01_12.png](images/ch09/ch09_01_12.png)
 
 **`Map.of()` y `Map.copyOf()`**
 
@@ -705,7 +705,7 @@ Map.ofEntries(
 * Debido a que hay tanto claves como valores, necesitamos parámetros de tipo genérico para ambos. 
 * La clase usa K para clave y V para valor. 
 
-![ch09_01_13.png](images/ch09_01_13.png)
+![ch09_01_13.png](images/ch09/ch09_01_13.png)
 
 ### Llamando a métodos básicos
 
@@ -903,15 +903,15 @@ System.out.println(favorites); // {Tom=Bus Tour, Sam=Skyride}
 * Sam se agregó, ya que esa clave no estaba en la lista original. 
 * Jenny fue eliminada porque la función de mapeo devolvió `null`.
 
-![ch09_01_14.png](images/ch09_01_14.png)
+![ch09_01_14.png](images/ch09/ch09_01_14.png)
 
 ## Comparando tipos de Collection
 
 Concluimos esta sección con una revisión de todas las clases de colección.
 
-![ch09_01_15.png](images/ch09_01_15.png)
+![ch09_01_15.png](images/ch09/ch09_01_15.png)
 
-![ch09_01_16.png](images/ch09_01_16.png)
+![ch09_01_16.png](images/ch09/ch09_01_16.png)
 
 Las estructuras de datos que involucran ordenamiento no permiten valores nulos.
 
@@ -1156,7 +1156,7 @@ Comparator<Duck> byWeight = Comparator.comparing(Duck::getWeight);
 
 ### Comparando Comparable y Comparator
 
-![ch09_01_17.png](images/ch09_01_17.png)
+![ch09_01_17.png](images/ch09/ch09_01_17.png)
 
 El examen intentará engañarte mezclando los dos y viendo si puedes detectarlo. ¿Ves por qué esto no compila?
 
@@ -1217,9 +1217,9 @@ Comparator<Squirrel> c = Comparator.comparing(Squirrel::getSpecies)
 ```java
 var c = Comparator.comparing(Squirrel::getSpecies).reversed();
 ```
-![ch09_01_18.png](images/ch09_01_18.png)
+![ch09_01_18.png](images/ch09/ch09_01_18.png)
 
-![ch09_01_19.png](images/ch09_01_19.png)
+![ch09_01_19.png](images/ch09/ch09_01_19.png)
 
 ### Ordenamiento y busqueda
 
@@ -1755,7 +1755,7 @@ Esto es conveniente. Ahora tenemos un record genérico inmutable.
 
 Puedes usar wildcards genéricos de tres formas, como se muestra en Table 9.13. 
 
-![ch09_01_20.png](images/ch09_01_20.png)
+![ch09_01_20.png](images/ch09/ch09_01_20.png)
 
 ### Creando comodines con límites
 
@@ -1917,7 +1917,7 @@ El problema es que queremos pasar un `List<String>` y un `List<Object>` al mismo
 
 Primero, asegúrate de entender por qué los primeros tres ejemplos en Table 9.14 no resuelven este problema.
 
-![ch09_01_21.png](images/ch09_01_21.png)
+![ch09_01_21.png](images/ch09/ch09_01_21.png)
 
 Para resolver este problema, necesitamos usar un lower bound.
 
