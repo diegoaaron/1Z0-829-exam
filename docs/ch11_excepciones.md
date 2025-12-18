@@ -1591,6 +1591,151 @@ Cuando estás probando un programa, podrías necesitar usar un Locale distinto a
 * Pruébalo, y no te preocupes—el Locale cambia solo para ese único programa Java. No cambia ninguna configuración en tu computadora. 
 * Ni siquiera cambia futuras ejecuciones del mismo programa.
 
+---------------------------------------------------------------------
+El examen puede usar setDefault() porque no puede hacer suposiciones sobre dónde estás ubicado. 
+En la práctica, rara vez escribimos código para cambiar el locale predeterminado de un usuario.
+---------------------------------------------------------------------
+
+### Localizing Numbers
+
+* Podría sorprenderte que el formateo o análisis de valores de moneda y números puede cambiar dependiendo de tu locale. 
+* Por ejemplo, en Estados Unidos, el signo de dólar se antepone antes del valor junto con un punto decimal para valores menores a un dólar, como $2.15. 
+* En Alemania, sin embargo, el símbolo del euro se añade al valor junto con una coma para valores menores a un euro, como 2,15 €.
+
+* Por suerte, el paquete `java.text` incluye clases para salvar el día. 
+* Las siguientes secciones cubren cómo formatear números, moneda y fechas basándose en el locale.
+* El primer paso para formatear o analizar datos es el mismo: obtener una instancia de un NumberFormat. 
+* Table 11.8 muestra los métodos factory disponibles.
+* Una vez que tienes la instancia de NumberFormat, puedes llamar a format() para convertir un número en un String, o puedes usar parse() para convertir un String en un número.
+
+![ch11_01_14.png](images/ch11/ch11_01_14.png)
+
+### Formatting Numbers
+
+* Cuando formateamos datos, los convertimos desde un objeto estructurado o valor primitivo a un String. 
+* El método NumberFormat.format() formatea el número dado basándose en el locale asociado con el objeto NumberFormat.
+* Volvamos a nuestro zoológico por un minuto. Para literatura de marketing, queremos compartir el número promedio mensual de visitantes al Zoológico de San Diego. 
+* Lo siguiente muestra imprimir el mismo número en tres locales diferentes:
+
+```java
+int attendeesPerYear = 3_200_000;
+int attendeesPerMonth = attendeesPerYear / 12;
+var us = NumberFormat.getInstance(Locale.US);
+System.out.println(us.format(attendeesPerMonth)); // 266,666
+
+var gr = NumberFormat.getInstance(Locale.GERMANY);
+System.out.println(gr.format(attendeesPerMonth)); // 266.666
+
+var ca = NumberFormat.getInstance(Locale.CANADA_FRENCH);
+System.out.println(ca.format(attendeesPerMonth)); // 266 666
+```
+
+* Esto muestra cómo nuestros invitados estadounidenses, alemanes y franco-canadienses pueden todos ver la misma información en el formato de número al que están acostumbrados. 
+* En la práctica, simplemente llamaríamos a NumberFormat.getInstance() y confiaríamos en el locale predeterminado del usuario para formatear la salida.
+* Formatear moneda funciona de la misma manera.
+
+```java
+double price = 48;
+var myLocale = NumberFormat.getCurrencyInstance();
+System.out.println(myLocale.format(price));
+```
+
+* Cuando se ejecuta con el locale predeterminado de en_US para Estados Unidos, este código imprime $48.00. 
+* Por otro lado, cuando se ejecuta con el locale predeterminado de en_GB para Gran Bretaña, imprime £48.00.
+
+---------------------------------------------------------------------
+En el mundo real, usa int o BigDecimal para dinero y no double. 
+Hacer matemáticas con cantidades usando double es peligroso porque los valores se almacenan como números de punto flotante. 
+¡Tu jefe no lo apreciará si pierdes centavos o fracciones de centavos durante las transacciones!
+---------------------------------------------------------------------
+
+Finalmente, el examen puede tener ejemplos que muestran formateo de porcentajes:
+
+```java
+double successRate = 0.802;
+var us = NumberFormat.getPercentInstance(Locale.US);
+System.out.println(us.format(successRate)); // 80%
+
+var gr = NumberFormat.getPercentInstance(Locale.GERMANY);
+System.out.println(gr.format(successRate)); // 80 %
+```
+
+No mucha diferencia, lo sabemos, pero deberías al menos estar consciente de que la capacidad de imprimir un porcentaje es específica del locale para el examen
+
+### Parsing Numbers
+
+* Cuando analizamos datos, los convertimos desde un String a un objeto estructurado o valor primitivo. 
+* El método NumberFormat.parse() logra esto y toma el locale en consideración.
+* Por ejemplo, si el locale es el inglés/Estados Unidos (en_US) y el número contiene comas, las comas son tratadas como símbolos de formateo. 
+* Si el locale se relaciona con un país o idioma que usa comas como separador decimal, la coma es tratada como un punto decimal.
+
+---------------------------------------------------------------------
+El método `parse()`, encontrado en varios tipos.
+Declara una checked exception ParseException que debe ser manejada o declarada en el método en el cual es llamada.
+---------------------------------------------------------------------
+
+* Veamos un ejemplo. El siguiente código analiza un precio de ticket con descuento con diferentes locales. 
+* El método parse() lanza una checked ParseException, así que asegúrate de manejarla o declararla en tu propio código.
+
+```java
+String s = "40.45";
+
+var en = NumberFormat.getInstance(Locale.US);
+System.out.println(en.parse(s)); // 40.45
+
+var fr = NumberFormat.getInstance(Locale.FRANCE);
+System.out.println(fr.parse(s)); // 40
+```
+
+* En Estados Unidos, un punto (.) es parte de un número, y el número es analizado como podrías esperar. 
+* Francia no usa un punto decimal para separar números. Java lo analiza como un carácter de formateo, y deja de mirar el resto del número. 
+* La lección es asegurarte de que analices usando el locale correcto.
+
+El método parse() también es usado para analizar moneda. Por ejemplo, podemos leer el ingreso mensual del zoológico por ventas de tickets:
+
+```java
+String income = "$92,807.99";
+var cf = NumberFormat.getCurrencyInstance();
+double value = (Double) cf.parse(income);
+System.out.println(value); // 92807.99
+```
+
+### Formatting with CompactNumberFormat
+
+La segunda clase que hereda NumberFormat que necesitas conocer para el examen es CompactNumberFormat. 
+Es nueva en el examen de Java 17, ¡así que es probable que veas una pregunta sobre ella!
+
+* CompactNumberFormat es similar a DecimalFormat, pero está diseñado para ser usado en lugares donde el espacio de impresión puede ser limitado. 
+* Es opinado en el sentido que escoge un formato por ti, y la salida específica del locale puede cambiar dependiendo de tu ubicación.
+* Considera el siguiente código de ejemplo que aplica un CompactNumberFormat cinco veces a dos locales, usando un static import para Style (un enum con valores SHORT o LONG):
+
+```java
+var formatters = Stream.of(
+    NumberFormat.getCompactNumberInstance(),
+    NumberFormat.getCompactNumberInstance(Locale.getDefault(), Style.SHORT),
+    NumberFormat.getCompactNumberInstance(Locale.getDefault(), Style.LONG),
+
+    NumberFormat.getCompactNumberInstance(Locale.GERMAN, Style.SHORT),
+    NumberFormat.getCompactNumberInstance(Locale.GERMAN, Style.LONG),
+    NumberFormat.getNumberInstance());
+
+formatters.map(s -> s.format(7_123_456)).forEach(System.out::println);
+```
+
+Lo siguiente es impreso por este código cuando se ejecuta en el locale en_US (saltos de línea añadidos para legibilidad):
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ```java
 
