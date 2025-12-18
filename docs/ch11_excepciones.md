@@ -506,32 +506,398 @@ java.lang.NumberFormatException: For input string: "abc"
 
 ![ch11_01_04.png](images/ch11/ch11_01_04.png)
 
+* Para el examen, necesitas saber que todas estas son checked exceptions que deben ser manejadas o declaradas. 
+* También necesitas saber que FileNotFoundException y NotSerializableException son subclases de IOException.
+* Ves estas tres clases en el Capítulo 14, "I/O," y SQLException en el Capítulo 15, "JDBC."
 
+### Error Classes
 
+* Errors son unchecked exceptions que extienden la clase Error. Son lanzados por la JVM y no deberían ser manejados o declarados. 
+* Errors son raros, pero podrías ver los listados en la Tabla 11.4.
 
+![ch11_01_05.png](images/ch11/ch11_01_05.png)
 
+Para el examen, solo necesitas saber que estos errors son unchecked y el código a menudo es incapaz de recuperarse de ellos.
 
+## Handling Exceptions
 
+### Using try and catch Statements
 
+* Se explica que Java usa un try statement para separar la lógica que podría lanzar una excepción de la lógica que maneja esa excepción. 
+* Se hace referencia a la Figura 11.2 que muestra la sintaxis de un try statement.
 
+![ch11_01_06.png](images/ch11/ch11_01_06.png)
 
+* El código en el bloque try se ejecuta normalmente. 
+* Si alguno de los statements lanza una excepción que puede ser capturada por el tipo de excepción listado en el bloque catch, el bloque try deja de ejecutarse y la ejecución va al catch statement. 
+* Si ninguno de los statements en el bloque try lanza una excepción que pueda ser capturada, la cláusula catch no se ejecuta.
 
+* Se aclara que las palabras "block" y "clause" se usan intercambiablemente en el examen. Block es correcto porque hay llaves presentes. 
+* Clause es correcto porque es parte de un try statement.
 
+```java
+3: void explore() {
+4:     try {
+5:         fall();
+6:         System.out.println("never get here");
+7:     } catch (RuntimeException e) {
+8:         getUp();
+9:     }
+10:     seeAnimals();
+11: }
+12: void fall() { throw new RuntimeException(); }
+```
 
+* La línea 5 llama al método `fall()`. La línea 12 lanza una excepción. Esto significa que Java salta directamente al bloque catch, omitiendo la línea 6. 
+* La niña se levanta en la línea 8. Ahora el try statement ha terminado, y la ejecución continúa normalmente con la línea 10.
 
+Ahora veamos el siguiente ejemplo e identifiquemos el error:
 
+```java
+try // DOES NOT COMPILE
+    fall();
+catch (Exception e)
+    System.out.println("get up");
+```
 
+El problema es que faltan las llaves `{}`. Los try statements son como métodos en que las llaves rizadas son requeridas incluso si hay solo un statement dentro de los bloques de código, mientras que los if statements y loops son especiales y te permiten omitir las llaves rizadas.
 
+Ahora veamos este otro ejemplo: 
 
+```java
+try { // DOES NOT COMPILE
+    fall();
+}
+```
 
+* Este código no compila porque el bloque try no tiene nada después de él. El punto de un try statement es que algo suceda si se lanza una excepción. 
+* Sin otra cláusula, el try statement está solo. Como verás en breve, hay un tipo especial de try statement que incluye un implicit finally block, aunque la sintaxis es bastante diferente de este ejemplo.
+
+### Chaining catch Blocks
+
+* Para el examen, te pueden dar clases de excepción y necesitas entender cómo funcionan. Aquí está cómo abordarlas. 
+* Primero, debes ser capaz de reconocer si la excepción es checked o unchecked. 
+* Segundo, necesitas determinar si alguna de las excepciones son subclases de las otras.
+
+```java
+class AnimalsOutForAWalk extends RuntimeException {}
+
+class ExhibitClosed extends RuntimeException {}
+
+class ExhibitClosedForLunch extends ExhibitClosed {}
+```
+
+* En este ejemplo, hay tres excepciones personalizadas. Todas son excepciones unchecked porque directa o indirectamente extienden RuntimeException. 
+* Ahora encadenamos ambos tipos de excepciones con dos bloques catch y las manejamos imprimiendo el mensaje apropiado:
+
+```java
+public void visitPorcupine() {
+    try {
+        seeAnimal();
+    } catch (AnimalsOutForAWalk e) { // first catch block
+        System.out.print("try back later");
+    } catch (ExhibitClosed e) { // second catch block
+        System.out.print("not today");
+    }
+}
+```
+
+* Hay tres posibilidades cuando se ejecuta este código. Si seeAnimal() no lanza una excepción, no se imprime nada. 
+* Si el animal está fuera para un paseo, solo se ejecuta el primer bloque catch. Si la exhibición está cerrada, solo se ejecuta el segundo bloque catch. 
+* No es posible que ambos bloques catch se ejecuten cuando están encadenados juntos de esta manera.
+
+* Existe una regla para el orden de los bloques catch. Java los mira en el orden en que aparecen. 
+* Si es imposible que uno de los bloques catch se ejecute, ocurre un error de compilador sobre código unreachable. 
+* Por ejemplo, esto sucede cuando un bloque catch de superclase aparece antes que un bloque catch de subclase. 
+* Recuerda, te advertimos que prestes atención a cualquier excepción de subclase.
+
+* En el ejemplo del puercoespín, el orden de los bloques catch podría revertirse porque las excepciones no heredan una de la otra. 
+* Y sí, hemos visto un puercoespín ser sacado a pasear con una correa.
+* El siguiente ejemplo muestra tipos de excepción que sí heredan uno del otro:
+
+```java
+public void visitMonkeys() {
+    try {
+        seeAnimal();
+    } catch (ExhibitClosedForLunch e) { // Subclass exception
+        System.out.print("try back later");
+    } catch (ExhibitClosed e) { // Superclass exception
+        System.out.print("not today");
+    }
+}
+```
+
+* Si se lanza la excepción más específica ExhibitClosedForLunch, se ejecuta el primer bloque catch. 
+* Si no, Java verifica si se lanza la superclase ExhibitClosed exception y la captura. 
+* Esta vez, el orden de los bloques catch sí importa. El reverso no funciona.
+
+```java
+public void visitMonkeys() {
+    try {
+        seeAnimal();
+    } catch (ExhibitClosed e) {
+        System.out.print("not today");
+    } catch (ExhibitClosedForLunch e) { // DOES NOT COMPILE
+        System.out.print("try back later");
+    }
+}
+```
+
+* Si se lanza la excepción más específica ExhibitClosedForLunch, el bloque catch para ExhibitClosed se ejecuta—lo que significa que no hay manera de que el segundo bloque catch se ejecute jamás. 
+* Java correctamente te dice que hay un bloque catch unreachable. Intentemos este una vez más. ¿Ves por qué este código no compila?
+
+```java
+public void visitSnakes() {
+    try {
+    } catch (IllegalArgumentException e) {
+    } catch (NumberFormatException e) { // DOES NOT COMPILE
+    }
+}
+```
+
+* Recuerda que dijimos anteriormente que necesitabas saber que NumberFormatException es una subclase de IllegalArgumentException
+* Este ejemplo es la razón por qué. Dado que NumberFormatException es una subclase, siempre será capturada por el primer bloque catch, haciendo el segundo bloque catch unreachable code que no compila. 
+* Del mismo modo, para el examen, necesitas saber que FileNotFoundException es una subclase de IOException y no puede ser usada de manera similar.
+
+* Para revisar múltiples bloques catch, recuerda que como máximo un bloque catch se ejecutará, y será el primer bloque catch que pueda manejar la excepción. 
+* También, recuerda que una excepción definida por el catch statement está solo in scope para ese bloque catch. 
+* Por ejemplo, lo siguiente causa un error de compilador, ya que intenta usar el objeto de excepción fuera del bloque para el cual fue definido:
+
+```java
+public void visitManatees() {
+    try {
+    } catch (NumberFormatException e1) {
+        System.out.println(e1);
+    } catch (IllegalArgumentException e2) {
+        System.out.println(e1); // DOES NOT COMPILE
+    }
+}
+```
+
+### Applying a Multi-catch Block
+
+* A menudo, queremos que el resultado de una excepción que se lanza sea el mismo, sin importar qué excepción particular se lanza. 
+* Por ejemplo, echa un vistazo a este método:
+
+```java
+public static void main(String args[]) {
+    try {
+        System.out.println(Integer.parseInt(args[1]));
+    } catch (ArrayIndexOutOfBoundsException e) {
+        System.out.println("Missing or invalid input");
+    } catch (NumberFormatException e) {
+        System.out.println("Missing or invalid input");
+    }
+}
+```
+
+* Observa que tenemos el mismo statement println() para dos bloques catch diferentes. 
+* Podemos manejar esto más elegantemente usando un bloque multi-catch. 
+* Un bloque multi-catch permite que múltiples tipos de excepción sean capturados por el mismo bloque catch. 
+* Reescribamos el ejemplo anterior usando un bloque multi-catch:
+
+```java
+public static void main(String[] args) {
+    try {
+        System.out.println(Integer.parseInt(args[1]));
+    } catch (ArrayIndexOutOfBoundsException | NumberFormatException e)
+    {
+        System.out.println("Missing or invalid input");
+    }
+}
+```
+
+* Esto es mucho mejor. No hay código duplicado, la lógica común está toda en un lugar, y la lógica está exactamente donde esperarías encontrarla. 
+* Si quisieras, aún podrías tener un segundo bloque catch para Exception en caso de que quieras manejar otros tipos de excepciones de manera diferente.
+* Figure 11.3 muestra la sintaxis de multi-catch. Es como una cláusula catch regular, excepto que dos o más tipos de excepción están especificados, separados por un pipe. 
+* El pipe (|) también se usa como el operador "or", haciendo fácil recordar que puedes usar either/or de los tipos de excepción. 
+* Observa cómo hay solo un nombre de variable en la cláusula catch. Java está diciendo que la variable llamada `e` puede ser de tipo Exception1 o Exception2.
+
+![ch11_01_07.png](images/ch11/ch11_01_07.png)
+
+* El examen podría intentar engañarte con sintaxis inválida. Recuerda que las excepciones pueden ser listadas en cualquier orden dentro de la cláusula catch. 
+* Sin embargo, el nombre de variable debe aparecer solo una vez y al final. ¿Ves por qué estos son válidos o inválidos?
+
+```java
+catch(Exception1 e | Exception2 e | Exception3 e) // DOES NOT COMPILE
+
+catch(Exception1 e1 | Exception2 e2 | Exception3 e3) // DOES NOT COMPILE
+
+catch(Exception1 | Exception2 | Exception3 e)
+```
+
+* La primera línea es incorrecta porque el nombre de variable aparece tres veces. Solo porque resulta ser el mismo nombre de variable no hace que esté bien. 
+* La segunda línea es incorrecta porque el nombre de variable de nuevo aparece tres veces. Usar diferentes nombres de variable no lo hace mejor. 
+* La tercera línea sí compila. Muestra la sintaxis correcta para especificar tres excepciones.
+
+* Java pretende que multi-catch sea usado para excepciones que no están relacionadas, y te previene de especificar tipos redundantes en un multi-catch. 
+* ¿Ves qué está mal aquí?
+
+```java
+try {
+    throw new IOException();
+} catch (FileNotFoundException | IOException p) {} // DOES NOT COMPILE
+```
+
+* Especificar excepciones relacionadas en el multi-catch es redundante, y el compilador da un mensaje como este:
+* The exception FileNotFoundException is already caught by the alternative IOException
+* Dado que FileNotFoundException es una subclase de IOException, este código no compilará. 
+* Un bloque multi-catch sigue reglas similares a encadenar bloques catch juntos, lo cual viste en la sección anterior. 
+* Por ejemplo, ambos desencadenan errores de compilador cuando encuentran código unreachable o duplicate
+* La única diferencia entre los bloques multicatch y el encadenamiento de bloques catch es que el orden no importa para un bloque multicatch dentro de una sola expresión catch.
+
+Regresando al ejemplo, el código correcto es simplemente eliminar la referencia a la subclase extraña, como se muestra aquí:
+
+```java
+try {
+    throw new IOException();
+} catch (IOException e) {}
+```
+
+* El try statement también te permite ejecutar código al final con una cláusula finally, sin importar si se lanza una excepción. 
+* Figure 11.4 muestra la sintaxis de un try statement con esta funcionalidad extra.
+
+* Hay dos caminos a través del código con tanto un catch como un finally. 
+* Si se lanza una excepción, el bloque finally se ejecuta después del bloque catch. 
+* Si no se lanza ninguna excepción, el bloque finally se ejecuta después de que el bloque try se completa.
+* Regresemos a nuestro ejemplo de la niña pequeña, esta vez con finally:
+
+```java
+12: void explore() {
+13:     try {
+14:         seeAnimals();
+15:     fall();
+16: } catch (Exception e) {
+17:     getHugFromDaddy();
+18: } finally {
+19:     seeMoreAnimals();
+20: }
+21: goHome();
+22: }
+```
+
+![ch11_01_08.png](images/ch11/ch11_01_08.png)
+
+* La niña cae en la línea 15. Si se levanta por sí misma, el código continúa al bloque finally y ejecuta la línea 19. 
+* Luego el try statement ha terminado, y el código procede en la línea 21. Si la niña no se levanta por sí misma, lanza una excepción. 
+* El bloque catch se ejecuta, y ella recibe un abrazo en la línea 17. Con ese abrazo, está lista para ver más animales en la línea 19. 
+* Luego el try statement ha terminado, y el código procede en la línea 21. 
+* De cualquier manera, el final es el mismo. El bloque finally se ejecuta, y la ejecución continúa después del try statement.
+
+El examen intentará engañarte con cláusulas faltantes o cláusulas en el orden incorrecto. ¿Ves por qué los siguientes sí o no compilan?
+
+```java
+25: try { // DOES NOT COMPILE
+26:     fall();
+27: } finally {
+28:     System.out.println("all better");
+29: } catch (Exception e) {
+30:     System.out.println("get up");
+31: }
+32:
+33: try { // DOES NOT COMPILE
+34:     fall();
+35: }
+36:
+37: try {
+38:     fall();
+39: } finally {
+40:     System.out.println("all better");
+41: }
+```
+
+* El primer ejemplo (líneas 25-31) no compila porque los bloques catch y finally están en el orden incorrecto. 
+* El segundo ejemplo (líneas 33-35) no compila porque debe haber un bloque catch o finally. 
+* El tercer ejemplo (líneas 37-41) está bien. El bloque catch no es requerido si finally está presente.
+
+La mayoría de los ejemplos que encuentres en el examen con finally van a verse forzados. Por ejemplo, te harán preguntas como qué imprime este código:
+
+```java
+public static void main(String[] unused) {
+    StringBuilder sb = new StringBuilder();
+    try {
+        sb.append("t");
+    } catch (Exception e) {
+        sb.append("c");
+    } finally {
+        sb.append("f");
+    }
+    sb.append("a");
+    System.out.print(sb.toString());
+}
+```
+
+* La respuesta es tfa. El bloque try se ejecuta. Dado que no se lanza ninguna excepción, Java va directo al bloque finally. 
+* Luego el código después del try statement se ejecuta. Sabemos que este es un ejemplo tonto, pero puedes esperar ver ejemplos como este en el examen.
+* Hay una regla adicional que deberías saber para los bloques finally. 
+* Si se entra a un try statement con un bloque finally, entonces el bloque finally siempre será ejecutado, sin importar si el código se completa exitosamente. 
+* Echa un vistazo al siguiente método goHome(). Asumiendo que una excepción puede o no puede ser lanzada en la línea 14, 
+* ¿cuáles son los posibles valores que este método podría imprimir? También, ¿cuál sería el valor de retorno en cada caso?
+
+```java
+12: int goHome() {
+13:     try {
+14:         // Optionally throw an exception here
+15:         System.out.print("1");
+16:         return -1;
+17:     } catch (Exception e) {
+18:     System.out.print("2");
+19:     return -2;
+20:     } finally {
+21:     System.out.print("3");
+22:     return -3;
+23:     }
+24: }
+```
+
+* Si no se lanza una excepción en la línea 14, entonces la línea 15 será ejecutada, imprimiendo 1. 
+* Antes de que el método retorne, sin embargo, el bloque finally se ejecuta, imprimiendo 3. 
+* Si se lanza una excepción, entonces las líneas 15 y 16 serán omitidas y las líneas 17-19 serán ejecutadas, imprimiendo 2, seguido por 3 del bloque finally. 
+* Mientras que el primer valor impreso puede diferir, el método siempre imprime 3 al final, ya que está en el bloque finally.
+* ¿Cuál es el valor de retorno del método goHome()? En este caso, siempre es -3. Porque el bloque finally se ejecuta poco antes de que el método se complete, interrumpe el return statement desde dentro tanto del bloque try como del catch.
+* Para el examen, necesitas recordar que un bloque finally siempre será ejecutado. Dicho esto, puede no completarse exitosamente. 
+* Echa un vistazo al siguiente código snippet. ¿Qué pasaría si info fuera null en la línea 32?
+
+```java
+31: } finally {
+32:     info.printDetails();
+33:     System.out.print("Exiting");
+34:     return "zoo";
+35: }
+```
+
+* Si info fuera null, entonces el bloque finally sería ejecutado, pero se detendría en la línea 32 y lanzaría una NullPointerException. 
+* Las líneas 33 y 34 no serían ejecutadas. En este ejemplo, ves que mientras un bloque finally siempre será ejecutado, puede que no termine.
+
+---------------------------------------------------------------------
+**System.exit():**
+* Hay una excepción a la regla "the finally block will always be executed": Java define un método que llamas como System.exit(). 
+* Toma un parámetro entero que representa el código de estado que se retorna.
+
+```java
+try {
+    System.exit(0);
+} finally {
+    System.out.print("Never going to get here"); // Not printed
+}
+```
+
+System.exit() le dice a Java, "Stop. End the program right now. Do not pass Go. Do not collect $200." 
+Cuando `System.exit()` es llamado en el bloque try o catch, el bloque finally no se ejecuta.
+---------------------------------------------------------------------
+
+## Automating Resource Management
+
+A menudo, tu aplicación trabaja con archivos, bases de datos, y varios objetos de conexión. 
+Comúnmente, estas fuentes de datos externas son referidas como resources.
+
+continuar en la 25
 
 ```java
 
 ```
 
 
-Handling Exceptions
-Automating Resource Management
 Formatting Values
 Supporting Internationalization and Localization
 Loading Properties with Resource Bundles
