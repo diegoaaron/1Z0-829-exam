@@ -891,7 +891,89 @@ Cuando `System.exit()` es llamado en el bloque try o catch, el bloque finally no
 A menudo, tu aplicación trabaja con archivos, bases de datos, y varios objetos de conexión. 
 Comúnmente, estas fuentes de datos externas son referidas como resources.
 
-continuar en la 25
+* En muchos casos, tú abres una conexión al recurso, ya sea sobre la red o dentro de un sistema de archivos. 
+* Luego lees/escribes los datos que quieres. Finalmente, cierras el recurso para indicar que has terminado con él.
+* ¿Qué pasa si no cierras un recurso cuando has terminado con él? En resumen, muchas cosas malas podrían pasar. 
+* Si te estás conectando a una base de datos, podrías usar todas las conexiones disponibles, lo que significa que nadie puede hablar con la base de datos hasta que liberes tus conexiones. 
+* Aunque comúnmente escuchas sobre memory leaks causando que los programas fallen, un resource leak es igual de malo y ocurre cuando un programa falla al liberar sus conexiones a un recurso, resultando en que el recurso se vuelve inaccesible. 
+* Esto podría significar que tu programa ya no puede hablar con la base de datos o, incluso peor, todos los programas son incapaces de alcanzar la base de datos
+* Para el examen, un resource es típicamente un archivo o base de datos que requiere algún tipo de stream o conexión para leer o escribir datos. 
+* En Chapter 14 y Chapter 15, creas numerosos recursos que necesitarán ser cerrados cuando hayas terminado con ellos.
+
+### Introducing Try-with-Resources
+
+Echemos un vistazo a un método que abre un archivo, lee los datos, y lo cierra:
+
+```java
+4: public void readFile(String file) {
+5:     FileInputStream is = null;
+6:     try {
+7:         is = new FileInputStream("myfile.txt");
+8:         // Read file data
+9:     } catch (IOException e) {
+10:        e.printStackTrace();
+11:    } finally {
+12:        if(is != null) {
+13:            try {
+14:                is.close();
+15:            } catch (IOException e2) {
+16:                e2.printStackTrace();
+17:            }
+18:        }
+19:    }
+20: }
+```
+
+* Wow, ¡ese es un método largo! ¿Por qué tenemos dos bloques try y catch? 
+* Bueno, las líneas 7 y 14 ambas incluyen llamadas checked IOException, y esas necesitan ser capturadas en el método o relanzadas por el método. 
+* La mitad de las líneas de código en este método son solo para cerrar un recurso. Y mientras más recursos tengas, el código más largo como este se vuelve. 
+* Por ejemplo, podrías tener múltiples recursos que necesitan ser cerrados en un orden particular. 
+* Tampoco quieres que una excepción causada al cerrar un recurso prevenga el cierre de otro recurso.
+
+* Para resolver esto, Java incluye el try-with-resources statement para cerrar automáticamente todos los recursos abiertos en una cláusula try. 
+* Esta característica también es conocida como automatic resource management, porque Java automáticamente se encarga del cierre.
+
+Echemos un vistazo a nuestro mismo ejemplo usando un try-with-resources statement:
+
+```java
+4: public void readFile(String file) {
+5:     try (FileInputStream is = new FileInputStream("myfile.txt")) {
+6:         // Read file data
+7:     } catch (IOException e) {
+8:         e.printStackTrace();
+9:     }
+10: }
+```
+
+* Funcionalmente, son similares, pero nuestra nueva versión tiene la mitad de líneas. 
+* Más importante aún, sin embargo, al usar un try-with-resources statement, garantizamos que tan pronto como una conexión pasa fuera de alcance, Java intentará cerrarla dentro del mismo método.
+* Detrás de escenas, el compilador reemplaza un bloque try-with-resources con un bloque try y finally. 
+* Nos referimos a este bloque finally "oculto" como un implicit finally block, ya que es creado y usado por el compilador automáticamente. 
+* Aún puedes crear un bloque finally definido por el programador cuando uses un try-with-resources statement; solo ten presente que el implícito será llamado primero.
+
+---------------------------------------------------------------------
+* A diferencia del garbage collection, los recursos no se cierran automáticamente cuando salen fuera de alcance. 
+* Por lo tanto, se recomienda que cierres los recursos en el mismo bloque de código que los abre. 
+* Al usar un try-with-resources statement para abrir todos tus recursos, esto ocurre automáticamente.
+---------------------------------------------------------------------
+
+### Basics of Try-with-Resources
+
+* Figure 11.5 muestra cómo se ve un try-with-resources statement. Observa que uno o más recursos pueden ser abiertos en la cláusula try. 
+* Cuando múltiples recursos son abiertos, se cierran en el reverse del orden en el cual fueron creados. 
+* También, nota que los paréntesis se usan para listar esos recursos, y los punto y coma se usan para separar las declaraciones. 
+* Esto funciona justo como declarar múltiples índices en un for loop.
+
+![ch11_01_09.png](images/ch11/ch11_01_09.png)
+
+
+
+
+
+
+
+
+
 
 ```java
 
