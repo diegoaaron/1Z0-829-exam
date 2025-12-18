@@ -966,6 +966,96 @@ Echemos un vistazo a nuestro mismo ejemplo usando un try-with-resources statemen
 
 ![ch11_01_09.png](images/ch11/ch11_01_09.png)
 
+¿Qué pasó con el bloque catch en Figure 11.5? Bueno, resulta que un bloque catch es opcional con un try-with-resources statement. 
+Por ejemplo, podemos reescribir el ejemplo readFile() anterior de modo que el método declare la excepción para hacerlo incluso más corto:
+
+```java
+4: public void readFile(String file) throws IOException {
+5:     try (FileInputStream is = new FileInputStream("myfile.txt")) {
+6:         // Read file data
+7:     }
+8: }
+```
+
+* Anteriormente en el capítulo, aprendiste que un try statement debe tener uno o más bloques catch o un bloque finally. 
+* Un try-with-resources statement difiere de un try statement en que ninguno de estos es requerido, aunque un desarrollador puede agregar ambos. 
+* Para el examen, necesitas saber que el implicit finally block se ejecuta before cualquiera definido por el programador.
+
+### Constructing Try-with-Resources Statements
+
+Solo las clases que implementan la interfaz AutoCloseable pueden ser usadas en un try-with-resources statement. 
+Por ejemplo, lo siguiente no compila ya que String no implementa la interfaz AutoCloseable:
+
+`try (String reptile = "lizard") {}`
+
+Heredar AutoCloseable requiere implementar un método close() compatible.
+
+```java
+interface AutoCloseable {
+    public void close() throws Exception;
+}
+```
+
+Desde tus estudios de method overriding, esto significa que la versión implementada de close() puede elegir lanzar Exception o una subclase o no lanzar ninguna excepción en absoluto.
+
+A lo largo del resto de esta sección, usamos la siguiente clase de recurso personalizada que simplemente imprime un mensaje cuando se llama al método close():
+
+```java
+public class MyFileClass implements AutoCloseable {
+    private final int num;
+    public MyFileClass(int num) { this.num = num; }
+    @Override public void close() {
+        System.out.println("Closing: " + num);
+    }
+}
+```
+
+---------------------------------------------------------------------
+* En Chapter 14, encuentras recursos que implementan Closeable en lugar de AutoCloseable. 
+* Dado que Closeable extiende AutoCloseable, ambos son soportados en try-with-resources statements. 
+* La única diferencia entre los dos es que el método close() de Closeable declara IOException, mientras que el método close() de AutoCloseable declara Exception.
+---------------------------------------------------------------------
+
+### Declaring Resources
+
+* Mientras que try-with-resources sí soporta declarar múltiples variables, cada variable debe ser declarada en un statement separado. 
+* Por ejemplo, lo siguiente no compila:
+
+```java
+try (MyFileClass is = new MyFileClass(1), // DOES NOT COMPILE
+    os = new MyFileClass(2)) {
+}
+
+try (MyFileClass ab = new MyFileClass(1), // DOES NOT COMPILE
+    MyFileClass cd = new MyFileClass(2)) {
+}
+```
+
+* El primer ejemplo no compila porque le falta el tipo de dato, y usa una coma `(,)` en lugar de un punto y coma `(;)`. 
+* El segundo ejemplo no compila porque también usa una coma `(,)` en lugar de un punto y coma `(;)`. 
+* Cada recurso debe incluir el tipo de dato y ser separado por un punto y coma `(;)`.
+* Puedes declarar un recurso usando var como el tipo de dato en un try-with-resources statement, dado que los recursos son variables locales.
+
+```java
+try (var f = new BufferedInputStream(new FileInputStream("it.txt"))) {
+    // Process file
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
