@@ -1042,22 +1042,355 @@ try (var f = new BufferedInputStream(new FileInputStream("it.txt"))) {
 }
 ```
 
+Declarar recursos es una situación común donde usar var es bastante útil, ya que acorta la línea de código ya larga.
 
+### Scope of Try-with-Resources
 
+* Los recursos creados en la cláusula try están in scope solo dentro del bloque try. 
+* Esta es otra forma de recordar que el implicit finally se ejecuta antes que cualquier bloque catch/finally que codifiques tú mismo. 
+* El implicit close ya se ha ejecutado, y el recurso ya no está disponible. ¿Ves por qué las líneas 6 y 8 no compilan en este ejemplo?
 
+```java
+3: try (Scanner s = new Scanner(System.in)) {
+4:     s.nextLine();
+5: } catch(Exception e) {
+6:     s.nextInt(); // DOES NOT COMPILE
+7: } finally {
+8:     s.nextInt(); // DOES NOT COMPILE
+9: }
+```
 
+* El problema es que Scanner ha salido fuera de scope al final de la cláusula try. Las líneas 6 y 8 no tienen acceso a él. 
+* Esta es una buena característica. No puedes usar accidentalmente un objeto que ha sido cerrado. 
+* En un try statement tradicional, la variable tiene que ser declarada antes del try statement para que tanto los bloques try como finally puedan acceder a ella, lo cual tiene el efecto secundario desagradable de hacer que la variable esté in scope para el resto del método, simplemente invitándote a llamarla por accidente.
 
+### Following Order of Operations
 
+* Cuando trabajas con try-with-resources statements, es importante saber que los recursos se cierran en el reverse del orden en el cual fueron creados. 
+* Usando nuestra MyFileClass personalizada, ¿puedes descifrar qué imprime este método?
 
+```java
+public static void main(String... xyz) {
+    try (MyFileClass bookReader = new MyFileClass(1);
+        MyFileClass movieReader = new MyFileClass(2)) {
+        System.out.println("Try Block");
+        throw new RuntimeException();
+    } catch (Exception e) {
+        System.out.println("Catch Block");
+    } finally {
+        System.out.println("Finally Block");
+    }
+}
 
+// la salida es:
+// Try Block
+// Closing: 2
+// Closing: 1
+// Catch Block
+// Finally Block
+```
 
+* Para el examen, asegúrate de entender por qué el método imprime los statements en este orden. 
+* Recuerda, los recursos se cierran en el reverse del orden en el cual son declarados, y el implicit finally se ejecuta antes del finally definido por el programador.
 
+### Applying Effectively Final
 
+* Mientras que los recursos a menudo son creados en el try-with-resources statement, es posible declararlos con anticipación, siempre que estén marcados final o effectively final. 
+* La sintaxis usa el nombre del recurso en lugar de la declaración del recurso, separado por un punto y coma `(;)`. Intentemos otro ejemplo:
 
+```java
+11: public static void main(String... xyz) {
+12:     final var bookReader = new MyFileClass(4);
+13:     MyFileClass movieReader = new MyFileClass(5);
+14:     try (bookReader;
+15:         var tvReader = new MyFileClass(6);
+16:         movieReader) {
+17:     System.out.println("Try Block");
+18:     } finally {
+19:       System.out.println("Finally Block");
+20:   }
+21: }
+// la salida es:
+// Try Block
+// Closing: 2
+// Closing: 1
+// Closing: 4
+// Finally Block
+```
 
+* Tomemos este una línea a la vez. La línea 12 declara una variable final bookReader, mientras que la línea 13 declara una variable effectively final movieReader. 
+* Ambos de estos recursos pueden ser usados en un try-with-resources statement. 
+* Sabemos que movieReader es effectively final porque es una variable local que se le asigna un valor solo una vez. 
+* Recuerda, la prueba para effectively final es que si insertamos la palabra clave final cuando la variable se declara, el código aún compila.
 
+* Las líneas 14 y 16 usan la nueva sintaxis para declarar recursos en un try-with-resources statement, usando solo el nombre de la variable y separando los recursos con un punto y coma `(;)`. 
+* La línea 15 usa la sintaxis normal para declarar un nuevo recurso dentro de la cláusula try.
 
+* Si encuentras una pregunta en el examen que usa un try-with-resources statement con una variable no declarada en la cláusula try, asegúrate de que es effectively final. 
+* Por ejemplo, lo siguiente no compila:
 
+```java
+31: var writer = Files.newBufferedWriter(path);
+32: try (writer) { // DOES NOT COMPILE
+33:     writer.append("Welcome to the zoo!");
+34: }
+35: writer = null;
+```
+
+* La variable writer es reasignada en la línea 35, resultando en que el compilador no la considere effectively final. 
+* Dado que no es una variable effectively final, no puede ser usada en un try-with-resources statement en la línea 32.
+* El otro lugar donde el examen podría intentar engañarte es accediendo a un recurso después de que ha sido cerrado. Considera lo siguiente:
+
+```java
+41: var writer = Files.newBufferedWriter(path);
+42: writer.append("This write is permitted but a really bad idea!");
+43: try (writer) {
+44:   writer.append("Welcome to the zoo!");
+45: }
+46: writer.append("This write will fail!"); // IOException
+```
+
+Este código compila, pero lanza una excepción en la línea 46 con el mensaje Stream closed. 
+Mientras que es posible escribir al recurso antes del try-with-resources statement, no lo es después.
+
+### Understanding Suppressed Exceptions
+
+* Concluimos nuestra discusión de excepciones con probablemente el tema más confuso: suppressed exceptions. 
+* ¿Qué pasa si el método close() lanza una excepción? Intentemos un ejemplo ilustrativo:
+
+```java
+public class TurkeyCage implements AutoCloseable {
+    public void close() {
+        System.out.println("Close gate");
+    }
+    public static void main(String[] args) {
+        try (var t = new TurkeyCage()) {
+            System.out.println("Put turkeys in");
+        }
+    }
+}
+```
+
+* Si el TurkeyCage no se cierra, los pavos podrían escapar todos. Claramente, necesitamos manejar tal condición. 
+* Ya sabemos que los recursos se cierran antes de que cualquier bloque catch codificado por el programador se ejecute. 
+* Esto significa que podemos capturar la excepción lanzada por close() si queremos. 
+* Alternativamente, podemos permitir que el llamador la maneje.
+
+Expandamos nuestro ejemplo con una nueva implementación JammedTurkeyCage, mostrada aquí:
+
+```java
+1: public class JammedTurkeyCage implements AutoCloseable {
+2:     public void close() throws IllegalStateException {
+3:         throw new IllegalStateException("Cage door does not close");
+4:     }
+5:     public static void main(String[] args) {
+6:         try (JammedTurkeyCage t = new JammedTurkeyCage()) {
+7:             System.out.println("Put turkeys in");
+8:         } catch (IllegalStateException e) {
+9:             System.out.println("Caught: " + e.getMessage());
+10:        }
+11:    }
+12: }
+
+// Caught: Cage door does not close
+```
+
+* El método close() es automáticamente llamado por try-with-resources. 
+* Lanza una excepción, la cual es capturada por nuestro bloque catch e imprime lo siguiente:
+
+* Esto parece lo suficientemente razonable. ¿Qué pasa si el bloque try también lanza una excepción? 
+* Cuando se lanzan múltiples excepciones, todas excepto la primera son llamadas suppressed exceptions. 
+* La idea es que Java trata la primera excepción como la primaria y agrega cualquiera que surja mientras cierra automáticamente.
+
+¿Qué crees que imprime la siguiente implementación de nuestro método main()?
+
+```java
+5:     public static void main(String[] args) {
+6:         try (JammedTurkeyCage t = new JammedTurkeyCage()) {
+7:             throw new IllegalStateException("Turkeys ran off");
+8:         } catch (IllegalStateException e) {
+9:             System.out.println("Caught: " + e.getMessage());
+10:            for (Throwable t: e.getSuppressed())
+11:                System.out.println("Suppressed: "+t.getMessage());
+12:        }
+13:    }
+```
+
+* La línea 7 lanza la excepción primaria. En este punto, la cláusula try termina, y Java automáticamente llama al método close(). 
+* La línea 3 de JammedTurkeyCage lanza una IllegalStateException, la cual es agregada como una excepción suprimida. 
+* Luego la línea 8 captura la excepción primaria. La línea 9 imprime el mensaje para la excepción primaria. 
+* Las líneas 10 y 11 iteran a través de cualquier excepción suprimida `e` las imprimen. El programa imprime lo siguiente:
+
+```java
+Caught: Turkeys ran off
+Suppressed: Cage door does not close
+```
+
+Ten en cuenta que el bloque catch busca coincidencias en la excepción primaria. ¿Qué crees que imprime este código?
+
+```java
+5:     public static void main(String[] args) {
+6:         try (JammedTurkeyCage t = new JammedTurkeyCage()) {
+7:             throw new RuntimeException("Turkeys ran off");
+8:         } catch (IllegalStateException e) {
+9:             System.out.println("caught: " + e.getMessage());
+10:        }
+11:    }
+```
+
+* La línea 7 nuevamente lanza la excepción primaria. Java llama al método close() y agrega una excepción suprimida. 
+* La línea 8 capturaría la IllegalStateException. Sin embargo, no tenemos una de esas. La excepción primaria es una RuntimeException. 
+* Dado que esto no coincide con la cláusula catch, la excepción se lanza al llamador. Eventualmente, el método main() imprimiría algo como lo siguiente:
+
+```java
+Exception in thread "main" java.lang.RuntimeException: Turkeys ran off
+    at JammedTurkeyCage.main(JammedTurkeyCage.java:7)
+    Suppressed: java.lang.IllegalStateException:
+        Cage door does not close
+        at JammedTurkeyCage.close(JammedTurkeyCage.java:3)
+        at JammedTurkeyCage.main(JammedTurkeyCage.java:8)
+```
+
+Java recuerda las excepciones suprimidas que van con una excepción primaria incluso si no las manejamos en el código.
+
+---------------------------------------------------------------------
+* Si más de dos recursos lanzan una excepción, la primera en ser lanzada se convierte en la excepción primaria, y el resto se agrupan como excepciones suprimidas. 
+* Y dado que los recursos se cierran en el reverse del orden en el cual fueron declarados, la excepción primaria estará en el último recurso declarado que lanza una excepción.
+---------------------------------------------------------------------
+
+* Ten en cuenta que las excepciones suprimidas se aplican solo a excepciones lanzadas en la cláusula try. 
+* El siguiente ejemplo no lanza una excepción suprimida:
+
+```java
+5:     public static void main(String[] args) {
+6:         try (JammedTurkeyCage t = new JammedTurkeyCage()) {
+7:         throw new IllegalStateException("Turkeys ran off");
+8:     } finally {
+9:         throw new RuntimeException("and we couldn't find them");
+10:    }
+11: }
+```
+
+* La línea 7 lanza una excepción. Luego Java intenta cerrar el recurso y le agrega una excepción suprimida. Ahora tenemos un problema. 
+* El bloque finally se ejecuta después de todo esto. Dado que la línea 9 también lanza una excepción, la excepción previa de la línea 7 se pierde, con el código imprimiendo lo siguiente:
+
+```java
+Exception in thread "main" java.lang.RuntimeException:
+    and we couldn't find them
+    at JammedTurkeyCage.main(JammedTurkeyCage.java:9)
+```
+
+* Esto siempre ha sido y continúa siendo una mala práctica de programación. 
+* ¡No queremos perder excepciones! Aunque está fuera del alcance del examen, la razón de esto tiene que ver con backward compatibility. 
+* Este comportamiento existía antes de que se agregara el automatic resource management.
+
+## Formatting Values
+
+* Ahora cambiamos de marcha un poco y hablamos sobre cómo formatear datos para los usuarios. 
+* En esta sección, vamos a estar trabajando con números, fechas y tiempos. 
+* Esto es especialmente importante en la siguiente sección cuando expandamos la personalización a diferentes idiomas y locales. 
+* Quizás quieras revisar Chapter 4, "Core API," si necesitas un repaso sobre la creación de varios objetos date/time.
+
+### Formatting Numbers
+
+* En Chapter 4, viste cómo controlar la salida de un número usando el método String.format(). 
+* Eso es útil para cosas simples, pero a veces necesitas un control más fino. 
+* Con eso, introducimos la interfaz NumberFormat, que tiene dos métodos comúnmente usados:
+
+```java
+public final String format(double number)
+public final String format(long number)
+```
+
+* Dado que NumberFormat es una interfaz, necesitamos la clase concreta DecimalFormat para usarla. 
+* Incluye un constructor que toma un String pattern:
+
+```java
+public DecimalFormat(String pattern)
+```
+
+Los patrones pueden volverse bastante complejos. Pero afortunadamente, para el examen solo necesitas saber sobre dos caracteres de formateo, mostrados en Table 11.5.
+
+![ch11_01_10.png](images/ch11/ch11_01_10.png)
+
+Estos ejemplos deberían ayudar a iluminar cómo funcionan estos símbolos:
+
+```java
+12: double d = 1234.567;
+13: NumberFormat f1 = new DecimalFormat("###,###,###.0");
+14: System.out.println(f1.format(d)); // 1,234.6
+15:
+16: NumberFormat f2 = new DecimalFormat("000,000,000.00000");
+17: System.out.println(f2.format(d)); // 000,001,234.56700
+18:
+19: NumberFormat f3 = new DecimalFormat("Your Balance $#,###,###.##");
+20: System.out.println(f3.format(d)); // Your Balance $1,234.57
+```
+
+* La línea 14 muestra los dígitos en el número, redondeando al décimo más cercano después del decimal. 
+* Las posiciones extra a la izquierda se omiten porque usamos #. 
+* La línea 17 agrega ceros iniciales y finales para hacer que la salida tenga la longitud deseada. 
+* La línea 20 muestra prefijar un carácter sin formato junto con el redondeo porque se imprimen menos dígitos de los que están disponibles. 
+* Observa que las comas se eliminan automáticamente si se usan entre símbolos #.
+* Como verás en la sección de localización, hay una segunda clase concreta que hereda NumberFormat que necesitarás conocer para el examen.
+
+### Formatting Dates and Times
+
+Las clases date y time soportan muchos métodos para obtener datos de ellas.
+
+```java
+LocalDate date = LocalDate.of(2022, Month.OCTOBER, 20);
+System.out.println(date.getDayOfWeek()); // THURSDAY
+System.out.println(date.getMonth());  // OCTOBER
+System.out.println(date.getYear());   // 2022
+System.out.println(date.getDayOfYear()); // 293
+```
+
+Java proporciona una clase llamada DateTimeFormatter para mostrar formatos estándar.
+
+```java
+LocalDate date = LocalDate.of(2022, Month.OCTOBER, 20);
+LocalTime time = LocalTime.of(11, 12, 34);
+LocalDateTime dt = LocalDateTime.of(date, time);
+
+System.out.println(date.format(DateTimeFormatter.ISO_LOCAL_DATE));
+System.out.println(time.format(DateTimeFormatter.ISO_LOCAL_TIME));
+System.out.println(dt.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
+// se imprime
+// 2022-10-20
+// 11:12:34
+// 2022-10-20T11:12:34
+```
+
+El DateTimeFormatter lanzará una excepción si encuentra un tipo incompatible. 
+Por ejemplo, cada uno de los siguientes producirá una excepción at runtime, ya que intenta formatear una fecha con un valor de tiempo, y viceversa:
+
+```java
+date.format(DateTimeFormatter.ISO_LOCAL_TIME); // RuntimeException
+time.format(DateTimeFormatter.ISO_LOCAL_DATE); // RuntimeException
+```
+
+### Customizing the Date/Time Format
+
+Si no quieres usar uno de los formatos predefinidos, DateTimeFormatter soporta un formato personalizado usando un date format String.
+
+```java
+var f = DateTimeFormatter.ofPattern("MMMM dd, yyyy 'at' hh:mm");
+System.out.println(dt.format(f)); // October 20, 2022 at 11:12
+```
+
+* Desglosemos esto un poco. Java asigna a cada letra o símbolo una parte específica de date/time. 
+* Por ejemplo, M se usa para month, mientras que y se usa para year. ¡Y el caso importa! Usar `m` en lugar de M significa que retornará el minuto de la hora, no el mes del año.
+* ¿Qué pasa con el número de símbolos? El número a menudo dicta el formato de la parte date/time. 
+* Usar M por sí solo produce el número mínimo de caracteres para un mes, como 1 para January, mientras que usar MM siempre produce dos dígitos, como 01. Además, usar MMM imprime la abreviación de tres letras, como Jul para July, mientras que MMMM imprime el nombre completo del mes.
+
+---------------------------------------------------------------------
+Es posible, aunque improbable, encontrarse con preguntas en el examen que usan SimpleDateFormat en lugar del más útil DateTimeFormatter. 
+Si lo ves en el examen usado con un objeto `java.util.Date` antiguo, solo debes saber que los formatos personalizados que probablemente aparecerán en el examen serán compatibles con ambos.
+---------------------------------------------------------------------
+
+### Learning the Standard Date/Time Symbols
 
 
 
@@ -1069,8 +1402,8 @@ try (var f = new BufferedInputStream(new FileInputStream("it.txt"))) {
 
 ```
 
+---------------------------------------------------------------------
 
-Formatting Values
 Supporting Internationalization and Localization
 Loading Properties with Resource Bundles
 Summary
