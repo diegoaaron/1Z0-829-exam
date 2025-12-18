@@ -1392,6 +1392,66 @@ Si lo ves en el examen usado con un objeto `java.util.Date` antiguo, solo debes 
 
 ### Learning the Standard Date/Time Symbols
 
+* Para el examen, deberías estar lo suficientemente familiarizado con los varios símbolos para que puedas mirar un date/time String y tener una buena idea de cuál será la salida. 
+* Table 11.6 incluye los símbolos con los que deberías estar familiarizado para el examen.
+
+![ch11_01_11.png](images/ch11/ch11_01_11.png)
+
+Intentemos algunos ejemplos. ¿Qué crees que imprime lo siguiente?
+
+```java
+var dt = LocalDateTime.of(2022, Month.OCTOBER, 20, 6, 15, 30);
+
+var formatter1 = DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm:ss");
+System.out.println(dt.format(formatter1)); // 10/20/2022 06:15:30
+
+var formatter2 = DateTimeFormatter.ofPattern("MM_yyyy_-_dd");
+System.out.println(dt.format(formatter2)); // 10_2022_-_20
+
+var formatter3 = DateTimeFormatter.ofPattern("h:mm z");
+System.out.println(dt.format(formatter3)); // DateTimeException
+```
+
+* El primer ejemplo imprime la fecha, con el mes antes del día, seguido por el tiempo. 
+* El segundo ejemplo imprime la fecha en un formato extraño con caracteres extra que simplemente se muestran como parte de la salida.
+* El tercer ejemplo lanza una excepción at runtime porque el LocalDateTime subyacente no tiene una time zone especificada. 
+* Si ZonedDateTime fuera usado en su lugar, el código se completaría exitosamente e imprimiría algo como 06:15 EDT, dependiendo de la time zone.
+
+* Como viste en el ejemplo anterior, necesitas asegurarte de que el format String sea compatible con el tipo date/time subyacente. 
+* Table 11.7 muestra qué símbolos puedes usar con cada uno de los objetos date/time.
+* Asegúrate de saber qué símbolos son compatibles con qué tipos date/time. Por ejemplo, intentar formatear un mes para un LocalTime o una hora para un LocalDate resultará en una runtime exception.
+
+![ch11_01_12.png](images/ch11/ch11_01_12.png)
+
+### Selecting a format() Method
+
+* Las clases date/time contienen un método format() que tomará un formatter, mientras que las clases formatter contienen un método format() que tomará un valor date/time. 
+* El resultado es que cualquiera de los siguientes es aceptable:
+
+```java
+var dateTime = LocalDateTime.of(2022, Month.OCTOBER, 20, 6, 15, 30);
+var formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm:ss");
+
+System.out.println(dateTime.format(formatter)); // 10/20/2022 06:15:30
+System.out.println(formatter.format(dateTime)); // 10/20/2022 06:15:30
+```
+
+Estos statements imprimen el mismo valor at runtime. Qué sintaxis uses depende de ti.
+
+### Adding Custom Text Values
+
+* ¿Qué pasa si quieres que tu formato incluya algunos valores de texto personalizados? Si simplemente los escribes como parte del format String, el formatter interpretará cada carácter como un símbolo date/time. 
+* En el mejor caso, mostrará datos extraños basados en símbolos extra que ingreses. 
+* En el peor caso, lanzará una excepción porque los caracteres contienen símbolos inválidos. ¡Ninguno es deseable!
+
+
+
+
+
+
+
+
+
 
 
 
