@@ -1443,19 +1443,153 @@ Estos statements imprimen el mismo valor at runtime. Qué sintaxis uses depende 
 * ¿Qué pasa si quieres que tu formato incluya algunos valores de texto personalizados? Si simplemente los escribes como parte del format String, el formatter interpretará cada carácter como un símbolo date/time. 
 * En el mejor caso, mostrará datos extraños basados en símbolos extra que ingreses. 
 * En el peor caso, lanzará una excepción porque los caracteres contienen símbolos inválidos. ¡Ninguno es deseable!
+* Una forma de abordar esto sería dividir el formatter en múltiples formatters más pequeños y luego concatenar los resultados.
 
+```java
+var dt = LocalDateTime.of(2022, Month.OCTOBER, 20, 6, 15, 30);
 
+var f1 = DateTimeFormatter.ofPattern("MMMM dd, yyyy ");
+var f2 = DateTimeFormatter.ofPattern(" hh:mm");
+System.out.println(dt.format(f1) + "at" + dt.format(f2));
+// Esto imprime:  October 20, 2022 at 06:15 at runtime.
+```
 
+* Aunque esto funciona, podría volverse difícil si muchos valores de texto y símbolos de fecha están entremezclados. 
+* Afortunadamente, Java incluye una solución mucho más simple. Puedes escape el texto rodeándolo con un par de comillas simples `(')`. 
+* Escapar texto instruye al formatter a ignorar los valores dentro de las comillas simples y simplemente insertarlos como parte del valor final.
 
+```java
+var f = DateTimeFormatter.ofPattern("MMMM dd, yyyy 'at' hh:mm");
+System.out.println(dt.format(f)); // October 20, 2022 at 06:15
+```
 
+* Pero ¿qué pasa si necesitas mostrar una comilla simple en la salida también? 
+* Bienvenido a la diversión de escapar caracteres Java soporta esto poniendo dos comillas simples una al lado de la otra.
+* Concluimos nuestra discusión de date formatting con algunos ejemplos de formatos y su salida que dependen de valores de texto, mostrados aquí:
 
+```java
+var g1 = DateTimeFormatter.ofPattern("MMMM dd', Party''s at' hh:mm");
+System.out.println(dt.format(g1)); // October 20, Party's at 06:15
 
+var g2 = DateTimeFormatter.ofPattern("'System format, hh:mm: 'hh:mm");
+System.out.println(dt.format(g2)); // System format, hh:mm: 06:15
 
+var g3 = DateTimeFormatter.ofPattern("'NEW! 'yyyy', yay!'");
+System.out.println(dt.format(g3)); // NEW! 2022, yay!
+```
 
+Si no escapas los valores de texto con comillas simples, se lanzará una excepción at runtime si el texto no puede interpretarse como un símbolo date/time.
 
+```java
+DateTimeFormatter.ofPattern("The time is hh:mm"); // Exception thrown
+```
 
+Esta línea lanza una excepción, ya que T es un símbolo desconocido. El examen también podría presentarte una secuencia de escape incompleta.
 
+```java
+DateTimeFormatter.ofPattern("'Time is: hh:mm: "); // Exception thrown
+```
 
+Fallar en terminar una secuencia de escape desencadenará una excepción at runtime.
+
+## Supporting Internationalization and Localization
+
+* Muchas aplicaciones necesitan trabajar en diferentes países y con diferentes idiomas. 
+* Por ejemplo, considera la oración "The zoo is holding a special event on 4/1/22 to look at animal behaviors." 
+* ¿Cuándo es el evento? En Estados Unidos, es el 1 de abril. Sin embargo, un lector británico interpretaría esto como el 4 de enero. 
+* Un lector británico también podría preguntarse por qué no escribimos "behaviours." 
+* Si estamos haciendo un sitio web o programa que será usado en múltiples países, queremos usar el idioma y formato correctos.
+* Internationalization es el proceso de diseñar tu programa para que pueda ser adaptado. 
+* Esto involucra colocar strings en un archivo de propiedades y asegurar que los formateadores de datos apropiados sean usados. 
+* Localization significa dar soporte a múltiples locales o regiones geográficas. Puedes pensar en un locale como un emparejamiento de idioma y país. 
+* La localización incluye traducir strings a diferentes idiomas. También incluye mostrar fechas y números en el formato correcto para ese locale.
+
+---------------------------------------------------------------------
+* Inicialmente, tu programa no necesita dar soporte a múltiples locales. 
+* La clave es hacer tu aplicación preparada para el futuro usando estas técnicas. 
+* De esta manera, cuando tu producto se vuelva exitoso, puedes agregar soporte para nuevos idiomas o regiones sin reescribir todo.
+* En esta sección, vemos cómo definir un locale y usarlo para formatear fechas, números y strings.
+---------------------------------------------------------------------
+
+### Picking a Locale
+
+* Mientras Oracle define un locale como "una región geográfica, política o cultural específica," solo verás idiomas y países en el examen. 
+* Oracle ciertamente no va a profundizar en regiones políticas que no son países. ¡Eso es demasiado controversial para un examen!
+* La clase Locale está en el paquete java.util. El primer Locale útil para encontrar es el locale actual del usuario. 
+* Intenta ejecutar el siguiente código en tu computadora:
+
+```java
+Locale locale = Locale.getDefault();
+System.out.println(locale);
+```
+
+* Cuando lo ejecutamos, imprime en_US. Podría ser diferente para ti. 
+* Esta salida predeterminada nos dice que nuestras computadoras están usando inglés y están ubicadas en Estados Unidos.
+
+* Observe el formato. Primero viene el código de idioma en minúsculas. El idioma siempre es obligatorio. Luego viene un guion bajo seguido del código de país en mayúsculas. 
+* El país es opcional. La Figura 11.6 muestra los dos formatos de los objetos Locale que debe recordar.
+
+![ch11_01_13.png](images/ch11/ch11_01_13.png)
+
+Como práctica, asegúrese de comprender por qué cada uno de estos identificadores de configuración regional no es válido:
+
+US // No puede tener país sin idioma
+enUS // Falta el guion bajo
+US_en // El país y el idioma están invertidos
+EN // El idioma debe estar en minúsculas
+
+---------------------------------------------------------------------
+* No necesitas memorizar códigos de idioma o país. El examen te informará sobre cualquiera que esté siendo usado. 
+* Sí necesitas reconocer formatos válidos e inválidos. Presta atención a mayúsculas/minúsculas y al guion bajo. 
+* Por ejemplo, si ves un locale expresado como es_CO, entonces deberías saber que el idioma es y el país es CO, incluso si no sabías que representan español y Colombia, respectivamente.
+---------------------------------------------------------------------
+
+* Como desarrollador, a menudo necesitas escribir código que selecciona un locale distinto al predeterminado. 
+* Hay tres formas comunes de hacer esto. La primera es usar las constantes integradas en la clase Locale, disponibles para algunos locales comunes.
+
+```java
+System.out.println(Locale.GERMAN); // de
+System.out.println(Locale.GERMANY); // de_DE
+```
+
+* El primer ejemplo selecciona el idioma alemán, que se habla en muchos países, incluyendo Austria (de_AT) y Liechtenstein (de_LI). 
+* El segundo ejemplo selecciona tanto alemán el idioma como Alemania el país. Aunque estos ejemplos pueden lucir similares, no son lo mismo. 
+* Solo uno incluye un código de país.
+
+* La segunda forma de seleccionar un Locale es usar los constructores para crear un nuevo objeto. 
+* Puedes pasar solo un idioma, o tanto un idioma como un país:
+
+```java
+System.out.println(new Locale("fr"));     // fr
+System.out.println(new Locale("hi", "IN")); // hi_IN
+```
+
+* El primero es el idioma francés, y el segundo es hindi en India. Nuevamente, no necesitas memorizar los códigos. 
+* Hay otro constructor que te permite ser aún más específico sobre el locale. Por suerte, proporcionar un valor variant no está en el examen.
+
+* Java te permitirá crear un Locale con un idioma o país inválido, como xx_XX. 
+* Sin embargo, no coincidirá con el Locale que quieres usar, y tu programa no se comportará como se espera.
+
+* Hay una tercera forma de crear un Locale que es más flexible. 
+* El patrón de diseño builder te permite establecer todas las propiedades que te interesan y luego construir el Locale al final. 
+* Esto significa que puedes especificar las propiedades en cualquier orden. Los siguientes dos valores de Locale ambos representan en_US:
+
+```java
+Locale l1 = new Locale.Builder()
+  .setLanguage("en")
+  .setRegion("US")
+  .build();
+
+Locale l2 = new Locale.Builder()
+  .setRegion("US")
+  .setLanguage("en")
+  .build();
+```
+
+Cuando estás probando un programa, podrías necesitar usar un Locale distinto al predeterminado de tu computadora.
+
+* Pruébalo, y no te preocupes—el Locale cambia solo para ese único programa Java. No cambia ninguna configuración en tu computadora. 
+* Ni siquiera cambia futuras ejecuciones del mismo programa.
 
 
 ```java
@@ -1463,7 +1597,5 @@ Estos statements imprimen el mismo valor at runtime. Qué sintaxis uses depende 
 ```
 
 ---------------------------------------------------------------------
-
-Supporting Internationalization and Localization
 Loading Properties with Resource Bundles
 Summary
