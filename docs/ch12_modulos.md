@@ -1401,11 +1401,131 @@ Table 12.16 muestra cómo aplicar estas reglas a dos ejemplos donde no hay un no
 
 ![ch12_01_33.png](images/ch12/ch12_01_33.png)
 
+### Exploring a Bottom-Up Migration Strategy
 
+* El enfoque más fácil para la migración es una migración de abajo hacia arriba. 
+* Este enfoque funciona mejor cuando tienes el poder para convertir cualquier archivo JAR que aún no son módulos. 
+* Para una migración de abajo hacia arriba, sigues estos pasos:
 
+1. Elige el proyecto de nivel más bajo que aún no ha sido migrado. (Recuerda la forma en que los ordenamos por dependencias en la sección anterior)
+2. Añade un archivo `module-info.java` a ese proyecto. Asegúrate de añadir cualquier exports para exponer cualquier paquete usado por archivos JAR de nivel superior. También, añade una directiva requires para cualquier módulo del que este módulo dependa.
+3. Mueve este módulo nombrado recién migrado del classpath al module path.
+4. Asegúrate de que cualquier proyecto que aún no ha sido migrado permanezca como módulos sin nombre en el classpath.
+5. Repite con el siguiente proyecto de nivel más bajo hasta que termines.
 
+* Puedes ver este procedimiento aplicado para migrar tres proyectos en Figure 12.16. 
+* Nota que cada proyecto se convierte a un módulo por turno.
+* Con una migración de abajo hacia arriba, estás poniendo los proyectos de nivel inferior en buena forma. 
+* Esto hace más fácil migrar los proyectos de nivel superior al final. También alienta el cuidado en lo que se expone.
+* Durante la migración, tienes una mezcla de módulos nombrados y módulos sin nombre. 
+* Los módulos nombrados son los de nivel inferior que han sido migrados. Están en el module path y no se les permite acceder a ningún módulo sin nombre.
 
+![ch12_01_34.png](images/ch12/ch12_01_34.png)
 
+Los módulos sin nombre están en el classpath. Pueden acceder archivos JAR tanto en el classpath como en el module path.
+
+### Exploring a Top-Down Migration Strategy
+
+* Una estrategia de migración de arriba hacia abajo es más útil cuando no tienes control de cada archivo JAR usado por tu aplicación. 
+* Por ejemplo, supón que otro equipo posee un proyecto. Están simplemente demasiado ocupados para migrar. 
+* No querrías que esta situación detuviera toda tu migración.
+
+Para una migración de arriba hacia abajo, sigues estos pasos:
+
+1. Coloca todos los proyectos en el module path.
+2. Elige el proyecto de nivel más alto que aún no ha sido migrado.
+3. Añade un archivo `module-info.java` a ese proyecto para convertir el módulo automático en un módulo nombrado. Nuevamente, recuerda añadir cualquier exports o directivas requires. Puedes usar el nombre de módulo automático de otros módulos al escribir la directiva requires dado que la mayoría de los proyectos en el module path aún no tienen nombres.
+4. Repite con el siguiente proyecto de nivel más alto hasta que termines.
+
+Puedes ver este procedimiento aplicado en orden para migrar tres proyectos en Figure 12.17. Nota que cada proyecto se convierte a un módulo por turno.
+
+![ch12_01_35.png](images/ch12/ch12_01_35.png)
+
+Con una migración de arriba hacia abajo, estás concediendo que todas las dependencias de nivel inferior no están listas, pero que quieres hacer que la aplicación misma sea un módulo.
+
+* Durante la migración, tienes una mezcla de módulos nombrados y módulos automáticos. 
+* Los módulos nombrados son los de nivel superior que han sido migrados. Están en el module path y tienen acceso a los módulos automáticos. 
+* Los módulos automáticos también están en el module path.
+
+Table 12.18 revisa lo que necesitas saber sobre las dos estrategias principales de migración. Asegúrate de conocerlo bien.
+
+![ch12_01_36.png](images/ch12/ch12_01_36.png)
+
+### Splitting a Big Project into Modules
+
+* Para el examen, necesitas entender el proceso básico de dividir un proyecto grande en módulos. 
+* No te darán un proyecto grande, por supuesto. Después de todo, solo hay tanto espacio para hacer una pregunta. 
+* Afortunadamente, el proceso es el mismo para un proyecto pequeño.
+* Supón que comienzas con una aplicación que tiene varios paquetes. 
+* El primer paso es dividirlos en agrupaciones lógicas y dibujar las dependencias entre ellos. 
+* Figure 12.18 muestra la descomposición de un sistema imaginario. Nota que hay siete paquetes tanto en el lado izquierdo como derecho. 
+* Hay menos módulos porque algunos paquetes comparten un módulo.
+
+![ch12_01_37.png](images/ch12/ch12_01_37.png)
+
+* Hay un problema con esta descomposición. ¿Lo ves? El Java Platform Module System no permite cyclic dependencies. 
+* Una dependencia cíclica, o circular dependency, es cuando dos cosas dependen directa o indirectamente una de otra. 
+* Si el módulo zoo.tickets.delivery requiere el módulo zoo.tickets.discount, zoo.tickets.discount no está permitido requerir el módulo zoo.tickets.delivery.
+
+* Ahora que sabemos que la descomposición en Figure 12.18 no funcionará, ¿qué podemos hacer al respecto? Una técnica común es introducir otro módulo. 
+* Ese módulo contiene el código que los otros dos módulos comparten. Figure 12.19 muestra los nuevos módulos sin ninguna dependencia cíclica. 
+* Nota el nuevo módulo zoo.tickets.etech. Creamos nuevos paquetes para poner en ese módulo. 
+* Esto permite a los desarrolladores poner el código común ahí y romper la dependencia. ¡No más dependencias cíclicas!
+
+Explica la imagen en la secuencia de izquierda a derecha, no parafrasees y no generes conclusiones. Ten en cuenta que es la continuación de la imagen anterior.
+
+### Failing to Compile with a Cyclic Dependency
+
+* Es extremadamente importante entender que Java no te permitirá compilar módulos que tienen dependencias circulares. 
+* En esta sección, vemos un ejemplo que lleva a ese error del compilador.
+
+![ch12_01_38.png](images/ch12/ch12_01_38.png)
+
+Considera el módulo zoo.butterfly descrito aquí:
+
+```java
+// Butterfly.java
+package zoo.butterfly;
+public class Butterfly {
+  private Caterpillar caterpillar;
+}
+
+// module-info.java
+module zoo.butterfly {
+  exports zoo.butterfly;
+  requires zoo.caterpillar;
+}
+```
+
+* No podemos compilar esto aún, ya que necesitamos construir zoo.caterpillar primero. 
+* Después de todo, nuestra mariposa lo requiere. Ahora vemos zoo.caterpillar:
+
+```java
+// Caterpillar.java
+package zoo.caterpillar;
+public class Caterpillar {
+  Butterfly emergeCocoon() {
+    // logic omitted
+  }
+}
+
+// module-info.java
+module zoo.caterpillar {
+  exports zoo.caterpillar;
+  requires zoo.butterfly;
+}
+```
+
+* No podemos compilar esto aún, ya que necesitamos construir zoo.butterfly primero. ¡Oh! Ahora tenemos un punto muerto. 
+* Ningún módulo puede ser compilado. Este es nuestro problema de dependencia circular en acción.
+* Esta es una de las ventajas del sistema de módulos. Te previene de escribir código que tiene una dependencia cíclica. ¡Tal código ni siquiera compilará!
+* Podrías estar preguntándote qué sucede si hay tres módulos involucrados. 
+* Supón que el módulo `ballA` requiere el módulo `ballB` y `ballB` requiere el módulo `ballC`. ¿Puede el módulo ballC requerir el módulo `ballA`? No. 
+* Esto crearía una dependencia cíclica. ¿No nos crees? Intenta dibujarlo. Puedes seguir tu lápiz alrededor del círculo de `ballA` a `ballB` a `ballC` a `ballA`
+* Bueno, entiendes la idea. ¡Simplemente, hay demasiadas pelotas en el aire!
+
+* Java todavía te permitirá tener una dependencia cíclica entre paquetes dentro de un módulo. 
+* Hace cumplir que no tengas una dependencia cíclica entre módulos.
 
 
 
