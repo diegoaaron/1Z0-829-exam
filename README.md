@@ -21,7 +21,7 @@ Toma un capitulo del libro mencionado y revisa los apuntes, diagramas y código 
 9. [Collections and Generics](docs/ch09_coleciones_genericos.md)
 10. [Streams](docs/ch10_streams.md)
 11. [Exceptions and Localization](docs/ch11_excepciones.md)
-12. [Modules](docs/ch12.md)
+12. [Modules](docs/ch12_modulos.md)
 13. [Concurrency](docs/ch13.md)
 14. [I/O](docs/ch14.md)
 15. [JDBC](docs/ch15.md)
