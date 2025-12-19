@@ -1526,22 +1526,3 @@ module zoo.caterpillar {
 
 * Java todavía te permitirá tener una dependencia cíclica entre paquetes dentro de un módulo. 
 * Hace cumplir que no tengas una dependencia cíclica entre módulos.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```java
-
-```
-
----------------------------------------------------------------------
