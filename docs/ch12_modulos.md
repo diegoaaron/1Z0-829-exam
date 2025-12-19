@@ -1198,11 +1198,215 @@ sun.misc.Unsafe     See http://openjdk.java.net/jeps/260
 ---------------------------------------------------------------------
 **Real World Scenario**
 **About `sun.misc.Unsafe`**
-Antes del Java Platform Module System, las clases tenían que ser públicas si querías que fueran usadas fuera del paquete. 
-Era razonable usar la clase en código JDK dado que ese es código de bajo nivel que ya está estrechamente acoplado al JDK. 
-Dado que era necesario en múltiples paquetes, la clase fue hecha pública. 
-Sun incluso la nombró Unsafe, calculando que eso evitaría que alguien la usara fuera del JDK.
+* Antes del Java Platform Module System, las clases tenían que ser públicas si querías que fueran usadas fuera del paquete. 
+* Era razonable usar la clase en código JDK dado que ese es código de bajo nivel que ya está estrechamente acoplado al JDK. 
+* Dado que era necesario en múltiples paquetes, la clase fue hecha pública. 
+* Sun incluso la nombró Unsafe, calculando que eso evitaría que alguien la usara fuera del JDK.
+* Sin embargo, los desarrolladores son astutos y usaron la clase dado que estaba disponible. 
+* Varias bibliotecas de código abierto ampliamente usadas comenzaron a usar Unsafe. 
+* Aunque es bastante improbable que estés usando esta clase en tu proyecto directamente, probablemente uses una biblioteca de código abierto que la está usando.
+* El comando jdeps te permite ver estos JARs para ver si tendrás algún problema cuando Oracle finalmente prevenga el uso de esta clase. 
+* Si encuentras algún uso, puedes ver si hay una versión posterior del JAR a la que puedas actualizar.
 ---------------------------------------------------------------------
+
+### Using Module Files with `jmod`
+
+* El comando final que necesitas conocer para el examen es `jmod`. Podrías pensar que un archivo JMOD es un archivo de módulo Java. 
+* No exactamente. Oracle recomienda usar archivos JAR para la mayoría de los módulos. 
+* Los archivos JMOD se recomiendan solo cuando tienes bibliotecas nativas o algo que no puede ir dentro de un archivo JAR. 
+* Esto es improbable que te afecte en el mundo real.
+
+* Lo más importante a recordar es que `jmod` es solo para trabajar con los archivos JMOD. 
+* Convenientemente, no tienes que memorizar la sintaxis para `jmod`. Table 12.9 lista los modos comunes.
+
+![ch12_01_22.png](images/ch12/ch12_01_22.png)
+
+### Creating Java Runtimes with jlink
+
+* Uno de los beneficios de los módulos es ser capaz de suministrar solo las partes de Java que necesitas. 
+* Nuestro ejemplo de zoo desde el comienzo del capítulo no tiene muchas dependencias. 
+* Si el usuario ya no tiene Java o está en un dispositivo sin mucha memoria, descargar un JDK que es más de 150 MB es una gran petición. 
+* Veamos qué tan grande necesita ser el paquete realmente. Este comando crea nuestra distribución más pequeña:
+
+`jlink --module-path mods --add-modules zoo.animal.talks --output zooApp`
+
+* Primero especificamos dónde encontrar los módulos personalizados con -p o --module-path. 
+* Luego especificamos nuestros nombres de módulo con --add-modules. Esto incluirá las dependencias que requiere siempre que puedan ser encontradas. 
+* Finalmente, especificamos el nombre de carpeta de nuestro JDK más pequeño con --output. 
+* El directorio de salida contiene los directorios bin, conf, include, legal, lib, y man junto con un archivo de lanzamiento. 
+* Estos deberían verse familiares, ya que los encuentras en el JDK completo también. 
+* Cuando ejecutamos este comando y comprimimos el directorio zooApp, el archivo es solo de 15 MB. Esto es un orden de magnitud más pequeño que el JDK completo. 
+* ¿De dónde vino este ahorro de espacio? Hay muchos módulos en el JDK que no necesitamos. 
+* Adicionalmente, herramientas de desarrollo como javac no necesitan estar en una distribución en tiempo de ejecución. 
+* Hay muchos más elementos para personalizar este proceso que no necesitas conocer para el examen. 
+* Por ejemplo, puedes omitir generar la documentación de ayuda y ahorrar aún más espacio.
+
+### Reviewing Command-Line Options
+
+* Esta sección presenta varias tablas que cubren lo que necesitas saber sobre ejecutar opciones de línea de comandos para el examen.
+* Table 12.10 muestra las operaciones de línea de comandos que deberías esperar encontrar en el examen. 
+* Hay muchas más opciones en la documentación. Por ejemplo, hay una opción `--module` en javac que limita la compilación a ese módulo. 
+* Afortunadamente, no necesitas conocer esas para el examen.
+
+![ch12_01_23.png](images/ch12/ch12_01_23.png)
+
+* Table 12.11 muestra las opciones para javac, Table 12.12 muestra las opciones para java, Table 12.13 muestra las opciones para jar, y Table 12.14 muestra las opciones para jdeps. 
+* Finalmente, Table 12.15 muestra las opciones para jlink.
+
+![ch12_01_24.png](images/ch12/ch12_01_24.png)
+
+![ch12_01_25.png](images/ch12/ch12_01_25.png)
+
+![ch12_01_26.png](images/ch12/ch12_01_26.png)
+
+![ch12_01_27.png](images/ch12/ch12_01_27.png)
+
+![ch12_01_28.png](images/ch12/ch12_01_28.png)
+
+## Comparing Types of Modules
+
+* Todos los módulos que hemos usado hasta ahora en este capítulo se llaman módulos nombrados. 
+* Hay dos otros tipos de módulos: módulos automáticos y módulos sin nombre. En esta sección, describimos estos tres tipos de módulos. 
+* En el examen, necesitarás ser capaz de compararlos.
+
+### Named Modules
+
+* Un named module es uno que contiene un archivo module-info.java. Para revisar, este archivo aparece en la raíz del JAR junto con uno o más paquetes. 
+* A menos que se especifique de otra manera, un módulo es un módulo nombrado. Los módulos nombrados aparecen en el module path en lugar del classpath. 
+* Más adelante, aprenderás qué sucede si un JAR que contiene un archivo module-info.java está en el classpath. 
+* Por ahora, solo debes saber que no se considera un módulo nombrado porque no está en el module path.
+* Como una forma de recordar esto, un módulo nombrado tiene el name dentro del archivo module-info.java y está en el module path.
+
+Recuerda del Chapter 7, "Beyond Classes," que la única manera para que subclases de clases selladas estén en un paquete diferente es estar dentro del módulo con el mismo nombre.
+
+### Automatic Modules
+
+* Un automatic module aparece en el module path, pero no contiene un archivo module-info.java. 
+* Es simplemente un archivo JAR regular que se coloca en el module path y se trata como un módulo.
+* Como una forma de recordar esto, Java automatically determina el nombre del módulo. 
+* El código que referencia un módulo automático lo trata como si hubiera un archivo module-info.java presente. 
+* Automáticamente, exporta todos los paquetes. También determina el nombre del módulo. ¿Cómo determina el nombre del módulo, preguntas? Excelente pregunta.
+* Para responder esto, necesitamos proporcionar un poco de historia sobre archivos JAR y adopción de módulos. 
+* Cada archivo JAR contiene una carpeta especial llamada META-INF y, dentro de ella, un archivo de texto llamado `MANIFEST.MF`. 
+* Puede ser creado automáticamente cuando el JAR es creado o a mano por el autor del JAR. 
+* Regresando a módulos, muchas bibliotecas Java no estaban del todo listas para modularizarse cuando la característica fue introducida. 
+* Los autores fueron alentados a declarar el nombre que pretendían usar para el módulo añadiendo una propiedad llamada Automatic-Module-Name a su archivo `MANIFEST.MF`.
+
+---------------------------------------------------------------------
+**About the MANIFEST.MF File**
+
+* Un archivo JAR contiene un archivo de texto especial llamado `META-INF/MANIFEST.MF` que contiene información sobre el JAR. 
+* Ha existido significativamente más tiempo que los módulos—desde los primeros días de Java y JARs, para ser exactos. 
+* La figura muestra cómo el manifest encaja en la estructura de directorios de un archivo JAR.
+
+![ch12_01_29.png](images/ch12/ch12_01_29.png)
+
+* El manifest contiene información extra sobre el archivo JAR. Por ejemplo, a menudo contiene la versión de Java usada para construir el archivo JAR. 
+* Para programas de línea de comandos, la clase con el método main() comúnmente se especifica.
+* Cada línea en el manifest es un par clave/valor separado por dos puntos. Puedes pensar en el manifest como un mapa de nombres de propiedades y valores. 
+* El manifest predeterminado en Java 17 se ve así:
+
+`Manifest-Version: 1.0`
+`Created-By: 17 (Oracle Corporation)`
+---------------------------------------------------------------------
+
+* Especificar una sola propiedad en el manifest permitió a los proveedores de bibliotecas hacer las cosas más fáciles para las aplicaciones que querían usar su biblioteca en una aplicación modular. 
+* Puedes pensar en ello como una promesa de que cuando la biblioteca se convierta en un módulo nombrado, usará el nombre de módulo especificado.
+* Si el archivo JAR no especifica un nombre de módulo automático, Java todavía te permitirá usarlo en el module path. 
+* En este caso, Java determinará el nombre del módulo por ti. Diríamos que esto sucede automáticamente, pero la broma probablemente se está gastando para ahora.
+
+* Java determina el nombre del módulo automático basándose en el nombre de archivo del archivo JAR. Revisemos las reglas comenzando con un ejemplo. 
+* Supón que tenemos un archivo JAR llamado holiday-calendar-1.0.0.jar.
+
+* Primero Java eliminará la extensión .jar del nombre. Luego Java eliminará la versión del final del nombre de archivo JAR. 
+* Esto es importante porque queremos que los nombres de módulo sean consistentes. 
+* Tener un nombre de módulo automático diferente cada vez que actualizaste a una nueva versión no sería bueno. 
+* Después de todo, esto te forzaría a cambiar la declaración de módulo de tu aplicación limpia y modularizada cada vez que integraras una versión posterior del JAR de calendario de vacaciones.
+
+* Eliminar la versión y extensión nos da holiday-calendar. Esto nos deja con un problema. 
+* Los guiones (-) no están permitidos en nombres de módulo. Java resuelve este problema convirtiendo cualquier carácter especial en el nombre a puntos (.). 
+* Como resultado, el nombre del módulo es `holiday.calendar`. Cualquier carácter que no sean letras y números se considera un carácter especial en este reemplazo. 
+* Finalmente, cualquier punto adyacente o puntos al principio/final son eliminados.
+
+Dado que eso es un número de reglas, revisemos el algoritmo en una lista para determinar el nombre de un módulo automático:
+
+* Si él `MANIFEST.MF` especifica un Automatic-Module-Name, úsalo. De lo contrario, procede con las reglas restantes.
+* Elimina la extensión de archivo del nombre JAR.
+* Elimina cualquier información de versión del final del nombre. Una versión son dígitos y puntos con posible información extra al final: por ejemplo, -1.0.0 o -1.0-RC.
+* Reemplaza cualquier carácter restante que no sean letras y números con puntos.
+* Reemplaza cualquier secuencia de puntos con un solo punto.
+* Elimina el punto si es el primer o último carácter del resultado.
+
+Table 12.16 muestra cómo aplicar estas reglas a dos ejemplos donde no hay un nombre de módulo automático especificado en el manifest.
+
+![ch12_01_30.png](images/ch12/ch12_01_30.png)
+
+* Aunque el algoritmo para crear nombres de módulo automáticos hace su mejor esfuerzo, no siempre puede llegar a un buen nombre. 
+* Por ejemplo, 1.2.0-calendar-1.2.2-good-1.jar no es conducente. Afortunadamente, tales nombres son raros y fuera del alcance del examen.
+
+### Unnamed Modules
+
+* Un `unnamed module` aparece en el classpath. Como un módulo automático, es un JAR regular. 
+* A diferencia de un módulo automático, está en el classpath en lugar del module path. 
+* Esto significa que un módulo sin nombre es tratado como código antiguo y un ciudadano de segunda clase a los módulos.
+* Un módulo sin nombre normalmente no contiene un archivo `module-info.java`. 
+* Si sucede que contiene uno, ese archivo será ignorado dado que está en el classpath.
+* Los módulos sin nombre no exportan ningún paquete a módulos nombrados o automáticos. 
+* El módulo sin nombre puede leer de cualquier JAR en el classpath o module path. 
+* Puedes pensar en un módulo sin nombre como código que funciona de la manera en que Java funcionaba antes de los módulos. 
+* Sí, sabemos que es confuso que algo que realmente no es un módulo tenga la palabra module en su nombre.
+
+### Reviewing Module Types
+
+* Puedes esperar obtener preguntas en el examen comparando los tres tipos de módulos. 
+* Por favor estudia Table 12.17 exhaustivamente y prepárate para responder preguntas sobre estos elementos en cualquier combinación. 
+* Un punto clave a recordar es que el código en el classpath puede acceder al module path. 
+* Por contraste, el código en el module path es incapaz de leer del classpath.
+
+![ch12_01_31.png](images/ch12/ch12_01_31.png)
+
+## Migrating an Application
+
+* Muchas aplicaciones no fueron diseñadas para usar el Java Platform Module System porque fueron escritas antes de que fuera creado o eligieron no usarlo. 
+* Idealmente, fueron al menos diseñadas con proyectos en lugar de como una gran bola de lodo. 
+* Esta sección te da una visión general de estrategias para migrar una aplicación existente para usar módulos. 
+* Cubrimos ordenar módulos, migración de abajo hacia arriba, migración de arriba hacia abajo, y cómo dividir un proyecto existente.
+
+---------------------------------------------------------------------
+**Real World Scenario**
+**Migrating Your Applications at Work**
+* El examen existe en un universo pretendido donde no hay dependencias de código abierto y las aplicaciones son muy pequeñas. 
+* Estos escenarios hacen el aprendizaje y la discusión de migración mucho más fáciles. 
+* En el mundo real, las aplicaciones tienen bibliotecas que no han sido actualizadas en 10 o más años, grafos de dependencias complejos, y todo tipo de sorpresas.
+* Nota que puedes usar todas las características de Java 17 sin convertir tu aplicación a módulos (excepto las características en este capítulo de módulos, por supuesto). 
+* Por favor asegúrate de tener una razón para la migración y no pienses que es requerido.
+* Este capítulo hace un gran trabajo enseñándote lo que necesitas saber para el examen. 
+* Sin embargo, no te prepara adecuadamente para convertir aplicaciones reales para usar módulos. 
+* Si te encuentras en esa situación, considera leer The Java Module System por Nicolai Parlog (Manning Publications, 2019).
+---------------------------------------------------------------------
+
+### Determining the Order
+
+* Antes de que podamos migrar nuestra aplicación para usar módulos, necesitamos saber cómo los paquetes y bibliotecas en la aplicación existente están estructurados. 
+* Supón que tenemos una aplicación simple con tres archivos JAR, como se muestra en Figure 12.14. Las dependencias entre proyectos forman un grafo. 
+* Ambas representaciones en Figure 12.14 son equivalentes. Las flechas muestran las dependencias apuntando desde el proyecto que requerirá la dependencia al que la hace disponible. 
+* En el lenguaje de módulos, la flecha irá desde requires a exports.
+
+![ch12_01_32.png](images/ch12/ch12_01_32.png)
+
+* El lado derecho del diagrama hace más fácil identificar la parte superior e inferior a la que se refieren la migración de arriba hacia abajo y de abajo hacia arriba. 
+* Los proyectos que no tienen dependencias están en la parte inferior. Los proyectos que sí tienen dependencias están en la parte superior.
+* En este ejemplo, solo hay un orden de arriba hacia abajo que honra todas las dependencias. Figure 12.15 muestra que el orden no siempre es único. 
+* Dado que dos de los proyectos no tienen una flecha entre ellos, cualquier orden está permitido al decidir el orden de migración.
+
+![ch12_01_33.png](images/ch12/ch12_01_33.png)
+
+
+
+
+
+
+
 
 
 
@@ -1221,6 +1425,3 @@ Sun incluso la nombró Unsafe, calculando que eso evitaría que alguien la usara
 ```
 
 ---------------------------------------------------------------------
-Comparing Types of Modules
-Migrating an Application
-Summary
