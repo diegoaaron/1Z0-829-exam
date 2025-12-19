@@ -850,25 +850,359 @@ module zoo.tours.agency {
 }
 ```
 
+* La declaración del módulo requiere el módulo que contiene la interfaz como una dependencia. 
+* No exportamos el paquete que implementa la interfaz dado que no queremos que los llamadores se refieran a él directamente. 
+* En su lugar, usamos la directiva provides. Esto nos permite especificar que proporcionamos una implementación de la interfaz con una clase de implementación específica. La sintaxis se ve así:
 
+`provides interfaceName with className;`
 
+---------------------------------------------------------------------
+No hemos exportado el paquete que contiene la implementación. 
+En su lugar, hemos hecho la implementación disponible a un proveedor de servicio usando la interfaz.
+---------------------------------------------------------------------
 
+Finalmente, lo compilamos y empaquetamos.
 
+```java
+javac -p mods -d serviceProviderModule
+  serviceProviderModule/zoo/tours/agency/*.java
+  serviceProviderModule/module-info.java
+jar -cvf mods/zoo.tours.agency.jar -C serviceProviderModule/ .
+```
 
+Ahora viene la parte genial. Podemos ejecutar el programa Java nuevamente.
 
+`java -p mods -m zoo.visitor/zoo.visitor.Tourist`
 
+Esta vez, vemos la siguiente salida:
 
+`Single tour: zoo.tours.agency.TourImpl@1936f0f5`
+`# tours: 1`
 
+* Nota cómo no recompilamos zoo.tours.reservations o zoo.visitor. El localizador de servicio fue capaz de observar que ahora había una implementación de proveedor de servicio disponible y encontrarla por nosotros.
+* Esto es útil cuando tienes funcionalidad que cambia independientemente del resto de la base de código. Por ejemplo, podrías tener informes personalizados o registro.
 
+---------------------------------------------------------------------
+* En desarrollo de software, el concepto de separar diferentes componentes en piezas independientes se refiere como loose coupling. 
+* Una ventaja del código débilmente acoplado es que puede ser fácilmente intercambiado o reemplazado con cambios mínimos (o cero) al código que lo usa. 
+* Confiar en una estructura débilmente acoplada permite que los módulos de servicio sean fácilmente extensibles en tiempo de ejecución.
+---------------------------------------------------------------------
 
+### Reviewing Directives and Services
 
+* Table 12.4 resume lo que hemos cubierto en la sección sobre servicios. 
+* Recomendamos aprender realmente bien qué se necesita cuando cada artefacto está en un módulo separado. 
+* Eso es lo más probable que veas en el examen y asegurará que entiendas los conceptos. 
+* Table 12.5 lista todas las directivas que necesitas conocer para el examen.
 
+![ch12_01_17.png](images/ch12/ch12_01_17.png)
 
+![ch12_01_18.png](images/ch12/ch12_01_18.png)
 
+## Discovering Modules
 
+* Hasta ahora, hemos estado trabajando con módulos que escribimos. Incluso las clases incorporadas en el JDK están modularizadas. 
+* En esta sección, te mostramos cómo usar comandos para aprender sobre módulos.
+* No necesitas conocer la salida de los comandos en esta sección. Sin embargo, necesitas conocer la sintaxis de los comandos y qué hacen. 
+* Incluimos la salida donde facilita recordar qué está sucediendo. Pero no necesitas memorizar eso (lo cual libera más espacio en tu cabeza para memorizar opciones de línea de comandos).
 
+### Identifying Built-in Modules
 
+* El módulo más importante para conocer es `java.base`. Contiene la mayoría de los paquetes sobre los que has estado aprendiendo para el examen. 
+* De hecho, es tan importante que ni siquiera tienes que usar la directiva requires; está disponible para todas las aplicaciones modulares. 
+* Tu archivo `module-info.java` aún compilará si explícitamente requieres `java.base`. Sin embargo, es redundante, así que es mejor omitirlo. 
+* Table 12.6 lista algunos módulos comunes y qué contienen.
 
+![ch12_01_19.png](images/ch12/ch12_01_19.png)
+
+* Los creadores del examen sienten que es importante reconocer los nombres de módulos suministrados por el JDK. 
+* Aunque no necesitas conocer los nombres de memoria, necesitas ser capaz de seleccionarlos de una lista.
+* Para el examen, necesitas saber que los nombres de módulos comienzan con java para APIs que es probable uses y con jdk para APIs que son específicas del JDK. 
+* Table 12.7 lista todos los módulos que comienzan con java.
+
+![ch12_01_20.png](images/ch12/ch12_01_20.png)
+
+* Table 12.8 lista todos los módulos que comienzan con jdk. 
+* Recomendamos revisar esto justo antes del examen para aumentar las posibilidades de que suenen familiares. 
+* Recuerda que no tienes que memorizarlos.
+
+![ch12_01_21.png](images/ch12/ch12_01_21.png)
+
+### Getting Details with java
+
+El comando `java` tiene tres opciones relacionadas con módulos. Una describe un módulo, otra lista los módulos disponibles, y la tercera muestra la lógica de resolución del módulo.
+
+---------------------------------------------------------------------
+* También es posible añadir módulos, exportaciones, y más en la línea de comandos. Pero por favor no lo hagas. 
+* Es confuso y difícil de mantener. Nota que estas banderas están disponibles en java pero no en todos los comandos.
+---------------------------------------------------------------------
+
+### Describing a Module
+
+* Supón que te dan el archivo JAR del módulo zoo.animal.feeding y quieres conocer sobre su estructura de módulo. 
+* Podrías "descomprimirlo" y abrir el archivo `module-info.java`. Esto te mostraría que el módulo exporta un paquete y no requiere explícitamente ningún módulo.
+
+```java
+module zoo.animal.feeding {
+  exports zoo.animal.feeding;
+}
+```
+
+* Sin embargo, hay una manera más fácil. El comando `java` tiene una opción para describir un módulo. 
+* Los siguientes dos comandos son equivalentes:
+
+```java
+java -p mods
+  -d zoo.animal.feeding
+
+java -p mods
+  --describe-module zoo.animal.feeding
+```
+
+Cada uno imprime información sobre el módulo. Por ejemplo, podría imprimir esto:
+
+```java
+zoo.animal.feeding file:///absolutePath/mods/zoo.animal.feeding.jar
+exports zoo.animal.feeding
+requires java.base mandated
+```
+
+* La primera línea es el módulo sobre el que preguntamos: zoo.animal.feeding. La segunda línea comienza con información sobre el módulo. 
+* En nuestro caso, es la misma declaración de exportación de paquete que teníamos en el archivo de declaración del módulo.
+* En la tercera línea, vemos requires `java.base` mandated. Ahora, espera un minuto. 
+* La declaración del módulo claramente no especifica ningún módulo que zoo.animal.feeding tenga como dependencias.
+* Recuerda, el módulo `java.base` es especial. Es automáticamente añadido como una dependencia a todos los módulos. 
+* Este módulo tiene paquetes frecuentemente usados como java.util. Eso es sobre lo que trata el mandated. 
+* Obtienes `java.base` independientemente de si lo pediste o no.
+* En las clases, el paquete `java.lang` es importado automáticamente ya sea que lo escribas o no. 
+* El módulo `java.base` funciona de la misma manera. Está automáticamente disponible para todos los otros módulos.
+
+---------------------------------------------------------------------
+**More about Describing Modules**
+Solo necesitas saber cómo ejecutar --describe-module para el examen en lugar de interpretar la salida. 
+Sin embargo, podrías encontrar algunas sorpresas al experimentar con esta característica, así que las describimos con un poco más de detalle aquí.
+Asume lo siguiente son los contenidos de `module-info.java` en zoo.animal.care:
+
+```java
+module zoo.animal.care {
+  exports zoo.animal.care.medical to zoo.staff;
+  requires transitive zoo.animal.feeding;
+}
+```
+
+Ahora tenemos el comando para describir el módulo y la salida.
+
+```java
+java -p mods -d zoo.animal.care
+zoo.animal.care file:///absolutePath/mods/zoo.animal.care.jar
+requires zoo.animal.feeding transitive
+requires java.base mandated
+qualified exports zoo.animal.care.medical to zoo.staff
+contains zoo.animal.care.details
+```
+* La primera línea de la salida es la ruta absoluta del archivo del módulo. Las dos líneas de requires deberían verse familiares también. 
+* La primera está en él `module-info`, y la otra se añade a todos los módulos. 
+* A continuación viene algo nuevo. Los qualified exports es el nombre completo del paquete que estamos exportando a un módulo específico.
+* Finalmente, los contains significa que hay un paquete en el módulo que no es exportado en absoluto. 
+* Esto es cierto. Nuestro módulo tiene dos paquetes, y uno está disponible solo para código dentro del módulo.
+---------------------------------------------------------------------
+
+### Listing Available Modules
+
+* Además de describir módulos, puedes usar el comando `java` para listar los módulos que están disponibles. 
+* La forma más simple lista los módulos que son parte del JDK.
+
+`java --list-modules`
+
+Cuando lo ejecutamos, la salida continuó por 70 líneas y se veía así:
+
+```java
+java.base@17
+java.compiler@17
+java.datatransfer@17
+```
+
+* Esta es una lista de todos los módulos que vienen con Java y sus números de versión. 
+* Puedes decir que estábamos usando Java 17 cuando probamos este ejemplo.
+* Más interesante, puedes usar este comando con código personalizado. 
+* Intentemos de nuevo con el directorio que contiene nuestros módulos zoo.
+
+`java -p mods --list-modules`
+
+* ¿Cuántas líneas esperas que estén en la salida esta vez? Hay 78 líneas ahora: los 70 módulos integrados más los 8 que hemos creado en este capítulo. 
+* Dos de las líneas personalizadas se ven así:
+
+```java
+zoo.animal.care file:///absolutePath/mods/zoo.animal.care.jar
+zoo.animal.feeding file:///absolutePath/mods/zoo.animal.feeding.jar
+```
+
+* Dado que estos son módulos personalizados, obtenemos una ubicación en el sistema de archivos. 
+* Si el proyecto tuviera un número de versión de módulo, tendría tanto el número de versión como la ruta del sistema de archivos.
+
+Nota que `--list-modules` sale tan pronto como imprime los módulos observables. No ejecuta el programa.
+
+### Showing Module Resolution
+
+* Si listar los módulos no te da suficiente salida, también puedes usar la opción --show-module-resolution. 
+* Puedes pensar en ella como una forma de depurar módulos. Escupe mucha salida cuando el programa se inicia. Luego ejecuta el programa.
+
+```java
+java --show-module-resolution
+  -p feeding
+  -m zoo.animal.feeding/zoo.animal.feeding.Task
+```
+
+Afortunadamente, no necesitas entender esta salida. Dicho esto, haberla visto hará que sea más fácil recordar. Aquí hay un fragmento de la salida:
+
+```java
+root zoo.animal.feeding file:///absolutePath/feeding/
+java.base binds java.desktop jrt:/java.desktop
+java.base binds jdk.jartool jrt:/jdk.jartool
+...
+jdk.security.auth requires java.naming jrt:/java.naming
+jdk.security.auth requires java.security.jgss jrt:/java.security.jgss
+...
+All fed!
+```
+
+Comienza listando el módulo raíz. Ese es el que estamos ejecutando: zoo.animal.feeding. 
+Luego lista muchas líneas de paquetes incluidos por el módulo `java.base` obligatorio. 
+Después de un rato, lista los módulos que tienen dependencias. Finalmente, produce la salida del programa: All fed!.
+
+### Describing with jar
+
+Como el comando `java`, el comando jar puede describir un módulo. Estos comandos son equivalentes:
+
+```java
+jar -f mods/zoo.animal.feeding.jar -d
+jar --file mods/zoo.animal.feeding.jar --describe-module
+```
+
+La salida es ligeramente diferente de cuando usamos el comando `java` para describir el módulo. Con jar, produce lo siguiente:
+
+```java
+zoo.animal.feeding jar:file:///absolutePath/mods/zoo.animal.feeding.jar
+/!module-info.class
+exports zoo.animal.feeding
+requires java.base mandated
+```
+
+* La versión JAR incluye él module-info.class en el nombre del archivo, lo cual no es una diferencia particularmente significativa en el esquema de las cosas. 
+* No necesitas conocer esta diferencia. Necesitas saber que ambos comandos pueden describir un módulo.
+
+### Learning about Dependencies with jdeps
+
+* El comando jdeps te da información sobre dependencias dentro de un módulo. A diferencia de describir un módulo, examina el código además de la declaración del módulo. 
+* Esto te dice qué dependencias se usan realmente en lugar de simplemente declaradas. 
+* Afortunadamente, no se espera que memorices todas las opciones para el examen.
+* Se espera que entiendas cómo usar jdeps con proyectos que aún no han sido modularizados para ayudar en la identificación de dependencias y problemas. 
+* Primero, crearemos un archivo JAR desde esta clase. Si estás siguiendo, siéntete libre de copiar la clase de los ejemplos en línea referenciados al comienzo del capítulo en lugar de escribirla.
+
+```java
+// Animatronic.java
+package zoo.dinos;
+
+import java.time.*;
+import java.util.*;
+import sun.misc.Unsafe;
+
+public class Animatronic {
+    private List<String> names;
+    private LocalDate visitDate;
+
+    public Animatronic(List<String> names, LocalDate visitDate) {
+        this.names = names;
+        this.visitDate = visitDate;
+    }
+    public void unsafeMethod() {
+        Unsafe unsafe = Unsafe.getUnsafe();
+    }
+}
+```
+
+* Este ejemplo es tonto. Usa varias clases no relacionadas. 
+* El Bronx Zoo realmente tuvo dinosaurios electrónicos en movimiento por un tiempo, así que al menos la idea de tener dinosaurios en un zoológico no está más allá del reino de posibilidad.
+
+* Ahora podemos compilar este archivo. Podrías haber notado que no hay un archivo `module-info.java`. Eso es porque no estamos creando un módulo. 
+* Estamos viendo qué dependencias necesitaremos cuando modularicemos este JAR.
+
+`javac zoo/dinos/*.java`
+
+* Compilar funciona, pero te da algunas advertencias sobre Unsafe siendo una API interna. 
+* No te preocupes por esas por ahora—discutiremos eso en breve. (Tal vez los dinosaurios se extinguieron porque hicieron algo inseguro.)
+* A continuación, creamos un archivo JAR.
+
+`jar -cvf zoo.dino.jar .`
+
+* Podemos ejecutar el comando jdeps contra este JAR para aprender sobre sus dependencias. 
+* Primero, ejecutemos el comando sin ninguna opción. En las primeras dos líneas, el comando imprime los módulos que necesitaríamos añadir con una directiva requires para migrar al sistema de módulos. 
+* También imprime una tabla mostrando qué paquetes se usan y a qué módulos corresponden.
+
+```java
+jdeps zoo.dino.jar
+
+zoo.dino.jar -> java.base
+zoo.dino.jar -> jdk.unsupported
+zoo.dinos -> java.lang    java.base
+zoo.dinos -> java.time    java.base
+zoo.dinos -> java.util    java.base
+zoo.dinos -> sun.misc     JDK internal API (jdk.unsupported)
+```
+
+* Nota que `java.base` está siempre incluido. También dice qué módulos contienen las clases usadas por el JAR. 
+* Si ejecutamos en modo resumen, solo vemos la primera parte donde jdeps lista los módulos. Hay dos formatos para la bandera de resumen:
+
+```java
+jdeps -s zoo.dino.jar
+jdeps -summary zoo.dino.jar
+
+zoo.dino.jar -> java.base
+zoo.dino.jar -> jdk.unsupported
+```
+
+* Para un proyecto real, la lista de dependencias podría incluir docenas o incluso cientos de paquetes. 
+* Es útil ver el resumen de solo los módulos. Este enfoque también hace más fácil ver si jdk.unsupported está en la lista.
+* También hay una opción --module-path que puedes usar si quieres buscar módulos fuera del JDK. 
+* A diferencia de otros comandos, no hay forma corta para esta opción en jdeps.
+
+---------------------------------------------------------------------
+* Podrías haber notado que jdk.unsupported no está en la lista de módulos que viste en Table 12.8. 
+* Es especial porque contiene bibliotecas internas que los desarrolladores en versiones previas de Java fueron desalentados de usar, aunque muchas personas ignoraron esta advertencia. 
+* No deberías referenciarla, ya que puede desaparecer en futuras versiones de Java.
+---------------------------------------------------------------------
+
+### Using the --jdk-internals Flag
+
+El comando jdeps tiene una opción para proporcionar detalles sobre estas APIs no soportadas. La salida se ve algo así:
+
+```java
+jdeps --jdk-internals zoo.dino.jar
+
+zoo.dino.jar -> jdk.unsupported
+  zoo.dinos.Animatronic -> sun.misc.Unsafe
+    JDK internal API (jdk.unsupported)
+
+Warning: <omitted warning>
+```
+
+JDK Internal API    Suggested Replacement
+---------------     ----------------------
+sun.misc.Unsafe     See http://openjdk.java.net/jeps/260
+
+* La opción --jdk-internals lista cualquier clase que estés usando que llame a una API interna junto con qué API. 
+* Al final, proporciona una tabla sugiriendo qué deberías hacer al respecto. Si escribiste el código llamando a la API interna, este mensaje es útil. 
+* Si no, el mensaje sería útil para el equipo que escribió el código. Tú, por otro lado, podrías necesitar actualizar o reemplazar ese archivo JAR completamente con uno que corrija el problema. 
+* Nota que -jdkinternals es equivalente a --jdk-internals.
+
+---------------------------------------------------------------------
+**Real World Scenario**
+**About `sun.misc.Unsafe`**
+Antes del Java Platform Module System, las clases tenían que ser públicas si querías que fueran usadas fuera del paquete. 
+Era razonable usar la clase en código JDK dado que ese es código de bajo nivel que ya está estrechamente acoplado al JDK. 
+Dado que era necesario en múltiples paquetes, la clase fue hecha pública. 
+Sun incluso la nombró Unsafe, calculando que eso evitaría que alguien la usara fuera del JDK.
+---------------------------------------------------------------------
 
 
 
@@ -887,7 +1221,6 @@ module zoo.tours.agency {
 ```
 
 ---------------------------------------------------------------------
-Discovering Modules
 Comparing Types of Modules
 Migrating an Application
 Summary
