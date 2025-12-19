@@ -205,7 +205,7 @@ java -p feeding
 
 * En estos ejemplos, usamos feeding como el module path porque ahí es donde compilamos el código. 
 * Esto cambiará una vez que empaquetemos el módulo y lo ejecutemos.
-* Table 12.2 lista las opciones que necesitas conocer para el comando java.
+* Table 12.2 lista las opciones que necesitas conocer para el comando `java`.
 
 ![ch12_01_07.png](images/ch12/ch12_01_07.png)
 
@@ -307,6 +307,250 @@ Esta vez el archivo `module-info.java` especifica tres cosas:
 * Intenta dibujar la estructura de directorios en papel o créala en tu computadora. 
 * Si estás tratando de ejecutar estos ejemplos sin usar el código en línea, simplemente crea clases sin variables o métodos para todo excepto los archivos module-info.java.
 
+* Podrías haber notado que los paquetes comienzan con el mismo prefijo que el nombre del módulo. Esto es intencional. 
+* Puedes pensar en ello como si el nombre del módulo "reclama" el paquete coincidente y todos los sub paquetes.
+* Para revisar, ahora compilamos y empaquetamos el módulo:
+
+```java
+javac -p mods
+  -d care
+  care/zoo/animal/care/details/*.java
+  care/zoo/animal/care/medical/*.java
+  care/module-info.java
+```
+
+* Compilamos tanto los paquetes como el archivo module-info.java. En el mundo real, usarás una herramienta de construcción en lugar de hacer esto a mano. 
+* Para el examen, simplemente lista todos los paquetes y/o archivos que quieres compilar.
+
+Ahora que hemos compilado código, es tiempo de crear el JAR del módulo:
+
+```java
+jar -cvf mods/zoo.animal.care.jar -C care/ .
+```
+
+### Creating the Talks Module
+
+* Hasta ahora, hemos usado solo una declaración exports y requires en un módulo. 
+* Ahora aprenderás cómo manejar la exportación de múltiples paquetes o requerir múltiples módulos. 
+* En Figure 12.8, observa que el módulo zoo.animal.talks depende de dos módulos: zoo.animal.feeding y zoo.animal.care. 
+* Esto significa que debe haber dos declaraciones requires en el archivo module-info.java.
+
+![ch12_01_10.png](images/ch12/ch12_01_10.png)
+
+Figure 12.9 muestra los contenidos de este módulo. Vamos a exportar los tres paquetes en este módulo.
+
+![ch12_01_11.png](images/ch12/ch12_01_11.png)
+
+Primero veamos el archivo `module-info.java` para zoo.animal.talks:
+
+```java
+1: module zoo.animal.talks {
+2:   exports zoo.animal.talks.content;
+3:   exports zoo.animal.talks.media;
+4:   exports zoo.animal.talks.schedule;
+5:
+6:   requires zoo.animal.feeding;
+7:   requires zoo.animal.care;
+8: }
+```
+
+* Line 1 muestra el nombre del módulo. Lines 2–4 permiten a otros módulos referenciar los tres paquetes. L
+* ines 6 and 7 especifican los dos módulos de los cuales este módulo depende.
+* Luego tenemos las seis clases, como se muestra aquí:
+
+```java
+// ElephantScript.java
+package zoo.animal.talks.content;
+public class ElephantScript { }
+
+// SeaLionScript.java
+package zoo.animal.talks.content;
+public class SeaLionScript { }
+
+// Announcement.java
+package zoo.animal.talks.media;
+public class Announcement {
+  public static void main(String[] args) {
+    System.out.println("We will be having talks");
+  }
+}
+
+// Signage.java
+package zoo.animal.talks.media;
+public class Signage { }
+
+// Weekday.java
+package zoo.animal.talks.schedule;
+public class Weekday { }
+
+// Weekend.java
+package zoo.animal.talks.schedule;
+public class Weekend {}
+```
+
+Si todavía estás siguiendo en tu computadora, crea estas clases en los paquetes. Los siguientes son los comandos para compilar y construir el módulo:
+
+```java
+javac -p mods
+  -d talks
+  talks/zoo/animal/talks/content/*.java talks/zoo/animal/talks/media/*.java
+  talks/zoo/animal/talks/schedule/*.java talks/module-info.java
+  
+jar -cvf mods/zoo.animal.talks.jar -C talks/ .
+```
+
+### Creating the Staff Module
+
+Nuestro módulo final es `zoo.staff`. Figure 12.10 muestra que solo hay un paquete dentro. No estaremos exponiendo este paquete fuera del módulo.
+
+![ch12_01_12.png](images/ch12/ch12_01_12.png)
+
+Basándose en Figure 12.11, ¿sabes qué debería ir en el module-info?
+
+![ch12_01_13.png](images/ch12/ch12_01_13.png)
+
+Hay tres flechas en Figure 12.11 apuntando desde `zoo.staff` a otros módulos. Estas representan los tres módulos que son requeridos. 
+Dado que ningún paquete debe ser expuesto desde `zoo.staff`, no hay declaraciones exports. Esto nos da:
+
+```java
+module zoo.staff {
+  requires zoo.animal.feeding;
+  requires zoo.animal.care;
+  requires zoo.animal.talks;
+}
+```
+
+En este módulo, tenemos una sola clase en el archivo Jobs.java:
+
+```java
+package zoo.staff;
+public class Jobs { }
+```
+
+* Para aquellos de ustedes que están siguiendo en su computadora, creen una clase en el paquete. 
+* Los siguientes son los comandos para compilar y construir el módulo:
+
+```java
+javac -p mods
+  -d staff
+  staff/zoo/staff/*.java staff/module-info.java
+
+jar -cvf mods/zoo.staff.jar -C staff/ .
+```
+
+## Diving into the Module Declaration
+
+* Ahora que hemos creado exitosamente módulos, podemos aprender más sobre la declaración de módulo. 
+* En estas secciones, vemos exports, requires, y opens. En la siguiente sección sobre servicios, exploramos provides y uses. 
+* Ahora sería un buen momento para mencionar que estas directivas pueden aparecer en cualquier orden en la declaración del módulo.
+
+### Exporting a Package
+
+* Ya hemos visto cómo exports packageName exporta un paquete a otros módulos. También es posible exportar un paquete a un módulo específico. 
+* Supón que el zoológico decide que solo los miembros del personal deberían tener acceso a las charlas. 
+* Podríamos actualizar la declaración del módulo como sigue:
+
+```java
+module zoo.animal.talks {
+  exports zoo.animal.talks.content to zoo.staff;
+  exports zoo.animal.talks.media;
+  exports zoo.animal.talks.schedule;
+  
+  requires zoo.animal.feeding;
+  requires zoo.animal.care;
+}
+```
+
+* Desde el módulo `zoo.staff`, nada ha cambiado. Sin embargo, ningún otro módulo estaría permitido acceder a ese paquete.
+* Podrías haber notado que ninguno de nuestros otros módulos requiere zoo.animal.talks en primer lugar. 
+* Sin embargo, no sabemos qué otros módulos existirán en el futuro. Es importante considerar el uso futuro al
+* diseñar módulos. Dado que queremos solo que el único módulo tenga acceso, solo permitimos acceso para ese módulo.
+
+---------------------------------------------------------------------
+**Exported Types**
+* Hemos estado hablando sobre exportar un paquete. ¿Pero qué significa eso, exactamente? 
+* Todas las clases públicas, interfaces, enums, y records son exportados. 
+* Además, cualquier campo y método público y protegido en esos archivos son visibles.
+* Los campos y métodos que son privados no son visibles porque no son accesibles fuera de la clase. 
+* De manera similar, los campos y métodos de paquete no son visibles porque no son accesibles fuera del paquete.
+---------------------------------------------------------------------
+
+La directiva exports esencialmente nos da más niveles de control de acceso. Table 12.3 lista las opciones completas de control de acceso.
+
+![ch12_01_14.png](images/ch12/ch12_01_14.png)
+
+### Requiring a Module Transitively
+
+* Como viste anteriormente en este capítulo, requires moduleName especifica que el módulo actual depende de moduleName. 
+* También hay un requires transitive moduleName, que significa que cualquier módulo que requiera este módulo también dependerá de moduleName.
+* Bueno, eso fue un bocado. Veamos un ejemplo. Figure 12.12 muestra los módulos con líneas discontinuas para las relaciones redundantes y líneas sólidas para relaciones especificadas en él `module-info`. 
+* Esto muestra cómo se verían las relaciones del módulo si solo usáramos dependencias transitivas.
+
+![ch12_01_15.png](images/ch12/ch12_01_15.png)
+
+* Por ejemplo, zoo.animal.talks depende de zoo.animal.care, que depende de zoo.animal.feeding. 
+* Eso significa que la flecha entre zoo.animal.talks y zoo.animal.feeding ya no aparece en Figure 12.12.
+* Ahora veamos las cuatro declaraciones de módulo. El primer módulo permanece sin cambios. 
+* Estamos exportando un paquete a cualquier paquete que use el módulo.
+
+```java
+module zoo.animal.feeding {
+  exports zoo.animal.feeding;
+}
+```
+
+* El módulo zoo.animal.care es la primera oportunidad para mejorar las cosas. 
+* En lugar de forzar a todos los módulos restantes a especificar explícitamente zoo.animal.feeding, el código usa requires transitive.
+
+```java
+module zoo.animal.care {
+  exports zoo.animal.care.medical;
+  requires transitive zoo.animal.feeding;
+}
+```
+
+* En el módulo zoo.animal.talks, hacemos un cambio similar y no forzamos a otros módulos a especificar zoo.animal.care. 
+* También ya no necesitamos especificar zoo.animal.feeding, así que esa línea está comentada.
+
+```java
+module zoo.animal.talks {
+  exports zoo.animal.talks.content to zoo.staff;
+  exports zoo.animal.talks.media;
+  exports zoo.animal.talks.schedule;
+  // no longer needed requires zoo.animal.feeding;
+  // no longer needed requires zoo.animal.care;
+  requires transitive zoo.animal.care;
+}
+```
+
+Finalmente, en el módulo `zoo.staff`, podemos deshacernos de dos declaraciones requires.
+
+```java
+module zoo.staff {
+  // no longer needed requires zoo.animal.feeding;
+  // no longer needed requires zoo.animal.care;
+  requires zoo.animal.talks;
+}
+```
+
+* Mientras más módulos tengas, mayores los beneficios del requires transitive compuesto. 
+* También es más conveniente para quien llama. Si estuvieras tratando de trabajar con este zoológico, podrías simplemente requerir `zoo.staff` y tener las dependencias restantes inferidas automáticamente.
+
+### Effects of requires transitive
+
+* Dadas nuestras nuevas declaraciones de módulo, y usando Figure 12.12, ¿cuál es el efecto de aplicar el modificador transitive a la declaración requires en nuestro módulo zoo.animal.care? 
+* Aplicar los modificadores transitive tiene los siguientes efectos:
+  * Module zoo.animal.talks puede opcionalmente declarar que requiere el módulo zoo.animal.feeding, pero no es requerido.
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -321,8 +565,6 @@ Esta vez el archivo `module-info.java` especifica tres cosas:
 ```
 
 ---------------------------------------------------------------------
-
-Diving into the Module Declaration
 Creating a Service
 Discovering Modules
 Comparing Types of Modules
