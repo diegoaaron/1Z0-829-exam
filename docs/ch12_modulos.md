@@ -540,7 +540,329 @@ module zoo.staff {
 
 * Dadas nuestras nuevas declaraciones de módulo, y usando Figure 12.12, ¿cuál es el efecto de aplicar el modificador transitive a la declaración requires en nuestro módulo zoo.animal.care? 
 * Aplicar los modificadores transitive tiene los siguientes efectos:
-  * Module zoo.animal.talks puede opcionalmente declarar que requiere el módulo zoo.animal.feeding, pero no es requerido.
+  * Module zoo.animal.talks puede opcionalmente declarar que requiere el módulo zoo.animal.feeding, pero no es requerido. 
+  * Module zoo.animal.care no puede ser compilado o ejecutado sin acceso al módulo zoo.animal.feeding.
+  * Module zoo.animal.talks no puede ser compilado o ejecutado sin acceso al módulo zoo.animal.feeding.
+
+* Estas reglas se mantienen incluso si los módulos zoo.animal.care y zoo.animal.talks no referencian explícitamente ningún paquete en el módulo zoo.animal.feeding. 
+* Por otro lado, sin el modificador transitive en nuestra declaración de módulo de zoo.animal.care, los otros módulos tendrían que usar explícitamente requires para referenciar cualquier paquete en el módulo zoo.animal.feeding.
+
+### Duplicate requires Statements
+
+Un lugar donde el examen podría intentar engañarte es mezclando requires y requires transitive. ¿Puedes pensar en una razón por la que este código no compila?
+
+```java
+module bad.module {
+  requires zoo.animal.talks;
+  requires transitive zoo.animal.talks;
+}
+```
+
+* Java no te permite repetir el mismo módulo en una cláusula requires. Es redundante y muy probablemente un error en la codificación. 
+* Ten en cuenta que requires transitive es como requires más algún comportamiento extra.
+
+### Opening a Package
+
+* Java permite a los llamadores inspeccionar y llamar código en tiempo de ejecución con una técnica llamada reflection. 
+* Este es un enfoque poderoso que permite llamar código que podría no estar disponible en tiempo de compilación. 
+* Incluso puede ser usado para subvertir el control de acceso. No te preocupes, no necesitas saber cómo escribir código usando reflexión para el examen.
+
+* La directiva opens es usada para habilitar reflexión de un paquete dentro de un módulo. 
+* Solo necesitas estar consciente de que la directiva opens existe más que entenderlo en detalle para el examen.
+
+* Dado que la reflexión puede ser peligrosa, el sistema de módulos requiere que los desarrolladores permitan explícitamente reflexión en la declaración del módulo si quieren que los módulos llamantes puedan usarlo. 
+* Lo siguiente muestra cómo habilitar reflexión para dos paquetes en el módulo zoo.animal.talks:
+
+```java
+module zoo.animal.talks {
+  opens zoo.animal.talks.schedule;
+  opens zoo.animal.talks.media to zoo.staff;
+}
+```
+
+* El primer ejemplo permite que cualquier módulo que use este pueda usar reflexión. 
+* El segundo ejemplo solo le da ese privilegio al módulo `zoo.staff`. Hay dos directivas más que necesitas conocer para el examen—provides y uses—que se cubren en la siguiente sección.
+
+---------------------------------------------------------------------
+**Real World Scenario - Opening an Entire Module**
+En el ejemplo previo, abrimos dos paquetes en el módulo zoo.animal.talks, pero supón que en su lugar queríamos abrir todos los paquetes para reflexión. 
+No hay problema. Podemos usar el modificador `open module`, en lugar de la directiva opens (nota la diferencia de s):
+
+```java
+open module zoo.animal.talks {
+}
+```
+
+Con este modificador de módulo, Java sabe que queremos todos los paquetes en el módulo para que estén abiertos. ¿Qué pasa si aplicas ambos juntos?
+
+```java
+open module zoo.animal.talks {
+  opens zoo.animal.talks.schedule; // DOES NOT COMPILE
+}
+```
+Esto no compila porque un modificador que usa el modificador open no está permitido usar la directiva opens. 
+Después de todo, ¡los paquetes ya están abiertos!
+---------------------------------------------------------------------
+
+## Creating a Service
+
+* En esta sección, aprendes cómo crear un servicio. Un service está compuesto de una interfaz, cualquier clase que la interfaz referencia, y una forma de buscar implementaciones de la interfaz. 
+* Las implementaciones no son parte del servicio.
+* Estaremos usando una aplicación de tour en la sección de servicios. Tiene cuatro módulos mostrados en Figure 12.13. 
+* En este ejemplo, los módulos zoo.tours.api y zoo.tours.reservations conforman el servicio dado que consisten de la interfaz y la funcionalidad de búsqueda.
+
+![ch12_01_16.png](images/ch12/ch12_01_16.png)
+
+---------------------------------------------------------------------
+No se requiere tener cuatro módulos separados. Lo hacemos para ilustrar los conceptos. 
+Por ejemplo, la interfaz del proveedor de servicio y el localizador de servicio podrían estar en el mismo módulo.
+---------------------------------------------------------------------
+
+### Declaring the Service Provider Interface
+
+Primero, el módulo zoo.tours.api define un objeto Java llamado Souvenir. Es considerado parte del servicio porque será referenciado por la interfaz.
+
+```java
+// Souvenir.java
+package zoo.tours.api;
+
+public record Souvenir(String description) { }
+```
+
+* A continuación, el módulo contiene un tipo de interfaz Java. 
+* Esta interfaz se llama service provider interface porque especifica qué comportamiento tendrá nuestro servicio. 
+* En este caso, es una API simple con tres métodos.
+
+```java
+// Tour.java
+package zoo.tours.api;
+
+public interface Tour {
+  String name();
+  int length();
+  Souvenir getSouvenir();
+}
+```
+
+Los tres métodos usan el modificador public implícito. Dado que estamos trabajando con módulos, también necesitamos crear un archivo module-info.java para que nuestra definición de módulo exporte el paquete que contiene la interfaz.
+
+```java
+// module-info.java
+module zoo.tours.api {
+  exports zoo.tours.api;
+}
+```
+
+Ahora que tenemos ambos archivos, podemos compilar y empaquetar este módulo.
+
+```java
+javac -d serviceProviderInterfaceModule
+  serviceProviderInterfaceModule/zoo/tours/api/*.java
+  serviceProviderInterfaceModule/module-info.java
+
+jar -cvf mods/zoo.tours.api.jar -C serviceProviderInterfaceModule/ .
+```
+
+---------------------------------------------------------------------
+* Una "interfaz" de proveedor de servicio puede ser una clase abstracta en lugar de una interfaz real. 
+* Dado que solo la verás como una interfaz en el examen, usamos ese término en el libro.
+---------------------------------------------------------------------
+
+* Para revisar, el servicio incluye la interfaz del proveedor de servicio y las clases de soporte que referencia. 
+* El servicio también incluye la funcionalidad de búsqueda, que definimos a continuación.
+
+### Creating a Service Locator
+
+* Para completar nuestro servicio, necesitamos un localizador de servicio. 
+* Un service locator puede encontrar cualquier clase que implemente una interfaz de proveedor de servicio.
+* Afortunadamente, Java proporciona una clase ServiceLoader para ayudar con esta tarea. 
+* Pasas el tipo de interfaz de proveedor de servicio a su método load(), y Java devolverá cualquier servicio de implementación que pueda encontrar. 
+* La siguiente clase lo muestra en acción:
+
+```java
+// TourFinder.java
+package zoo.tours.reservations;
+
+import java.util.*;
+import zoo.tours.api.*;
+
+public class TourFinder {
+
+  public static Tour findSingleTour() {
+    ServiceLoader<Tour> loader = ServiceLoader.load(Tour.class);
+    for (Tour tour : loader)
+      return tour;
+    return null;
+  }
+    public static List<Tour> findAllTours() {
+        List<Tour> tours = new ArrayList<>();
+        ServiceLoader<Tour> loader = ServiceLoader.load(Tour.class);
+        for (Tour tour : loader)
+            tours.add(tour);
+        return tours;
+    }
+}
+```
+
+* Como puedes ver, proporcionamos dos métodos de búsqueda. El primero es un método de conveniencia si estás esperando exactamente un Tour para ser devuelto. 
+* El otro devuelve una List, que acomoda cualquier número de proveedores de servicio. 
+* En tiempo de ejecución, puede haber muchos proveedores de servicio (o ninguno) que son encontrados por el localizador de servicio.
+
+---------------------------------------------------------------------
+* La llamada a ServiceLoader es relativamente costosa. 
+* Si estás escribiendo una aplicación real, es mejor almacenar en caché el resultado.
+---------------------------------------------------------------------
+
+Nuestra definición de módulo exporta el paquete con la clase de búsqueda TourFinder. 
+Requiere el paquete de interfaz de proveedor de servicio. También tiene la directiva uses dado que buscará un servicio.
+
+```java
+// module-info.java
+module zoo.tours.reservations {
+  exports zoo.tours.reservations;
+  requires zoo.tours.api;
+  uses zoo.tours.api.Tour;
+}
+```
+
+Recuerda que tanto requires como uses son necesarios, uno para compilación y uno para búsqueda. Finalmente, compilamos y empaquetamos el módulo.
+
+```java
+javac -p mods -d serviceLocatorModule
+  serviceLocatorModule/zoo/tours/reservations/*.java
+  serviceLocatorModule/module-info.java
+
+jar -cvf mods/zoo.tours.reservations.jar -C serviceLocatorModule/ .
+```
+
+---------------------------------------------------------------------
+**Using ServiceLoader**
+Hay dos métodos en ServiceLoader que necesitas conocer para el examen. La declaración es la siguiente, sin la implementación completa:
+
+```java
+public final class ServiceLoader<S> implements Iterable<S> {
+
+  public static <S> ServiceLoader<S> load(Class<S> service) { ... }
+  
+  public Stream<Provider<S>> stream() { ... }
+  
+  // Additional methods
+}
+```
+
+* Como ya vimos, llamar a `ServiceLoader.load()` devuelve un objeto que puedes iterar normalmente. 
+* Sin embargo, solicitar un Stream te da un tipo diferente. La razón de esto es que un Stream controla cuándo los elementos son evaluados. 
+* Por lo tanto, un ServiceLoader devuelve un Stream de objetos Provider. Tienes que llamar a get() para recuperar el valor que querías de cada Provider, como en este ejemplo:
+
+```java
+ServiceLoader.load(Tour.class)
+  .stream()
+  .map(Provider::get)
+  .mapToInt(Tour::length)
+  .max()
+  .ifPresent(System.out::println);
+```
+---------------------------------------------------------------------
+
+### Invoking from a Consumer
+
+* Lo siguiente es llamar al localizador de servicio por un consumidor. Un consumer (or client) se refiere a un módulo que obtiene y usa un servicio. 
+* Una vez que el consumidor ha adquirido un servicio vía el localizador de servicio, es capaz de invocar los métodos proporcionados por la interfaz del proveedor de servicio.
+
+```java
+// Tourist.java
+package zoo.visitor;
+
+import java.util.*;
+import zoo.tours.api.*;
+import zoo.tours.reservations.*;
+
+public class Tourist {
+    public static void main(String[] args) {
+        Tour tour = TourFinder.findSingleTour();
+        System.out.println("Single tour: " + tour);
+
+        List<Tour> tours = TourFinder.findAllTours();
+        System.out.println("# tours: " + tours.size());
+    }
+}
+```
+
+Nuestra definición de módulo no necesita saber nada sobre las implementaciones dado que el módulo zoo.tours.reservations está manejando la búsqueda.
+
+```java
+// module-info.java
+module zoo.visitor {
+  requires zoo.tours.api;
+  requires zoo.tours.reservations;
+}
+```
+
+Esta vez, llegamos a ejecutar un programa después de compilar y empaquetar.
+
+```java
+javac -p mods -d consumerModule
+  consumerModule/zoo/visitor/*.java consumerModule/module-info.java
+
+jar -cvf mods/zoo.visitor.jar -C consumerModule/ .
+
+java -p mods -m zoo.visitor/zoo.visitor.Tourist
+```
+
+El programa produce la siguiente salida:
+
+`Single tour: null`
+`# tours: 0`
+
+Bueno, eso tiene sentido. No hemos escrito una clase que implemente la interfaz aún.
+
+### Adding a Service Provider
+
+* Un service provider es la implementación de una interfaz de proveedor de servicio. 
+* Como dijimos anteriormente, en tiempo de ejecución es posible tener múltiples clases de implementación o módulos. Nos limitaremos a uno aquí por simplicidad.
+* Nuestro proveedor de servicio es el paquete zoo.tours.agency porque hemos subcontratado la operación de tours a un tercero.
+
+```java
+// TourImpl.java
+package zoo.tours.agency;
+import zoo.tours.api.*;
+
+public class TourImpl implements Tour {
+    public String name() {
+        return "Behind the Scenes";
+    }
+    public int length() {
+        return 120;
+    }
+    public Souvenir getSouvenir() {
+        return new Souvenir("stuffed animal");
+    }
+}
+```
+
+Nuevamente, necesitamos un archivo `module-info.java` para crear un módulo.
+
+```java
+// module-info.java
+module zoo.tours.agency {
+  requires zoo.tours.api;
+  provides zoo.tours.api.Tour with zoo.tours.agency.TourImpl;
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -565,7 +887,6 @@ module zoo.staff {
 ```
 
 ---------------------------------------------------------------------
-Creating a Service
 Discovering Modules
 Comparing Types of Modules
 Migrating an Application
