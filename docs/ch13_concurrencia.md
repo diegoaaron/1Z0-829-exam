@@ -192,7 +192,342 @@ Para el examen, solo hay que recordar que por defecto, los user-defined threads 
 Después de que un thread ha sido creado, está en uno de seis estados, mostrado en Figure 13.2. 
 Puedes consultar el estado de un thread llamando a getState() en el objeto thread.
 
-continuar en la 6
+![ch13_01_02.png](images/ch13/ch13_01_02.png)
+
+* Cada thread es inicializado con un estado NEW. Tan pronto como se llama a start(), el thread se mueve a un estado RUNNABLE. 
+* ¿Significa eso que está realmente ejecutándose? No exactamente: puede estar ejecutándose, o puede no estarlo. 
+* El estado RUNNABLE solo significa que el thread es capaz de ejecutarse. 
+* Una vez que el trabajo para el thread está completo o se lanza una excepción no capturada, el estado del thread se convierte en TERMINATED, y no se realiza más trabajo.
+
+* Mientras está en un estado RUNNABLE, el thread puede hacer transición a uno de tres estados donde pausa su trabajo: BLOCKED, WAITING, o TIMED_WAITING.
+
+* Esta figura incluye transiciones comunes entre estados de thread, pero hay otras posibilidades. 
+* Por ejemplo, un thread en un estado WAITING puede ser disparado por notifyAll(). 
+* De manera similar, un thread que es interrumpido por otro thread saldrá de TIMED_WAITING y volverá directamente a RUNNABLE.
+
+* Cubrimos algunas (pero no todas) de estas transiciones en este capítulo. 
+* Algunos métodos relacionados con threads—como wait(), notify(), y join()—están más allá del alcance del examen y, francamente, son difíciles de usar bien. 
+* Deberías evitarlos y usar la Concurrency API tanto como sea posible. Se requiere una gran cantidad de habilidad (y algo de suerte). 
+* Para usar estos métodos correctamente.
+
+### Polling with Sleep
+
+* Aunque la programación multithreaded te permite ejecutar múltiples tasks al mismo tiempo, un thread a menudo necesita esperar los resultados de otro thread para proceder. 
+* Una solución es usar polling. Polling es el proceso de verificar datos intermitentemente en algún intervalo fijo.
+
+Digamos que tienes un thread que modifica un valor de contador estático compartido, y tú thread main() está esperando a que el thread alcance 1 millón:
+
+```java
+public class CheckResults {
+  private static int counter = 0;
+  public static void main(String[] args) {
+    new Thread(() -> {
+        for(int i = 0; i < 1_000_000; i++) counter++;
+    }).start();
+      while(counter < 1_000_000) {
+          System.out.println("Not reached yet");
+      }
+      System.out.println("Reached: "+counter);
+  } }
+```
+
+* ¿Cuántas veces imprime este programa "Not reached yet"? La respuesta es, no lo sabemos. Podría producir 0, 10, o un millón de veces. 
+* Usar un loop while() para verificar datos sin algún tipo de retraso es considerado una mala práctica de codificación, ya que consume recursos de CPU sin razón.
+
+Podemos mejorar este resultado usando el método Thread.sleep() para implementar polling y dormir por 1,000 milisegundos, también conocido como 1 segundo:
+
+```java
+public class CheckResultsWithSleep {
+  private static int counter = 0;
+  public static void main(String[] a) {
+    new Thread(() -> {
+      for(int i = 0; i < 1_000_000; i++) counter++;
+    }).start();
+    while(counter < 1_000_000) {
+      System.out.println("Not reached yet");
+        try {
+            Thread.sleep(1_000); // 1 SECOND
+        } catch (InterruptedException e) {
+            System.out.println("Interrupted!");
+        }
+    }
+      System.out.println("Reached: "+counter);
+  } }
+```
+
+* Mientras que un segundo puede parecer una cantidad pequeña, ahora hemos liberado la CPU para hacer otro trabajo en lugar de verificar la variable counter infinitamente dentro de un loop. 
+* Nota que el thread main() alterna entre TIMED_WAITING y RUNNABLE cuando sleep() es ingresado y salido, respectivamente.
+
+* ¿Cuántas veces ejecuta el loop while() en esta clase revisada? Aún desconocido. 
+* Mientras que polling previene que la CPU sea sobrecargada con un loop potencialmente infinito, no garantiza cuándo el loop terminará. 
+* Por ejemplo, el thread separado podría estar perdiendo tiempo de CPU ante un proceso de mayor prioridad, resultando en múltiples ejecuciones del loop while() antes de que finalice.
+
+* Otro problema del que hay que preocuparse es la variable counter compartida. 
+* ¿Qué pasa si un thread está leyendo la variable counter mientras otro thread la está escribiendo? 
+* El thread que lee la variable compartida puede terminar con un valor inválido o valor inesperado
+* . Discutimos estos problemas en detalle en la próxima sección sobre, escribir código thread-safe.
+
+### Interrupting a Thread
+
+* Mientras que nuestra solución anterior previno que la CPU esperara infinitamente en un loop while(), sí llegó al costo de insertar retrasos de un segundo en nuestro programa. 
+* Si el task toma 2.1 segundos para ejecutarse, el programa usará los 3 segundos completos, desperdiciando 0.9 segundos.
+
+Una forma de mejorar este programa es permitir que el thread interrumpa el thread main() cuando haya terminado:
+
+```java
+public class CheckResultsWithSleepAndInterrupt {
+  private static int counter = 0;
+  public static void main(String[] a) {
+    final var mainThread = Thread.currentThread();
+    new Thread(() -> {
+      for(int i = 0; i < 1_000_000; i++) counter++;
+      mainThread.interrupt();
+    }).start();
+    while(counter < 1_000_000) {
+      System.out.println("Not reached yet");
+      try {
+          Thread.sleep(1_000); // 1 SECOND
+      } catch (InterruptedException e) {
+          System.out.println("Interrupted!");
+      }
+    }
+      System.out.println("Reached: "+counter);
+  } }
+```
+
+* Esta versión mejorada incluye tanto sleep(), para evitar consumir la CPU, como interrupt(), por lo que el trabajo del thread termina sin retrasar el programa. 
+* Como antes, el estado del thread main() alterna entre TIMED_WAITING y RUNNABLE. 
+* Llamar a interrupt() en un thread en el estado TIMED_WAITING o WAITING causa que el thread main() se vuelva RUNNABLE nuevamente, disparando una InterruptedException. 
+* El thread también puede moverse a un estado BLOCKED si necesita readquirir recursos cuando se despierta.
+
+---------------------------------------------------------------------
+* Llamar a interrupt() en un thread que ya está en un estado RUNNABLE no cambia el estado. 
+* De hecho, solo cambia el comportamiento si el thread está verificando periódicamente el valor de estado de Thread.isInterrupted().
+---------------------------------------------------------------------
+
+## Creating Threads with the Concurrency API
+
+* Java incluye el paquete java.util.concurrent, al cual nos referimos como la Concurrency API, para manejar el trabajo complicado de gestionar threads por ti. 
+* La Concurrency API incluye la interfaz ExecutorService, la cual define servicios que crean y gestionan threads.
+
+* Primero obtienes una instancia de una interfaz ExecutorService, y luego envías los tasks del servicio para ser procesados. 
+* El framework incluye numerosas características útiles, como thread pooling y scheduling. 
+* Se recomienda que uses este framework cada vez que necesites crear y ejecutar un task separado, incluso si necesitas solo un único thread.
+
+---------------------------------------------------------------------
+* Cuando se escriben programas multithreaded en la práctica, a menudo es mejor usar la Concurrency API (o algún otro SDK multithreaded) en lugar de trabajar con objetos Thread directamente. 
+* Las bibliotecas son mucho más robustas, y es más fácil manejar interacciones complejas.
+---------------------------------------------------------------------
+
+### Introducing the Single-Thread Executor
+
+* Dado que ExecutorService es una interfaz, ¿cómo obtienes una instancia de ella? 
+* La Concurrency API incluye la clase factory Executors que puede ser usada para crear instancias del objeto ExecutorService. 
+* Reescribamos nuestro ejemplo anterior con las dos instancias Runnable para usar un ExecutorService.
+
+```java
+ExecutorService service = Executors.newSingleThreadExecutor();
+try {
+  System.out.println("begin");
+  service.execute(printInventory);
+  service.execute(printRecords);
+  service.execute(printInventory);
+  System.out.println("end");
+} finally {
+  service.shutdown();
+}
+```
+
+* En este ejemplo, usamos el método newSingleThreadExecutor() para crear el service. 
+* A diferencia de nuestro ejemplo anterior, en el cual teníamos cuatro threads (un main() y tres threads nuevos), tenemos solo dos threads (un main() y un thread nuevo). 
+* Esto significa que la salida, aunque todavía impredecible, tendrá menos variación que antes. Por ejemplo, lo siguiente es una posible salida:
+
+begin
+Printing zoo inventory
+Printing record: 0
+Printing record: 1
+end
+Printing record: 2
+Printing zoo inventory
+
+* Nota que el loop printRecords ya no es interrumpido por otros tasks Runnable enviados al thread executor. 
+* Con un single-thread executor, los tasks están garantizados de ser ejecutados secuencialmente. 
+* Nota que el texto end es producido mientras nuestros tasks del thread executor todavía están ejecutándose. 
+* Esto es porque el método main() sigue siendo un thread independiente del ExecutorService.
+
+### Shutting Down a Thread Executor
+
+* Una vez que has terminado de usar un thread executor, es importante que llames al método shutdown(). 
+* Un thread executor crea un thread non-daemon en el primer task que es ejecutado, por lo que fallar al llamar a shutdown() resultará en que tu aplicación never terminating.
+
+* El proceso de shutdown para un thread executor involucra primero rechazar cualquier task nuevo enviado al thread executor mientras continúa ejecutando cualquier task previamente enviado. 
+* Durante este tiempo, llamar a isShutdown() retornará true, mientras que isTerminated() retornará false. 
+* Si un nuevo task es enviado al thread executor mientras se está apagando, una RejectedExecutionException será lanzada. 
+* Una vez que todos los tasks activos han sido completados, isShutdown() e isTerminated() retornarán ambos true. 
+* Figure 13.3 muestra el ciclo de vida de un objeto ExecutorService.
+
+![ch13_01_03.png](images/ch13/ch13_01_03.png)
+
+Para el examen, debes estar consciente de que shutdown() no detiene ningún task que ya haya sido enviado al thread executor.
+
+* ¿Qué pasa si quieres cancelar todos los tasks en ejecución y próximos? 
+* El ExecutorService proporciona un método llamado shutdownNow(), el cual attempts to stop todos los tasks en ejecución y descarta cualquiera que no haya sido iniciado aún. 
+* No está garantizado que tenga éxito porque es posible crear un thread que nunca terminará, por lo que cualquier intento de interrumpirlo puede ser ignorado.
+
+---------------------------------------------------------------------
+Como aprendiste en Chapter 11, "Exceptions and Localization," los recursos como thread executors deberían ser cerrados apropiadamente para prevenir memory leaks. 
+Desafortunadamente, la interfaz ExecutorService no extiende la interfaz AutoCloseable, por lo que no puedes usar una declaración try-with-resources. 
+Aún puedes usar un bloque finally, como lo hacemos a lo largo de este capítulo. 
+Mientras que no estás obligado a usar un bloque finally, se considera una buena práctica hacerlo.
+---------------------------------------------------------------------
+
+### Submitting Tasks
+
+* Puedes enviar tasks a una instancia ExecutorService de múltiples maneras. 
+* El primer método que presentamos, execute(), es heredado de la interfaz Executor, la cual la interfaz ExecutorService extiende. 
+* El método execute() toma una instancia Runnable y completa el task asincrónicamente. 
+* Porque el tipo de retorno del método es void, no nos dice nada sobre el resultado del task. 
+* Es considerado un método "fire-and-forget", ya que una vez que es enviado, los resultados no están directamente disponibles para el thread que llama.
+
+* Afortunadamente, los escritores de Java agregaron métodos submit() a la interfaz ExecutorService, los cuales, como execute(), pueden ser usados para completar tasks asincrónicamente. 
+* A diferencia de execute(), sin embargo, submit() retorna una instancia Future que puede ser usada para determinar si el task está completo. 
+* También puede ser usada para retornar un objeto de resultado genérico después de que el task ha sido completado.
+
+* Table 13.1 muestra los cinco métodos, incluyendo execute() y dos métodos submit(), que deberías conocer para el examen. 
+* No te preocupes si no has visto Future o Callable antes; los discutimos en detalle en la próxima sección.
+
+En la práctica, usar el método submit() es bastante similar a usar el método execute(), excepto que el método submit() retorna una instancia Future que puede ser usada para determinar si el task ha completado su ejecución.
+
+![ch13_01_04.png](images/ch13/ch13_01_04.png)
+
+---------------------------------------------------------------------
+**"Submitting Tasks: execute() vs. submit()":**
+* Como podrías haber notado, los métodos execute() y submit() son casi idénticos cuando se aplican a expresiones Runnable. 
+* El método submit() tiene la ventaja obvia de hacer lo mismo que execute() hace, pero con un objeto de retorno que puede ser usado para rastrear el resultado. 
+* Debido a esta ventaja y al hecho de que execute() no soporta expresiones Callable, tendemos a preferir submit() sobre execute(), incluso si no almacenamos la referencia Future.
+
+* Para el examen, necesitas estar familiarizado tanto con execute() como con submit(), pero en tu propio código recomendamos submit() sobre execute() cuando sea posible.
+---------------------------------------------------------------------
+
+### Waiting for Results
+
+* ¿Cómo sabemos cuándo un task enviado a un ExecutorService está completo? 
+* Como se mencionó en la sección anterior, el método submit() retorna una instancia Future<V> que puede ser usada para determinar este resultado.
+
+`Future<?> future = service.submit(() -> System.out.println("Hello"));`
+
+* El tipo Future es en realidad una interfaz. Para el examen, no necesitas conocer ninguna de las clases que implementan Future, solo que una instancia Future es retornada por varios métodos de la API. 
+* Table 13.2 incluye métodos útiles para determinar el estado de un task.
+
+![ch13_01_05.png](images/ch13/ch13_01_05.png)
+
+Lo siguiente es una versión actualizada de nuestro ejemplo anterior de polling, la clase CheckResults, que usa una instancia Future para esperar los resultados:
+
+```java
+import java.util.concurrent.*;
+public class CheckResults {
+  private static int counter = 0;
+  public static void main(String[] unused) throws Exception {
+    ExecutorService service = Executors.newSingleThreadExecutor();
+    try {
+      Future<?> result = service.submit(() -> {
+        for(int i = 0; i < 1_000_000; i++) counter++;
+      });
+      result.get(10, TimeUnit.SECONDS); // Returns null for Runnable
+      System.out.println("Reached!");
+    } catch (TimeoutException e) {
+      System.out.println("Not reached in time");
+    } finally {
+      service.shutdown();
+    } } }
+```
+
+* Este ejemplo es similar a nuestra implementación de polling anterior, pero no usa la clase Thread directamente. 
+* En parte, esta es la esencia de la Concurrency API: hacer cosas complejas con threads sin tener que gestionar threads directamente. 
+* También espera como máximo 10 segundos, lanzando una TimeoutException en la llamada a result.get() si el task no está terminado.
+
+* ¿Cuál es el valor de retorno de este task? Como Future<V> es una interfaz genérica, el tipo V es determinado por el tipo de retorno del método Runnable. 
+* Dado que el tipo de retorno de Runnable.run() es void, el método get() siempre retorna null cuando se trabaja con expresiones Runnable.
+
+* El método Future.get() puede tomar un valor opcional y un tipo enum `java.util.concurrent.TimeUnit`. 
+* Table 13.3 presenta la lista completa de valores TimeUnit dado que numerosos métodos en la Concurrency API usan este enum.
+
+![ch13_01_06.png](images/ch13/ch13_01_06.png)
+
+### Introducing Callable
+
+* La interfaz funcional `java.util.concurrent.Callable` es similar a Runnable excepto que su método call() retorna un valor y puede lanzar una excepción verificada. 
+* Lo siguiente es la definición de la interfaz Callable:
+
+```java
+@FunctionalInterface public interface Callable<V> {
+  V call() throws Exception;
+}
+```
+
+* La interfaz Callable a menudo es preferible sobre Runnable, ya que permite que más detalles sean recuperados fácilmente del task después de que está completado. 
+* Dicho esto, usamos ambas interfaces a lo largo de este capítulo, ya que son intercambiables en situaciones donde la lambda no lanza una excepción, y no hay tipo de retorno. 
+* Afortunadamente, el ExecutorService incluye una versión sobrecargada del método submit() que toma un objeto Callable y retorna una instancia genérica Future<T>.
+* A diferencia de Runnable, en el cual los métodos get() siempre retornan null, los métodos get() en una instancia Future retornan el tipo genérico coincidente (que también podría ser un valor null).
+
+Echemos un vistazo a un ejemplo usando Callable:
+
+```java
+var service = Executors.newSingleThreadExecutor();
+try {
+  Future<Integer> result = service.submit(() -> 30 + 11);
+  System.out.println(result.get()); // 41
+} finally {
+  service.shutdown();
+}
+```
+
+Podríamos reescribir este ejemplo usando Runnable, algún objeto compartido, y un interrupt() o timed wait, pero esta implementación es mucho más fácil de codificar y entender. 
+En esencia, ese es el espíritu de la Concurrency API, dándote las herramientas para escribir código multithreaded que es thread-safe, eficiente, y fácil de seguir.
+
+### Waiting for All Tasks to Finish
+
+* Después de enviar un conjunto de tasks a un thread executor, es común esperar los resultados. Como viste en las secciones anteriores, una solución es llamar a get() en cada objeto Future retornado por el método submit(). 
+* Si no necesitamos los resultados de los tasks y están terminados usando nuestro thread executor, hay un enfoque más simple.
+
+* Primero, apagamos el thread executor usando el método shutdown(). Luego, usamos el método awaitTermination() disponible para todos los thread executors. 
+* El método espera el tiempo especificado para completar todos los tasks, retornando antes si todos los tasks terminan o una InterruptedException es detectada. 
+* Puedes ver un ejemplo de esto en el siguiente fragmento de código:
+
+```java
+ExecutorService service = Executors.newSingleThreadExecutor();
+try {
+  // Add tasks to the thread executor
+  ...
+} finally {
+  service.shutdown();
+}
+service.awaitTermination(1, TimeUnit.MINUTES);
+
+// Check whether all tasks are finished
+if(service.isTerminated()) System.out.println("Finished!");
+else System.out.println("At least one task is still running");
+```
+
+* En este ejemplo, enviamos un número de tasks al thread executor y luego apagamos el thread executor y esperamos hasta un minuto para los resultados. 
+* Nota que podemos llamar a isTerminated() después de que el método awaitTermination() termina para confirmar que todos los tasks están finalizados.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -204,8 +539,6 @@ continuar en la 6
 ```
 
 ---------------------------------------------------------------------
-
-Creating Threads with the Concurrency API
 Writing Thread-Safe Code
 Using Concurrent Collections
 Identifying Threading Problems
