@@ -512,22 +512,138 @@ else System.out.println("At least one task is still running");
 * En este ejemplo, enviamos un número de tasks al thread executor y luego apagamos el thread executor y esperamos hasta un minuto para los resultados. 
 * Nota que podemos llamar a isTerminated() después de que el método awaitTermination() termina para confirmar que todos los tasks están finalizados.
 
+### Scheduling Tasks
 
+* A menudo en Java, necesitamos programar un task para que ocurra en algún momento futuro. 
+* Incluso podríamos necesitar programar el task para que ocurra repetidamente, en algún intervalo establecido. 
+* Por ejemplo, imagina que queremos verificar el suministro de comida para los animales del zoológico una vez por hora y llenarlo según sea necesario. 
+* ScheduledExecutorService, que es una sub interfaz de ExecutorService, puede ser usada para justo tal task.
 
+Como ExecutorService, obtenemos una instancia de ScheduledExecutorService usando un método factory en la clase Executors, como se muestra en el siguiente fragmento:
 
+```java
+ScheduledExecutorService service
+  = Executors.newSingleThreadScheduledExecutor();
+```
 
+Podríamos almacenar una instancia de ScheduledExecutorService en una variable ExecutorService, aunque hacerlo significaría que tendríamos que hacer un cast del objeto para llamar a cualquier método de scheduling.
 
+Consulta Table 13.4 para nuestro resumen de los métodos de ScheduledExecutorService. Cada uno de estos métodos retorna un objeto ScheduledFuture.
 
+![ch13_01_07.png](images/ch13/ch13_01_07.png)
 
+* En la práctica, estos métodos están entre los más convenientes en la Concurrency API, ya que realizan tasks relativamente complejas con una única línea de código. 
+* Los parámetros delay y period se basan en el argumento TimeUnit para determinar el formato del valor, como segundos o milisegundos.
 
+* Los primeros dos métodos schedule() en Table 13.4 toman un Callable o Runnable, respectivamente; realizan el task después de algún retraso; y retornan una instancia ScheduledFuture. 
+* La interfaz ScheduledFuture es idéntica a la interfaz Future, excepto que incluye un método getDelay() que retorna el retraso restante. 
+* Lo siguiente usa el método schedule() con tasks Callable y Runnable:
 
+```java
+ScheduledExecutorService service
+  = Executors.newSingleThreadScheduledExecutor();
+Runnable task1 = () -> System.out.println("Hello Zoo");
+Callable<String> task2 = () -> "Monkey";
+ScheduledFuture<?> r1 = service.schedule(task1, 10, TimeUnit.SECONDS);
+ScheduledFuture<?> r2 = service.schedule(task2, 8, TimeUnit.MINUTES);
+```
 
+El primer task está programado 10 segundos en el futuro, mientras que el segundo task está programado 8 minutos en el futuro.
 
+---------------------------------------------------------------------
+* Mientras que estos tasks están programados en el futuro, la ejecución real puede ser retrasada. 
+* Por ejemplo, puede no haber threads disponibles para realizar los tasks, en cuyo punto simplemente esperarán en la cola. 
+* También, si el ScheduledExecutorService es apagado para el momento en que el tiempo de ejecución del task programado es alcanzado, entonces estos tasks serán descartados.
+---------------------------------------------------------------------
 
+* Cada uno de los métodos de ScheduledExecutorService es importante y tiene aplicaciones del mundo real. 
+* Por ejemplo, puedes usar el comando schedule() para verificar el estado de limpieza de la jaula de un león. 
+* Entonces puede enviar notificaciones si no está terminado o incluso llamar a schedule() para verificar de nuevo más tarde.
 
+* Los últimos dos métodos en Table 13.4 podrían ser un poco confusos si no los has visto antes. 
+* Conceptualmente, son similares, ya que ambos realizan el mismo task repetidamente después de un retraso inicial. 
+* La diferencia está relacionada con el timing del proceso y cuándo el siguiente task inicia.
 
+* El método scheduleAtFixedRate() crea un nuevo task y lo envía al executor cada periodo, independientemente de si el task anterior finalizó. 
+* El siguiente ejemplo ejecuta un task Runnable cada minuto, siguiendo un retraso inicial de cinco minutos:
 
+`service.scheduleAtFixedRate(command, 5, 1, TimeUnit.MINUTES);`
 
+* El método scheduleAtFixedRate() es útil para tasks que necesitan ejecutarse en intervalos específicos, como verificar la salud de los animales una vez al día. 
+* Incluso si toma dos horas examinar un animal el lunes, esto no significa que el examen del martes deba comenzar más tarde en el día.
+
+---------------------------------------------------------------------
+* Cosas malas pueden suceder con scheduleAtFixedRate() si cada task consistentemente toma más tiempo en ejecutarse que el intervalo de ejecución.
+* Imagina si tu jefe vino a tu escritorio cada minuto y dejó un pedazo de papel. 
+* Ahora imagina que te tomó cinco minutos leer cada pedazo de papel. 
+* En poco tiempo, te estarías ahogando en pilas de papel. Así es como se siente un executor. 
+* Dado suficiente tiempo, el programa enviaría más tasks al servicio executor de los que podrían caber en memoria, causando que el programa se bloquee.
+---------------------------------------------------------------------
+
+* Por otro lado, el método scheduleWithFixedDelay() crea un nuevo task solo después de que el task anterior ha terminado. 
+* Por ejemplo, si un task se ejecuta a las 12:00 y toma cinco minutos en terminar, con un periodo entre ejecuciones de dos minutos, el siguiente task comenzará a las 12:07.
+
+`service.scheduleWithFixedDelay(task1, 0, 2, TimeUnit.MINUTES);`
+
+* El método scheduleWithFixedDelay() es útil para procesos que quieres que sucedan repetidamente, pero cuyo tiempo específico no es importante. 
+* Por ejemplo, imagina que tenemos un trabajador de cafetería del zoológico que periódicamente repone la barra de ensaladas a lo largo del día. 
+* El proceso puede tomar 20 minutos o más, ya que requiere que el trabajador transporte un gran número de artículos desde la sala trasera. 
+* Una vez que el trabajador ha llenado la barra de ensaladas con comida fresca, no necesita verificar en algún momento específico, solo después de que suficiente tiempo haya pasado para que vuelva a estar baja en stock.
+
+### Increasing Concurrency with Pools
+
+* Todos nuestros ejemplos hasta ahora han sido con un single-thread executor, el cual, aunque interesante, no era particularmente útil. 
+* Después de todo, el nombre de este capítulo es "Concurrency," y no puedes hacer mucho de eso con un single-thread executor
+
+* Ahora presentamos tres métodos factory adicionales en la clase Executors que actúan sobre un pool de threads en lugar de sobre un único thread. 
+* Un thread pool es un grupo de threads reusable pre-instanciados que están disponibles para realizar un conjunto de tasks arbitrarias. 
+* Table 13.5 incluye nuestros dos métodos previos de single-thread executor, junto con los nuevos que deberías conocer para el examen.
+
+![ch13_01_08.png](images/ch13/ch13_01_08.png)
+
+* Como se muestra en Table 13.5, estos métodos retornan los mismos tipos de instancias, ExecutorService y ScheduledExecutorService, que usamos anteriormente en este capítulo. 
+* En otras palabras, todos nuestros ejemplos previos son compatibles con estos nuevos pooled-thread executors
+
+* La diferencia entre un single-thread y un pooled-thread executor es lo que sucede cuando un task ya está ejecutándose. 
+* Mientras que un single-thread executor esperará a que el thread esté disponible antes de ejecutar el siguiente task, un pooled-thread executor puede ejecutar el siguiente task concurrentemente. 
+* Si el pool se queda sin threads disponibles, el task será puesto en cola por el thread executor y esperará a ser completado.
+
+## Writing Thread-Safe Code
+
+* Thread-safety es la propiedad de un objeto que garantiza ejecución segura por múltiples threads al mismo tiempo. 
+* Dado que los threads se ejecutan en un entorno compartido y espacio de memoria, ¿cómo prevenimos que dos threads interfieran entre sí? 
+* Debemos organizar el acceso a los datos de manera que no terminemos con resultados inválidos o inesperados.
+
+En esta parte del capítulo, mostramos cómo usar una variedad de técnicas para proteger datos, incluyendo clases atómicas, bloques sincronizados, el framework Lock, y barreras cíclicas.
+
+### Understanding Thread-Safety
+
+* Imagina que nuestro zoológico tiene un programa para contar ovejas, preferiblemente uno que no ponga a los trabajadores del zoológico a dormir
+* Cada trabajador del zoológico sale a un campo, añade una nueva oveja al rebaño, cuenta el número total de ovejas, y regresa a nosotros para reportar los resultados. 
+* Presentamos el siguiente código para representar esto conceptualmente, eligiendo un tamaño de thread pool de manera que todos los tasks puedan ejecutarse concurrentemente:
+
+```java
+1: import java.util.concurrent.*;
+2: public class SheepManager {
+3:   private int sheepCount = 0;
+4:   private void incrementAndReport() {
+5:     System.out.print((++sheepCount)+" ");
+6:   }
+7:   public static void main(String[] args) {
+8:     ExecutorService service = Executors.newFixedThreadPool(20);
+9:     try {
+10:       SheepManager manager = new SheepManager();
+11:       for(int i = 0; i < 10; i++)
+12:         service.submit(() -> manager.incrementAndReport());
+13:     } finally {
+14:       service.shutdown();
+15:   } } }
+```
+
+¿Qué produce este programa como salida? Podrías pensar que producirá números del 1 al 10, en orden, pero eso está lejos de estar garantizado. 
+Puede producir en un
+
+continuar en la 21
 
 
 
@@ -539,7 +655,6 @@ else System.out.println("At least one task is still running");
 ```
 
 ---------------------------------------------------------------------
-Writing Thread-Safe Code
 Using Concurrent Collections
 Identifying Threading Problems
 Working with Parallel Streams
