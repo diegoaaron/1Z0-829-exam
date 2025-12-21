@@ -777,6 +777,101 @@ synchronized(manager) {
 15: }
 ```
 
+* ¿Esta solución arregla el problema? No, ¡no lo hace! ¿Puedes identificar el problema? 
+* Hemos sincronizado la creation de los threads pero no la execution de los threads. 
+* En este ejemplo, los threads serían creados uno a la vez, pero podrían todos todavía ejecutar y realizar su trabajo simultáneamente, resultando en el mismo tipo de salida que viste anteriormente. 
+* Dijimos que diagnosticar y resolver problemas de threads es difícil en la práctica.
+
+Ahora presentamos una versión corregida de la clase SheepManager que ordena a los workers:
+
+```java
+1: import java.util.concurrent.*;
+2: public class SheepManager {
+3:   private int sheepCount = 0;
+4:   private void incrementAndReport() {
+5:     synchronized(this) {
+6:       System.out.print((++sheepCount)+" ");
+7:     }
+8:   }
+9:   public static void main(String[] args) {
+10:    ExecutorService service = Executors.newFixedThreadPool(20);
+11:    try {
+12:      var manager = new SheepManager();
+13:      for(int i = 0; i < 10; i++)
+14:        service.submit(() -> manager.incrementAndReport());
+15:    } finally {
+16:      service.shutdown();
+17:    } } }
+```
+
+Cuando este código se ejecuta, consistentemente producirá la siguiente salida:
+
+1 2 3 4 5 6 7 8 9 10
+
+* Aunque todos los threads todavía son creados y ejecutados al mismo tiempo, cada uno espera en el bloque sincronizado para que el worker incremente y reporte el resultado antes de entrar. 
+* De esta manera, cada zoo worker espera a que el zoo worker anterior regrese antes de salir al campo. 
+* Aunque es aleatorio qué zoo worker saldrá después, está garantizado que habrá como máximo uno en el campo y que los resultados serán reportados en orden.
+
+Podríamos haber sincronizado en cualquier objeto, siempre y cuando fuera el mismo objeto. Por ejemplo, el siguiente fragmento de código también funcionaría:
+
+```java
+4:  private final Object herd = new Object();
+5:  private void incrementAndReport() {
+6:    synchronized(herd) {
+7:      System.out.print((++sheepCount)+" ");
+8:    }
+9:  }
+```
+
+Aunque no necesitábamos hacer la variable herd final, hacerlo asegura que no sea reasignada después de que los threads comiencen a usarla.
+
+### Synchronizing on Methods
+
+* En el ejemplo anterior, establecimos nuestro monitor usando synchronized(this) alrededor del cuerpo del método. 
+* Java proporciona un mejoramiento conveniente del compilador para hacer esto. 
+* Podemos agregar el modificador synchronized a cualquier método de instancia para sincronizar automáticamente en el objeto mismo. 
+* Por ejemplo, las siguientes dos definiciones de método son equivalentes:
+
+```java
+void sing() {
+  synchronized(this) {
+    System.out.print("La la la!");
+  }
+}
+synchronized void sing() {
+    System.out.print("La la la!");
+}
+```
+
+El primero usa un bloque synchronized, mientras que el segundo usa el modificador synchronized del método. El que uses depende completamente de ti.
+
+* También podemos aplicar el modificador synchronized a métodos estáticos. ¿Qué objeto se usa como monitor cuando sincronizamos en un método estático? 
+* El objeto de clase, ¡por supuesto! Por ejemplo, los siguientes dos métodos son equivalentes para sincronización estática dentro de nuestra clase SheepManager:
+
+```java
+static void dance() {
+  synchronized(SheepManager.class) {
+    System.out.print("Time to dance!");
+  }
+}
+static synchronized void dance() {
+  System.out.print("Time to dance!");
+}
+```
+
+* Como antes, el primero usa un bloque synchronized, con el segundo ejemplo usando el modificador synchronized. 
+* Puedes usar sincronización estática si necesitas ordenar el acceso de threads a través de todas las instancias en lugar de una única instancia.
+
+### Understanding the Lock Framework
+
+Un bloque synchronized soporta solo un conjunto limitado de funcionalidad. Por ejemplo, ¿qué pasa si queremos verificar si un lock está disponible y, si no lo está, realizar algún otro task? Además, si el lock nunca está disponible y sincronizamos en él, podríamos esperar para siempre.
+
+La Concurrency API incluye la interfaz Lock, que es conceptualmente similar a usar la palabra clave synchronized pero con muchas más campanas y silbatos. En lugar de sincronizar en cualquier Object, aunque, podemos hacer "lock" solo en un objeto que implementa la interfaz Lock.
+
+
+
+
+
 
 
 
