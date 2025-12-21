@@ -1519,7 +1519,42 @@ Considera el siguiente ejemplo:
 ```java
 System.out.print(List.of(1,2,3,4,5,6)
   .parallelStream()
+  .findAny()
+  .get());
 ```
+
+* La JVM asigna un número de threads y retorna el valor del primero que retorna un resultado, el cual podría ser 4, 2, y así sucesivamente. 
+* Mientras que neither el serial stream ni el parallel stream está garantizado de retornar el primer valor, el serial stream a menudo lo hace. 
+* Con un parallel stream, los resultados probablemente sean más aleatorios.
+
+* ¿Qué hay de las operaciones que consideran el orden, como findFirst(), limit(), y skip()? 
+* El orden todavía se preserva, pero el rendimiento puede suffer en un parallel stream como resultado de que una tarea de procesamiento paralelo sea forzada a coordinar todos sus threads de una manera similar a la sincronización.
+
+* En el lado positivo, los resultados de operaciones ordenadas en un parallel stream serán consistentes con un serial stream. 
+* Por ejemplo, llamar a skip(5).limit(2).findFirst() retornará el mismo resultado en serial streams ordenados y parallel streams.
+
+---------------------------------------------------------------------
+**Creating Unordered Streams**
+Todos los streams con los que has estado trabajando son considerados ordered por defecto. 
+Es posible crear un unordered stream desde un ordered stream, similar a cómo creas un parallel stream desde un serial stream.
+
+`List.of(1,2,3,4,5,6).stream().unordered();`
+
+* Este método no reordena los elementos; solo le dice a la JVM que si una operación de stream basada en orden es aplicada, el orden puede ser ignorado. 
+* Por ejemplo, llamar a skip(5) en un unordered stream saltará cualesquiera 5 elementos, no necesariamente los primeros 5 requeridos en un ordered stream.
+
+* Para serial streams, usar una versión unordered no tiene efecto. 
+* Pero en parallel streams, los resultados pueden mejorar enormemente el rendimiento.
+
+`List.of(1,2,3,4,5,6).stream().unordered().parallel();`
+
+* Aunque los unordered streams no estarán en el examen, si estás desarrollando aplicaciones con parallel streams, deberías saber cuándo aplicar un unordered stream para mejorar el rendimiento.
+---------------------------------------------------------------------
+
+### Combining Results with reduce()
+
+Como aprendiste en Chapter 10, la operación de stream reduce() combina un stream en un único objeto. 
+Recuerda que el primer parámetro del método reduce() se llama identity, el segundo parámetro se llama accumulator,
 
 
 
