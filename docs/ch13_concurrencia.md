@@ -658,6 +658,134 @@ En esta parte del capítulo, mostramos cómo usar una variedad de técnicas para
 * Puedes ver en Figure 13.4 que ambos threads leen y escriben los mismos valores, causando que una de las dos operaciones ++sheepCount se pierda. 
 * Por lo tanto, el operador de incremento ++ no es thread-safe. Como verás más adelante en este capítulo, el resultado inesperado de dos tasks ejecutándose al mismo tiempo se refiere como una race condition.
 
+* Conceptualmente, la idea aquí es que algunos trabajadores del zoológico pueden correr más rápido en su camino al campo, pero más lentamente en su camino de regreso y reportar tarde. 
+* Otros trabajadores pueden llegar al campo de últimos pero de alguna manera ser los primeros en regresar para reportar los resultados.
+
+### Accessing Data with volatile
+
+* La palabra clave volatile es usada para garantizar que el acceso a datos dentro de la memoria es consistente. 
+* Por ejemplo, es posible (aunque improbable) que nuestro ejemplo SheepManager usando ++sheepCount retorne un valor inesperado debido a acceso inválido a memoria mientras el código está ejecutando una sección crítica. 
+* Conceptualmente, esto corresponde a uno de nuestros empleados del zoológico tropezando en el camino de regreso del campo y alguien preguntándoles el número actual de ovejas mientras todavía están intentando levantarse.
+
+* El atributo volatile asegura que solo un thread está modificando una variable en un momento y que los datos leídos entre múltiples threads son consistentes. 
+* De esta manera, no interrumpimos a uno de nuestros trabajadores del zoológico en medio de la ejecución. Entonces, ¿provee volatile thread-safety? No exactamente. 
+* Considera este reemplazo a nuestra aplicación anterior:
+
+```java
+3:  private volatile int sheepCount = 0;
+4:  private void incrementAndReport() {
+5:    System.out.print((++sheepCount)+" ");
+6:  }
+```
+
+Desafortunadamente, este código no es thread-safe y todavía podría resultar en números siendo perdidos:
+
+```java
+**2** 6 1 7 5 3 **2** 9 4 8
+```
+
+* La razón por la que este código no es thread-safe es que ++sheepCount es todavía dos operaciones distintas. 
+* Dicho de otra manera, si el operador de incremento representa la expresión sheepCount = sheepCount + 1, entonces cada operación de lectura y escritura es thread-safe, pero la operación combinada no lo es. 
+* Refiriéndonos a nuestro ejemplo de ovejas, no interrumpimos al empleado mientras está corriendo, pero todavía podríamos tener múltiples personas en el campo al mismo tiempo.
+
+---------------------------------------------------------------------
+En la práctica, volatile es raramente usado. 
+Solo lo cubrimos porque se ha sabido que aparece en el examen de vez en cuando.
+---------------------------------------------------------------------
+
+### Protecting Data with Atomic Classes
+
+* En nuestras aplicaciones SheepManager previas, los mismos valores fueron impresos dos veces, con el contador más alto siendo 9 en lugar de 10. 
+* Como vimos, el operador de incremento ++ no es thread-safe, incluso cuando volatile es usado. 
+* No es thread-safe porque la operación no es atómica, llevando a cabo dos tasks, lectura y escritura, que pueden ser interrumpidas por otros threads.
+
+* Atomic es la propiedad de una operación de ser llevada a cabo como una única unidad de ejecución sin ninguna interferencia de otro thread. 
+* Una versión thread-safe atómica del operador de incremento realizaría la lectura y escritura de la variable como una única operación, no permitiendo que ningún otro thread acceda a la variable durante la operación. 
+* Figure 13.5 muestra el resultado de hacer la variable sheepCount atómica.
+
+* En este caso, cualquier thread intentando acceder a la variable sheepCount mientras una operación atómica está en proceso tendrá que esperar hasta que la operación atómica en la variable esté completa. 
+* Conceptualmente, esto es como establecer una regla para nuestros trabajadores del zoológico de que solo puede haber un empleado en el campo en un momento, aunque puede que no reporten sus resultados en orden.
+
+![ch13_01_10.png](images/ch13/ch13_01_10.png)
+
+* Dado que acceder a primitivos y referencias es común en Java, la Concurrency API incluye numerosas clases útiles en el paquete `java.util.concurrent.atomic`. 
+* Table 13.6 lista las clases atómicas con las cuales deberías estar familiarizado para el examen. 
+* Como con muchas de las clases en la Concurrency API, estas clases existen para hacer tu vida más fácil.
+
+![ch13_01_11.png](images/ch13/ch13_01_11.png)
+
+* ¿Cómo usamos una clase atómica? Cada clase incluye numerosos métodos que son equivalentes a muchos de los operadores built-in primitivos que usamos en primitivos, como el operador de asignación (=) y los operadores de incremento (++). 
+* Describimos los métodos atómicos comunes que deberías conocer para el examen en Table 13.7. El type es determinado por la clase.
+
+En el siguiente ejemplo, asume que importamos el paquete atomic y luego actualizamos nuestra clase SheepManager con un AtomicInteger:
+
+```java
+3:  private AtomicInteger sheepCount = new AtomicInteger(0);
+4:  private void incrementAndReport() {
+5:    System.out.print(sheepCount.incrementAndGet()+" ");
+6:  }
+```
+
+![ch13_01_12.png](images/ch13/ch13_01_12.png)
+
+¿Cómo difiere esta implementación de nuestros ejemplos previos? Cuando ejecutamos esta modificación, obtenemos salidas variables, como las siguientes:
+
+2 3 1 4 5 6 7 8 9 **10**
+1 4 3 2 5 6 7 8 9 **10**
+1 4 3 5 6 2 7 8 **10** 9
+
+* A diferencia de nuestra salida de ejemplo previa, los números del 1 al 10 siempre se imprimirán, aunque el orden todavía no está garantizado. 
+* No te preocupes; abordaremos ese problema en breve. 
+* La clave en esta sección es que usar las clases atómicas asegura que los datos son consistentes entre workers y que no se pierden valores debido a modificaciones concurrentes.
+
+### Improving Access with synchronized Blocks
+
+* Mientras que las clases atómicas son excelentes para proteger una única variable, no son particularmente útiles si necesitas ejecutar una serie de comandos o llamar a un método. 
+* Por ejemplo, no podemos usarlas para actualizar dos variables atómicas al mismo tiempo. 
+* ¿Cómo mejoramos los resultados para que cada worker sea capaz de incrementar y reportar los resultados en orden?
+
+* La técnica más común es usar un monitor para sincronizar el acceso. 
+* Un monitor, también llamado lock, es una estructura que soporta mutual exclusion, que es la propiedad de que como máximo un thread está ejecutando un segmento particular de código en un momento dado.
+
+En Java, cualquier Object puede ser usado como un monitor, junto con la palabra clave synchronized, como se muestra en el siguiente ejemplo:
+
+```java
+var manager = new SheepManager();
+synchronized(manager) {
+// Work to be completed by one thread at a time
+}
+```
+
+* Este ejemplo se refiere como un synchronized block. Cada thread que llega primero verificará si algún thread ya está ejecutando el bloque. 
+* Si el lock no está disponible, el thread hará transición a un estado BLOCKED hasta que pueda "acquire the lock." 
+* Si el lock está disponible (o el thread ya tiene el lock), el único thread entrará al bloque, previniendo que todos los otros threads entren. 
+* Una vez que el thread termina de ejecutar el bloque, liberará el lock, permitiendo que uno de los threads en espera proceda.
+
+---------------------------------------------------------------------
+* Para sincronizar acceso a través de múltiples threads, cada thread debe tener acceso al same Object. 
+* Si cada thread sincroniza en objetos diferentes, el código no es thread-safe.
+---------------------------------------------------------------------
+
+* Revisitemos nuestro ejemplo SheepManager que usó ++sheepCount y veamos si podemos mejorar los resultados para que cada worker incremente y produzca el contador en orden. 
+* Digamos que reemplazamos nuestro loop for() con la siguiente implementación:
+
+```java
+11: for(int i = 0; i < 10; i++) {
+12:   synchronized(manager) {
+13:     service.submit(() -> manager.incrementAndReport());
+14:   }
+15: }
+```
+
+
+
+
+
+
+
+
+
+
 
 
 
