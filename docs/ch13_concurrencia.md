@@ -1343,17 +1343,104 @@ public record Fox(String name) {
       } } }
 ```
 
+* En este ejemplo, Foxy obtiene la comida y luego se mueve al otro lado del entorno para obtener el agua. 
+* Desafortunadamente, Tails ya bebió el agua y está esperando que la comida esté disponible. 
+* El resultado es que nuestro programa produce la siguiente salida, y se cuelga indefinidamente:
 
+Foxy Got Food!
+Tails Got Water!
 
+Este ejemplo es considerado un deadlock porque ambos participantes están permanentemente bloqueados, esperando recursos que nunca estarán disponibles.
 
+### Starvation
 
+* Starvation ocurre cuando a un único thread se le niega perpetuamente acceso a un recurso compartido o lock. 
+* El thread todavía está activo, pero es incapaz de completar su trabajo como resultado de otros threads constantemente tomando el recurso que está intentando acceder.
 
+* En nuestro ejemplo de zorros, imagina que tenemos una manada de zorros muy hambrientos y muy competitivos en nuestro entorno. 
+* Cada vez que Foxy se levanta para ir a buscar comida, uno de los otros zorros la ve y se apresura a comer antes que ella. 
+* Foxy es libre de deambular por el recinto, tomar una siesta, y aullar por un cuidador del zoológico, pero nunca es capaz de obtener acceso a la comida. 
+* En este ejemplo, Foxy literalmente y figurativamente experimenta starvation. ¡Es bueno que esto sea solo un ejemplo teórico!
 
+### Livelock
 
+* Livelock ocurre cuando dos o más threads están conceptualmente bloqueados para siempre, aunque cada uno todavía está activo e intentando completar su tarea. 
+* Livelock es un caso especial de resource starvation en el cual dos o más threads activamente intentan adquirir un conjunto de locks, son incapaces de hacerlo, y reinician parte del proceso.
 
+* Livelock es a menudo el resultado de dos threads intentando resolver un deadlock. 
+* Regresando a nuestro ejemplo de zorros, imagina que Foxy y Tails ambos están sosteniendo sus recursos de comida y agua, respectivamente. 
+* Se dan cuenta de que no pueden terminar su comida en este estado, así que ambos sueltan su comida y agua, corren al lado opuesto del entorno, y recogen el otro recurso. 
+* Ahora Foxy tiene el agua, Tails tiene la comida, y ninguno es capaz de terminar su comida.
 
+* Si Foxy y Tails continúan este proceso para siempre, se refiere como livelock. 
+* Tanto Foxy como Tails están activos, corriendo de un lado a otro a través de su área, pero ninguno puede terminar su comida. 
+* Foxy y Tails están ejecutando una forma de recuperación de deadlock fallida. 
+* Cada zorro nota que están potencialmente entrando en un estado de deadlock y responde liberando todos sus recursos bloqueados. 
+* Desafortunadamente, el proceso de lock y unlock es cíclico, y los dos zorros están conceptualmente deadlocked.
 
+* En la práctica, livelock es a menudo un problema difícil de detectar. 
+* Los threads en un estado de livelock parecen activos y capaces de responder a solicitudes, incluso cuando están atascados en un ciclo sin fin.
 
+### Managing Race Conditions
+
+* Una race condition es un resultado indeseable que ocurre cuando dos tasks que deberían ser completadas secuencialmente son completadas al mismo tiempo. 
+* Encontramos ejemplos de race conditions anteriormente en el capítulo cuando introdujimos la sincronización.
+
+* Mientras que Figure 13.4 muestra un ejemplo clásico basado en threads de una race condition, ahora proporcionamos un ejemplo más ilustrativo. 
+* Imagina que dos patronos del zoológico, Olivia y Sophia, están registrándose para una cuenta en el nuevo sitio web de visitantes del zoológico. 
+* Ambos quieren usar el mismo nombre de usuario, ZooFan, y cada uno envía una solicitud para crear la cuenta al mismo tiempo, como se muestra en Figure 13.6.
+
+![ch13_01_16.png](images/ch13/ch13_01_16.png)
+
+¿Qué resultado devuelve el servidor web cuando ambos usuarios intentan crear una cuenta con el mismo nombre de usuario en Figure 13.6?
+
+### Possible Outcomes for This Race Condition
+
+* Ambos usuarios son capaces de crear cuentas con el nombre de usuario ZooFan.
+* Ningún usuario es capaz de crear una cuenta con el nombre de usuario ZooFan, y se devuelve un mensaje de error a ambos usuarios.
+* Un usuario es capaz de crear una cuenta con el nombre de usuario ZooFan, mientras que el otro usuario recibe un mensaje de error.
+
+* El primer resultado es really bad, ya que lleva a usuarios intentando iniciar sesión con el mismo nombre de usuario.
+* ¿Qué datos ven cuando inician sesión? El segundo resultado causa que ambos usuarios tengan que intentar de nuevo, lo cual es frustrante, pero al menos no lleva a datos corruptos o malos.
+
+* El tercer resultado es a menudo considerado la mejor solución. 
+* Como la segunda situación, preservamos la integridad de datos; pero a diferencia de la segunda situación, al menos un usuario es capaz de avanzar en la primera solicitud, evitando escenarios adicionales de race condition.
+
+* Para el examen, deberías entender que las race conditions llevan a datos inválidos si no son manejadas apropiadamente. 
+* Incluso la solución donde ambos participantes fallan en proceder es preferible a uno en el cual se permite que datos inválidos entren al sistema.
+
+## Working with Parallel Streams
+
+* Concluimos este capítulo combinando lo que aprendiste en Chapter 10, "Streams," con los conceptos que aprendiste en este capítulo. 
+* Una de las características más poderosas de la Stream API es el soporte de concurrencia built-in. 
+* Hasta ahora, todos los streams con los que has trabajado han sido serial streams. 
+* Un serial stream es un stream en el cual los resultados están ordenados, con solo una entrada siendo procesada a la vez.
+
+* Un parallel stream es capaz de procesar resultados concurrentemente, usando múltiples threads. 
+* Por ejemplo, puedes usar un parallel stream y la operación map() para operar concurrentemente en los elementos en el stream, mejorando vastamente el rendimiento sobre procesar un único elemento a la vez.
+
+* Usar un parallel stream puede cambiar no solo el rendimiento de tu aplicación sino también los resultados esperados. 
+* Como verás, algunas operaciones también requieren manejo especial para poder ser procesadas de manera paralela.
+
+El número de threads disponibles en un parallel stream es proporcional al número de CPUs disponibles en tu entorno.
+
+### Creating Parallel Streams
+
+* La Stream API fue diseñada para hacer la creación de parallel streams bastante fácil. 
+* Para el examen, deberías estar familiarizado con dos formas de crear un parallel stream.
+
+```java
+Collection<Integer> collection = List.of(1,2);
+
+Stream<Integer> p1 = collection.stream().parallel();
+Stream<Integer> p2 = collection.parallelStream();
+```
+
+* La primera forma de crear un parallel stream es desde un stream existente. 
+* ¿No es genial? Cualquier stream puede hacerse paralelo. La segunda forma de crear un parallel stream es desde una clase Java Collection. 
+* Usamos ambos de estos métodos a lo largo de esta sección.
+
+La interfaz Stream incluye un método isParallel() que puede ser usado para probar si la instancia de un stream soporta parallel
 
 
 
