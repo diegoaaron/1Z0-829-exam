@@ -1023,7 +1023,194 @@ if(lock.tryLock()) {
 
 `new Thread(() -> System.out.print(lock.tryLock())).start(); // false`
 
-continuar en la 32
+* Es crítico que liberes un lock el mismo número de veces que es adquirido.
+* Para llamadas con tryLock(), necesitas llamar a unlock() solo si el método retornó true.
+
+### Reviewing the Lock Framework
+
+Para revisar, la clase ReentrantLock soporta las mismas características que un bloque synchronized mientras agrega un número de mejoras:
+
+* Habilidad para solicitar un lock sin bloquear.
+* Habilidad para solicitar un lock mientras se bloquea por una cantidad especificada de tiempo.
+* Un lock puede ser creado con una propiedad de fairness, en la cual el lock es otorgado a los threads en el orden en el cual fue solicitado.
+
+---------------------------------------------------------------------
+Aunque no está en el examen, ReentrantReadWriteLock es una clase realmente útil. 
+Incluye locks separados para leer y escribir datos y es útil en estructuras de datos donde las lecturas son mucho más comunes que las escrituras. 
+Por ejemplo, si tienes mil threads leyendo datos, pero solo un thread escribiendo datos, esta clase puede ayudarte a maximizar el acceso concurrente.
+---------------------------------------------------------------------
+
+### Orchestrating Tasks with a CyclicBarrier
+
+* Comenzamos el tema de thread-safety discutiendo la protección de variables individuales y luego pasamos a bloques de código y locks. 
+* Completamos nuestra discusión de thread-safety mostrando cómo orquestar tasks complejas con muchos pasos.
+
+* Nuestros trabajadores del zoológico están de vuelta, y esta vez están limpiando plumas. 
+* Imagina una pluma de león que necesita ser vaciada, limpiada, y luego rellenada con los leones. 
+* Para completar la tarea, hemos asignado cuatro trabajadores del zoológico. 
+* Obviamente, no queremos comenzar a limpiar la jaula mientras un león está deambulando en ella, no sea que terminemos perdiendo un trabajador del zoológico. 
+* Además, no queremos dejar a los leones de vuelta en la pluma mientras todavía se está limpiando.
+
+* Podríamos tener todo el trabajo completado por un único worker, pero esto sería lento e ignora el hecho de que tenemos tres trabajadores del zoológico esperando para ayudar. 
+* Una mejor solución sería tener a los cuatro empleados del zoológico trabajar concurrentemente, pausando entre el final de un conjunto de tasks y el inicio del siguiente.
+
+Para coordinar estas tasks, podemos usar la clase CyclicBarrier:
+
+```java
+import java.util.concurrent.*;
+public class LionPenManager {
+  private void removeLions() { System.out.println("Removing lions"); }
+  private void cleanPen()   { System.out.println("Cleaning the pen"); }
+  private void addLions()   { System.out.println("Adding lions");     }
+  public void performTask() {
+        removeLions();
+        cleanPen();
+        addLions();
+  }
+  public static void main(String[] args) {
+      var service = Executors.newFixedThreadPool(4);
+      try {
+          var manager = new LionPenManager();
+          for (int i = 0; i < 4; i++)
+              service.submit(() -> manager.performTask());
+      } finally {
+          service.shutdown();
+      } } }
+```
+
+Lo siguiente es una salida de ejemplo basada en esta implementación:
+
+Removing lions
+Removing lions
+Cleaning the pen
+Adding lions
+Removing lions
+Cleaning the pen
+Adding lions
+Removing lions
+Cleaning the pen
+Adding lions
+Cleaning the pen
+Adding lions
+
+* Aunque los resultados están ordenados dentro de un único thread, la salida es completamente aleatoria entre múltiples workers. 
+* Vemos que algunos leones todavía están siendo removidos mientras la jaula está siendo limpiada, y otros leones son añadidos antes de que el proceso de limpieza esté terminado. 
+* Esperemos que ninguno de los trabajadores del zoológico sea comido.
+
+* Podemos mejorar estos resultados usando la clase CyclicBarrier. 
+* La CyclicBarrier toma en sus constructores un valor límite, indicando el número de threads a esperar. 
+* A medida que cada thread termina, llama al método await() en la barrera cíclica. 
+* Una vez que el número especificado de threads han llamado cada uno await(), la barrera es liberada, y todos los threads pueden continuar.
+
+```java
+import java.util.concurrent.*;
+public class LionPenManager {
+  private void removeLions() { System.out.println("Removing lions"); }
+  private void cleanPen()   { System.out.println("Cleaning the pen"); }
+  private void addLions()   { System.out.println("Adding lions");     }
+  public void performTask(CyclicBarrier c1, CyclicBarrier c2) {
+      try {
+          removeLions();
+          c1.await();
+          cleanPen();
+          c2.await();
+          addLions();
+      } catch (InterruptedException | BrokenBarrierException e) {
+          // Handle checked exceptions here
+      }
+  }
+  public static void main(String[] args) {
+      var service = Executors.newFixedThreadPool(4);
+      try {
+          var manager = new LionPenManager();
+          var c1 = new CyclicBarrier(4);
+          var c2 = new CyclicBarrier(4,
+                  () -> System.out.println("*** Pen Cleaned!"));
+          for (int i = 0; i < 4; i++)
+              service.submit(() -> manager.performTask(c1, c2));
+      } finally {
+        service.shutdown();
+    } } }
+```
+
+Lo siguiente es una salida de ejemplo basada en esta implementación revisada de nuestra clase LionPenManager:
+
+Removing lions
+Removing lions
+Removing lions
+Removing lions
+Cleaning the pen
+Cleaning the pen
+Cleaning the pen
+Cleaning the pen
+*** Pen Cleaned!
+Adding lions
+Adding lions
+Adding lions
+Adding lions
+
+* Como puedes ver, todos los resultados ahora están organizados. 
+* Remover los leones ocurre en un paso, al igual que limpiar la pluma y añadir los leones de vuelta en.
+* En este ejemplo, usamos dos constructores diferentes para nuestros objetos CyclicBarrier, el último de los cuales ejecuta una instancia Runnable al completarse.
+
+* La clase CyclicBarrier nos permite realizar tasks multithreading complejas mientras todos los threads se detienen y esperan en barreras lógicas. 
+* Esta solución es superior a una solución single-threaded, ya que las tasks individuales, como remover los leones, pueden ser completadas en paralelo por los cuatro trabajadores del zoológico.
+
+---------------------------------------------------------------------
+**Reusing CyclicBarrier**
+* Después de que se alcanza un límite de CyclicBarrier (también conocido como la barrera está rota), todos los threads son liberados, y el número de threads esperando en la CyclicBarrier vuelve a cero. 
+* En este punto, la CyclicBarrier puede ser usada nuevamente para un nuevo conjunto de threads en espera. 
+* Por ejemplo, si nuestro límite de CyclicBarrier es 5 y tenemos 15 threads que llaman a await(), la CyclicBarrier será activada un total de tres veces.
+---------------------------------------------------------------------
+
+## Using Concurrent Collections
+
+* Además de gestionar threads, la Concurrency API incluye interfaces y clases que te ayudan a coordinar el acceso a colecciones compartidas por múltiples tasks. 
+* Por colecciones, nos estamos refiriendo por supuesto al Java Collections Framework que introdujimos en Chapter 9, "Collections and Generics." 
+* En esta sección, demostramos muchas de las clases concurrentes disponibles para ti cuando usas la Concurrency API.
+
+### Understanding Memory Consistency Errors
+
+El propósito de las clases de colección concurrente es resolver errores comunes de consistencia de memoria. 
+Un memory consistency error ocurre cuando dos threads tienen vistas inconsistentes de lo que debería ser los mismos datos. 
+Conceptualmente, queremos que las escrituras en un thread estén disponibles para otro thread si accede a la colección concurrente después de que la escritura ha ocurrido.
+
+Cuando dos threads intentan modificar la misma colección no concurrente, la JVM puede lanzar una ConcurrentModificationException en tiempo de ejecución. 
+De hecho, puede ocurrir con un único thread. Echa un vistazo al siguiente fragmento de código:
+
+```java
+11: var foodData = new HashMap<String, Integer>();
+12: foodData.put("penguin", 1);
+13: foodData.put("flamingo", 2);
+14: for(String key: foodData.keySet())
+15:   foodData.remove(key);
+```
+
+* Este fragmento lanzará una ConcurrentModificationException durante la segunda iteración del loop, ya que el iterator en keySet() no está apropiadamente actualizado después de que el primer elemento es removido. 
+* Cambiar la primera línea para usar un ConcurrentHashMap prevendrá que el código lance una excepción en tiempo de ejecución.
+
+`11: var foodData = new ConcurrentHashMap<String, Integer>();`
+
+* Aunque usualmente no modificamos una variable de loop, este ejemplo resalta el hecho de que el ConcurrentHashMap está ordenando el acceso de lectura/escritura de tal manera que todo el acceso a la clase es consistente. 
+* En este fragmento de código, el iterator creado por keySet() es actualizado tan pronto como un objeto es removido del Map.
+
+* Las clases concurrentes fueron creadas para ayudar a evitar problemas comunes en los cuales múltiples threads están añadiendo y removiendo objetos de las mismas colecciones. 
+* En cualquier instancia dada, todos los threads deberían tener la misma vista consistente de la estructura de la colección.
+
+### Working with Concurrent Classes
+
+* Deberías usar una clase de colección concurrente cada vez que tengas múltiples threads modificando una colección fuera de un bloque o método sincronizado, incluso si no esperas un problema de concurrencia. 
+* Sin las colecciones concurrentes, múltiples threads accediendo a una colección podrían resultar en que se lance una excepción o, peor, ¡datos corruptos!
+
+---------------------------------------------------------------------
+* Si la colección es inmutable (y contiene objetos inmutables), las colecciones concurrentes no son necesarias. 
+* Los objetos inmutables pueden ser accedidos por cualquier número de threads y no requieren sincronización. 
+* Por definición, no cambian, por lo que no hay posibilidad de un error de consistencia de memoria.
+---------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -1038,6 +1225,5 @@ continuar en la 32
 ```
 
 ---------------------------------------------------------------------
-Using Concurrent Collections
 Identifying Threading Problems
 Working with Parallel Streams
