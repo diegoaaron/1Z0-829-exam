@@ -864,17 +864,44 @@ static synchronized void dance() {
 
 ### Understanding the Lock Framework
 
-Un bloque synchronized soporta solo un conjunto limitado de funcionalidad. Por ejemplo, ¿qué pasa si queremos verificar si un lock está disponible y, si no lo está, realizar algún otro task? Además, si el lock nunca está disponible y sincronizamos en él, podríamos esperar para siempre.
+* Un bloque synchronized soporta solo un conjunto limitado de funcionalidad. Por ejemplo, ¿qué pasa si queremos verificar si un lock está disponible y, si no lo está, realizar algún otro task? 
+* Además, si el lock nunca está disponible y sincronizamos en él, podríamos esperar para siempre.
 
-La Concurrency API incluye la interfaz Lock, que es conceptualmente similar a usar la palabra clave synchronized pero con muchas más campanas y silbatos. En lugar de sincronizar en cualquier Object, aunque, podemos hacer "lock" solo en un objeto que implementa la interfaz Lock.
+* La Concurrency API incluye la interfaz Lock, que es conceptualmente similar a usar la palabra clave synchronized pero con muchas más campanas y silbatos. 
+* En lugar de sincronizar en cualquier Object, aunque, podemos hacer "lock" solo en un objeto que implementa la interfaz Lock.
+
+### Applying a ReentrantLock
+
+* La interfaz Lock es bastante fácil de usar. Cuando necesitas proteger una pieza de código del procesamiento multithreaded, crea una instancia de Lock a la que todos los threads tengan acceso. 
+* Cada thread entonces llama a lock() antes de que entre al código protegido y llama a unlock() antes de que salga del código protegido.
+
+* En contraste, lo siguiente muestra dos implementaciones, una con un bloque synchronized y una con una instancia Lock. 
+* Aunque más larga, la solución Lock tiene un número de características no disponibles para el bloque synchronized.
+
+```java
+// Implementation #1 with a synchronized block
+Object object = new Object();
+
+synchronized(object) {
+    // Protected code
+}
+
+// Implementation #2 with a Lock
+Lock lock = new ReentrantLock();
+try {
+    lock.lock();
+    // Protected code
+} finally {
+    lock.unlock();
+}
+```
+
+* Estas dos implementaciones son conceptualmente equivalentes. 
+* La clase ReentrantLock es un monitor simple que implementa la interfaz Lock y soporta mutual exclusion. 
+* En otras palabras, como máximo un thread está permitido tener un lock en cualquier momento dado.
 
 
-
-
-
-
-
-
+Aunque ciertamente no es requerido, es una buena práctica usar un
 
 
 
