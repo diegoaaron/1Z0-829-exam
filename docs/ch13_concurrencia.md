@@ -640,10 +640,25 @@ En esta parte del capítulo, mostramos cómo usar una variedad de técnicas para
 15:   } } }
 ```
 
-¿Qué produce este programa como salida? Podrías pensar que producirá números del 1 al 10, en orden, pero eso está lejos de estar garantizado. 
-Puede producir en un
+* ¿Qué produce este programa como salida? Podrías pensar que producirá números del 1 al 10, en orden, pero eso está lejos de estar garantizado. 
+* Puede producir en un orden diferente. Peor aún, puede imprimir algunos números dos veces y no imprimir algunos números en absoluto.
+* Las siguientes son posibles salidas de este programa:
 
-continuar en la 21
+1 2 3 4 5 6 7 8 9 10
+1 9 8 7 3 **6** **6** 2 4 5
+1 8 7 3 **2** 6 5 4 **2** 9
+
+* Entonces, ¿qué salió mal? En este ejemplo, usamos el operador de pre-incremento (++) para actualizar la variable sheepCount. 
+* Un problema ocurre cuando dos threads ambos ejecutan el lado derecho de la expresión, leyendo el valor "old" antes de que cualquier thread escriba el valor "new" de la variable. 
+* Las dos asignaciones se vuelven redundantes; ambas asignan el mismo valor nuevo, con un thread sobrescribiendo los resultados del otro. 
+* Figure 13.4 demuestra este problema con dos threads, asumiendo que sheepCount tiene un valor inicial de 1.
+
+![ch13_01_09.png](images/ch13/ch13_01_09.png)
+
+* Puedes ver en Figure 13.4 que ambos threads leen y escriben los mismos valores, causando que una de las dos operaciones ++sheepCount se pierda. 
+* Por lo tanto, el operador de incremento ++ no es thread-safe. Como verás más adelante en este capítulo, el resultado inesperado de dos tasks ejecutándose al mismo tiempo se refiere como una race condition.
+
+
 
 
 
