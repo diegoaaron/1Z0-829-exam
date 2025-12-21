@@ -1440,7 +1440,93 @@ Stream<Integer> p2 = collection.parallelStream();
 * ¿No es genial? Cualquier stream puede hacerse paralelo. La segunda forma de crear un parallel stream es desde una clase Java Collection. 
 * Usamos ambos de estos métodos a lo largo de esta sección.
 
-La interfaz Stream incluye un método isParallel() que puede ser usado para probar si la instancia de un stream soporta parallel
+---------------------------------------------------------------------
+La interfaz Stream incluye un método isParallel() que puede ser usado para probar si la instancia de un stream soporta parallel processing. 
+Algunas operaciones en streams preservan el atributo parallel, mientras que otras no.
+---------------------------------------------------------------------
+
+### Performing a Parallel Decomposition
+
+Una parallel decomposition es el proceso de tomar una tarea, romperla en piezas más pequeñas que pueden ser realizadas concurrentemente, y luego reensamblar los resultados. 
+Cuanto más concurrente es una descomposición, mayor es la mejora de rendimiento de usar parallel streams.
+
+Intentémoslo. Primero, definamos una función reusable que "does work" solo esperando por cinco segundos.
+
+```java
+private static int doWork(int input) {
+  try {
+    Thread.sleep(5000);
+  } catch (InterruptedException e) {}
+  return input;
+}
+```
+
+Podemos pretender que en una aplicación real, este trabajo podría involucrar llamar a una base de datos o leer un archivo. 
+Ahora usemos este método con un serial stream.
+
+```java
+10: long start = System.currentTimeMillis();
+11: List.of(1,2,3,4,5)
+12:   .stream()
+13:   .map(w -> doWork(w))
+14:   .forEach(s -> System.out.print(s + " "));
+15:
+16: System.out.println();
+17: var timeTaken = (System.currentTimeMillis()-start)/1000;
+18: System.out.println("Time: "+timeTaken+" seconds");
+```
+
+¿Qué crees que este código producirá cuando se ejecute como parte de un método main()? Echemos un vistazo:
+
+1 2 3 4 5
+Time: 25 seconds
+
+* Como podrías esperar, los resultados están ordenados y predecibles porque estamos usando un serial stream. 
+* También tomó alrededor de 25 segundos para procesar los cinco resultados, uno a la vez. 
+* ¿Qué pasa si reemplazamos la línea 12 con una que usa un parallelStream()? Lo siguiente es una salida de ejemplo:
+
+3 2 1 5 4
+Time: 5 seconds
+
+* Como puedes ver, los resultados ya no están ordenados o predecibles. 
+* Las operaciones map() y forEach() en un parallel stream son equivalentes a enviar múltiples expresiones lambda Runnable a un pooled thread executor y luego esperar los resultados.
+
+* ¿Qué hay del tiempo requerido? En este caso, nuestro sistema tenía suficientes CPU para que todas las tasks se ejecutaran concurrentemente. 
+* Si ejecutaras este mismo código en una computadora con menos procesadores, podría producir 10 segundos, 15 segundos, o algún otro valor. 
+* La clave es que hemos escrito nuestro código para aprovechar el procesamiento paralelo cuando está disponible, por lo que nuestro trabajo está hecho.
+
+---------------------------------------------------------------------
+**Ordering Results**
+Si tu operación de stream necesita garantizar ordenamiento y no estás seguro si es serial o parallel, puedes reemplazar la línea 14 con una que usa forEachOrdered():
+`14:  .forEachOrdered(s -> System.out.print(s + " "));`
+Esto produce los resultados en el orden en el cual están definidos en el stream:
+1 2 3 4 5
+Time: 5 seconds
+Aunque hemos perdido algunas de las ganancias de rendimiento de usar un parallel stream, nuestra operación map() todavía puede aprovechar el parallel stream.
+---------------------------------------------------------------------
+
+### Processing Parallel Reductions
+
+* Además de potencialmente mejorar el rendimiento y modificar el orden de las operaciones, usar parallel streams puede impactar cómo escribes tu aplicación. 
+* Una parallel reduction es una operación de reducción aplicada a un parallel stream. 
+* Los resultados para parallel reductions pueden diferir de lo que esperas cuando trabajas con serial streams.
+
+### Performing Order-Based Tasks
+
+Dado que el orden no está garantizado con parallel streams, métodos como findAny() en parallel streams pueden resultar en comportamiento inesperado. 
+Considera el siguiente ejemplo:
+
+```java
+System.out.print(List.of(1,2,3,4,5,6)
+  .parallelStream()
+```
+
+
+
+
+
+
+
 
 
 
@@ -1454,4 +1540,3 @@ La interfaz Stream incluye un método isParallel() que puede ser usado para prob
 ```
 
 ---------------------------------------------------------------------
-Working with Parallel Streams
