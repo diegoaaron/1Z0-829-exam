@@ -998,15 +998,32 @@ if(lock.tryLock(10,TimeUnit.SECONDS)) {
 }
 ```
 
+El código es el mismo que antes, excepto que esta vez, uno de los threads espera hasta 10 segundos para adquirir el lock.
 
+### Acquiring the Same Lock Twice
 
+* La clase ReentrantLock mantiene un contador del número de veces que un lock ha sido otorgado exitosamente a un thread. 
+* Para liberar el lock para que otros threads lo usen, unlock() debe ser llamado el mismo número de veces que el lock fue otorgado. 
+* El siguiente fragmento de código contiene un error. ¿Puedes identificarlo?
 
+```java
+Lock lock = new ReentrantLock();
+if(lock.tryLock()) {
+  try {
+    lock.lock();
+    System.out.println("Lock obtained, entering protected code");
+  } finally {
+    lock.unlock();
+  } }
+```
 
+* El thread obtiene el lock dos veces, pero lo libera solo una vez. 
+* Puedes verificar esto generando un nuevo thread después de que este código se ejecute que intente obtener un lock. 
+* Lo siguiente imprime false:
 
+`new Thread(() -> System.out.print(lock.tryLock())).start(); // false`
 
-
-
-
+continuar en la 32
 
 
 
