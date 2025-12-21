@@ -900,8 +900,109 @@ try {
 * La clase ReentrantLock es un monitor simple que implementa la interfaz Lock y soporta mutual exclusion. 
 * En otras palabras, como máximo un thread está permitido tener un lock en cualquier momento dado.
 
+---------------------------------------------------------------------
+Aunque ciertamente no es requerido, es una buena práctica usar un bloque try/finally con instancias Lock. 
+Hacer esto asegura que cualquier lock adquirido sea liberado apropiadamente.
+---------------------------------------------------------------------
 
-Aunque ciertamente no es requerido, es una buena práctica usar un
+* La clase ReentrantLock asegura que una vez que un thread ha llamado a lock() y obtenido el lock, todos los otros threads que llaman a lock() esperarán hasta que el primer thread llame a unlock(). 
+* Qué thread obtiene el lock a continuación depende de los parámetros usados para crear el objeto Lock.
+
+* La clase ReentrantLock incluye un constructor que toma un único boolean y establece un parámetro "fairness". 
+* Si el parámetro se establece en true, el lock usualmente será otorgado a cada thread en el orden en que fue solicitado. 
+* Es false por defecto cuando se usa el constructor sin argumentos. 
+* En la práctica, deberías habilitar fairness solo cuando el ordenamiento es absolutamente requerido, ya que podría llevar a una desaceleración significativa.
+
+* Además de asegurarte siempre de liberar un lock, también necesitas asegurarte de que solo liberas un lock que tienes. 
+* Si intentas liberar un lock que no tienes, obtendrás una excepción en tiempo de ejecución.
+
+```java
+Lock lock = new ReentrantLock();
+lock.unlock(); // IllegalMonitorStateException
+```
+
+La interfaz Lock incluye cuatro métodos que deberías conocer para el examen, como se lista en Table 13.8.
+
+### Attempting to Acquire a Lock
+
+* Mientras que la clase ReentrantLock te permite esperar por un lock, hasta ahora sufre del mismo problema que un bloque synchronized. 
+* Un thread podría terminar esperando para siempre para obtener un lock. 
+* Afortunadamente, Table 13.8 incluye dos métodos adicionales que hacen que la interfaz Lock sea mucho más segura de usar que un bloque synchronized.
+
+![ch13_01_13.png](images/ch13/ch13_01_13.png)
+
+Por conveniencia, usamos el siguiente método printHello() para el código en esta sección:
+
+```java
+public static void printHello(Lock lock) {
+  try {
+    lock.lock();
+    System.out.println("Hello");
+  } finally {
+    lock.unlock();
+  } }
+```
+
+### tryLock()
+
+* El método tryLock() intentará adquirir un lock e inmediatamente retornará un resultado booleano indicando si el lock fue obtenido. 
+* A diferencia del método lock(), no espera si otro thread ya tiene el lock. Retorna inmediatamente, sin importar si un lock está disponible.
+
+Lo siguiente es una implementación de ejemplo usando el método tryLock():
+
+```java
+Lock lock = new ReentrantLock();
+new Thread(() -> printHello(lock)).start();
+if(lock.tryLock()) {
+  try {
+      System.out.println("Lock obtained, entering protected code");
+  } finally {
+      lock.unlock();
+  }
+} else {
+    System.out.println("Unable to acquire lock, doing something else");
+}
+```
+
+* Cuando ejecutas este código, podría producir ya sea el mensaje if o el else, dependiendo del orden de ejecución. 
+* Siempre imprimirá Hello, aunque, ya que la llamada a lock() en printHello() esperará indefinidamente a que el lock esté disponible. 
+* Un ejercicio divertido es insertar algunos retrasos Thread.sleep() en este fragmento para fomentar que un mensaje particular sea mostrado.
+
+* Como lock(), el método tryLock() debería ser usado con un bloque try/finally. Afortunadamente, solo necesitas liberar el lock si fue adquirido exitosamente. 
+* Por esta razón, es común usar la salida de tryLock() en una declaración if, de manera que unlock() es llamado solo cuando el lock es obtenido.
+
+---------------------------------------------------------------------
+Es imperativo que tu programa siempre verifique el valor de retorno del método tryLock(). 
+Le dice a tu programa si es seguro proceder con la operación y si el lock necesita ser liberado más tarde.
+---------------------------------------------------------------------
+
+### tryLock(long,TimeUnit)
+
+* La interfaz Lock incluye una versión sobrecargada de `tryLock(long,TimeUnit)` que actúa como un híbrido de lock() y tryLock(). 
+* Como los otros dos métodos, si un lock está disponible, retornará inmediatamente con él. 
+* Si un lock no está disponible, sin embargo, esperará hasta el límite de tiempo especificado para el lock.
+
+El siguiente fragmento de código usa la versión sobrecargada de `tryLock(long,TimeUnit)`:
+
+```java
+Lock lock = new ReentrantLock();
+new Thread(() -> printHello(lock)).start();
+if(lock.tryLock(10,TimeUnit.SECONDS)) {
+  try {
+    System.out.println("Lock obtained, entering protected code");
+  } finally {
+    lock.unlock();
+  }
+} else {
+  System.out.println("Unable to acquire lock, doing something else");
+}
+```
+
+
+
+
+
+
 
 
 
