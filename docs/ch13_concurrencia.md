@@ -1717,6 +1717,37 @@ public List<Integer> addValues(IntStream source) {
   return data;
 }
 ```
+
+Digamos que este método se ejecuta con un serial stream:
+
+```java
+var list = addValues(IntStream.range(1, 11));
+System.out.print(list);      // [2, 4, 6, 8, 10]
+```
+
+Genial, los resultados están en el mismo orden en que fueron ingresados. ¿Pero qué pasa si alguien más pasa un parallel stream?
+
+```java
+var list = addValues(IntStream.range(1, 11).parallel());
+System.out.print(list);      // [6, 8, 10, 2, 4]
+```
+
+* Oh, no: ¡nuestros resultados ya no coinciden con nuestro orden de entrada! 
+* El problema es que nuestra expresión lambda es stateful y modifica una lista que está fuera de nuestro stream. 
+* Podemos arreglar esta solución reescribiendo nuestra operación de stream para que sea stateless:
+
+```java
+public List<Integer> addValuesBetter(IntStream source) {
+  return source.filter(s -> s % 2 == 0)
+    .boxed()
+    .collect(Collectors.toList());
+}
+```
+
+* Este método procesa el stream y luego recolecta todos los resultados en una nueva lista. 
+* Produce el mismo resultado ordenado tanto en serial como en parallel streams. 
+* Se recomienda fuertemente que evites operaciones stateful cuando uses parallel streams, para remover cualquier efecto secundario potencial de datos. 
+* De hecho, deberían ser evitadas en serial streams ya que hacerlo limita la habilidad del código para algún día aprovechar la paralelización.
 ---------------------------------------------------------------------
 
 
