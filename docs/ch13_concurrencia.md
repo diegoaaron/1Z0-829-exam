@@ -1747,7 +1747,7 @@ public List<Integer> addValuesBetter(IntStream source) {
 * Este método procesa el stream y luego recolecta todos los resultados en una nueva lista. 
 * Produce el mismo resultado ordenado tanto en serial como en parallel streams. 
 * Se recomienda fuertemente que evites operaciones stateful cuando uses parallel streams, para remover cualquier efecto secundario potencial de datos. 
-* De hecho, deberían ser evitadas en serial streams ya que hacerlo limita la habilidad del código para algún día aprovechar la paralelización.
+* De hecho, deberían ser evitadas en serial streams, ya que hacerlo limita la habilidad del código para algún día aprovechar la paralelización.
 ---------------------------------------------------------------------
 
 
