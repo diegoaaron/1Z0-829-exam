@@ -1240,6 +1240,120 @@ System.out.println();
 System.out.println("Size: " + favNumbers.size()); // Size: 6
 ```
 
+* A pesar de añadir elementos, el iterator no es modificado, y el loop se ejecuta exactamente tres veces. 
+* Alternativamente, si hubiéramos usado un objeto ArrayList regular, una ConcurrentModificationException habría sido lanzada en tiempo de ejecución. 
+* Las clases CopyOnWrite pueden usar mucha memoria, ya que una nueva estructura de colección es creada cada vez que la colección es modificada. 
+* Por lo tanto, se usan comúnmente en situaciones de entornos multithreading donde las lecturas son mucho más comunes que las escrituras.
+
+---------------------------------------------------------------------
+* Una instancia CopyOnWrite es similar a un objeto inmutable, ya que se crea una nueva estructura subyacente cada vez que la colección es modificada. 
+* A diferencia de un verdadero objeto inmutable, sin embargo, la referencia al objeto permanece igual incluso mientras los datos subyacentes son cambiados.
+---------------------------------------------------------------------
+
+* Finalmente, Table 13.9 incluye LinkedBlockingQueue, que implementa la interfaz concurrente BlockingQueue. 
+* Esta clase es justo como una Queue regular, excepto que incluye versiones sobrecargadas de offer() y poll() que toman un timeout. 
+* Estos métodos esperan (o bloquean) hasta una cantidad específica de tiempo para completar una operación.
+
+### Obtaining Synchronized Collections
+
+* Además de las clases de colección concurrente que hemos cubierto, la Concurrency API también incluye métodos para obtener versiones sincronizadas de objetos de colección no concurrente existente. 
+* Estos métodos sincronizados están definidos en la clase Collections. 
+* Operan en la colección de entrada y retornan una referencia que es del mismo tipo que la colección subyacente. 
+* Listamos estos métodos estáticos en Table 13.10.
+
+![ch13_01_15.png](images/ch13/ch13_01_15.png)
+
+Si estás escribiendo código para crear una colección y requiere sincronización, deberías usar las clases definidas en Table 13.9. 
+Por otro lado, si tú recibes una colección no concurrente y necesitas sincronización, usa los métodos en Table 13.10.
+
+## Identifying Threading Problems
+
+* Ahora que sabes cómo escribir código thread-safe, hablemos sobre qué califica como un problema de threading. 
+* Un problema de threading puede ocurrir en aplicaciones multithreading cuando dos o más threads interactúan de una manera inesperada e indeseable. 
+* Por ejemplo, dos threads pueden bloquearse entre sí para acceder a un segmento particular de código.
+
+* La Concurrency API fue creada para ayudar a eliminar problemas potenciales de threading comunes a todos los desarrolladores. 
+* Como has visto, la Concurrency API crea threads y gestiona interacciones complejas de threads por ti, a menudo en solo unas pocas líneas de código.
+
+* Aunque la Concurrency API reduce el potencial para problemas de threading, no los elimina. 
+* En la práctica, encontrar e identificar problemas de threading dentro de una aplicación es a menudo una de las tareas más difíciles que un desarrollador puede emprender.
+
+### Understanding Liveness
+
+* Como has visto en este capítulo, muchas operaciones de threads pueden ser realizadas independientemente, pero algunas requieren coordinación. 
+* Por ejemplo, sincronizar en un método requiere que todos los threads que llaman al método esperen a que otros threads terminen antes de continuar. 
+* También viste anteriormente en el capítulo que los threads en una CyclicBarrier cada uno esperarán a que el límite de barrera sea alcanzado antes de continuar.
+
+* ¿Qué pasa a la aplicación mientras todos estos threads están esperando? En muchos casos, la espera es efímera, y el usuario tiene muy poca idea de que algún retraso ha ocurrido. 
+* En otros casos, sin embargo, la espera puede ser extremadamente larga, quizás infinita.
+
+* Liveness es la habilidad de una aplicación de poder ejecutarse de manera oportuna. 
+* Los problemas de liveness, entonces, son aquellos en los cuales la aplicación se vuelve no responsiva o está en algún tipo de estado "stuck". 
+* Más precisamente, los problemas de liveness son a menudo el resultado de un thread entrando en un estado BLOCKING o WAITING para siempre, o repetidamente entrando/saliendo de estos estados. 
+* Para el examen, hay tres tipos de problemas de liveness con los cuales deberías estar familiarizado: deadlock, starvation, y livelock.
+
+### Deadlock
+
+* Deadlock ocurre cuando dos o más threads están bloqueados para siempre, cada uno esperando al otro. 
+* Podemos ilustrar este principio con el siguiente ejemplo. Imagina que nuestro zoológico tiene dos zorros: Foxy y Tails. 
+* Foxy le gusta comer primero y luego beber agua, mientras que Tails le gusta beber agua primero y luego comer.
+
+Además, a ningún animal le gusta compartir, y terminarán su comida solo si tienen acceso exclusivo tanto a comida como a agua.
+
+* El cuidador del zoológico coloca la comida en un lado del entorno y el agua en el otro lado. 
+* Aunque nuestros zorros son rápidos, todavía les toma 100 milisegundos correr de un lado del entorno al otro.
+
+¿Qué pasa si Foxy obtiene la comida primero y Tails obtiene el agua primero? La siguiente aplicación modela este comportamiento:
+
+```java
+import java.util.concurrent.*;
+class Food {}
+class Water {}
+public record Fox(String name) {
+  public void eatAndDrink(Food food, Water water) {
+    synchronized(food) {
+      System.out.println(name() + " Got Food!");
+      move();
+      synchronized(water) {
+        System.out.println(name() + " Got Water!");
+      } } }
+  public void drinkAndEat(Food food, Water water) {
+    synchronized(water) {
+      System.out.println(name() + " Got Water!");
+      move();
+      synchronized(food) {
+          System.out.println(name() + " Got Food!");
+      } } }
+  public void move() {
+      try { Thread.sleep(100); } catch (InterruptedException e) {}
+  }
+  public static void main(String[] args) {
+      // Create participants and resources
+      var foxy = new Fox("Foxy");
+      var tails = new Fox("Tails");
+      var food = new Food();
+      var water = new Water();
+      // Process data
+      var service = Executors.newScheduledThreadPool(10);
+      try {
+          service.submit(() -> foxy.eatAndDrink(food,water));
+          service.submit(() -> tails.drinkAndEat(food,water));
+      } finally {
+          service.shutdown();
+      } } }
+```
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1253,5 +1367,4 @@ System.out.println("Size: " + favNumbers.size()); // Size: 6
 ```
 
 ---------------------------------------------------------------------
-Identifying Threading Problems
 Working with Parallel Streams
