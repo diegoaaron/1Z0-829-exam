@@ -1208,9 +1208,37 @@ De hecho, puede ocurrir con un único thread. Echa un vistazo al siguiente fragm
 * Por definición, no cambian, por lo que no hay posibilidad de un error de consistencia de memoria.
 ---------------------------------------------------------------------
 
+* Cuando se pasa una colección concurrente, un llamador puede necesitar conocer la clase de implementación particular. 
+* Dicho esto, se considera una buena práctica pasar una referencia de interfaz no concurrente cuando sea posible, similar a cómo instanciamos un HashMap, pero a menudo pasamos una referencia Map:
 
+`Map<String,Integer> map = new ConcurrentHashMap<>();`
 
+Table 13.9 lista las clases concurrentes comunes con las cuales deberías estar familiarizado para el examen.
 
+![ch13_01_14.png](images/ch13/ch13_01_14.png)
+
+* La mayoría de las clases en Table 13.9 son solo versiones concurrentes de sus clases contrapartes no concurrentes, como ConcurrentHashMap vs. Map, o ConcurrentLinkedQueue vs. Queue. 
+* Para el examen, no necesitas conocer ningún método específico de clase concurrente. 
+* Solo necesitas conocer los métodos heredados, como get() y set() para instancias de List.
+
+* Las clases Skip pueden sonar extrañas, pero son solo versiones "sorted" de las colecciones concurrentes asociadas. 
+* Cuando ves una clase con Skip en el nombre, solo piensa "sorted concurrent" collections, y el resto debería seguir naturalmente.
+
+* Las clases CopyOnWrite se comportan un poco diferente que los otros ejemplos concurrentes que has visto. 
+* Estas clases crean una copia de la colección cada vez que se añade, remueve o cambia una referencia en la colección y luego actualizan la referencia de la colección original para apuntar a la copia. 
+* Estas clases se usan comúnmente para asegurar que un iterator no vea modificaciones a la colección.
+
+Echemos un vistazo a cómo funciona esto con un ejemplo:
+
+```java
+List<Integer> favNumbers = new CopyOnWriteArrayList<>(List.of(4, 3, 42));
+for (var n : favNumbers) {
+  System.out.print(n + " ");        // 4 3 42
+  favNumbers.add(n+1);
+}
+System.out.println();
+System.out.println("Size: " + favNumbers.size()); // Size: 6
+```
 
 
 
