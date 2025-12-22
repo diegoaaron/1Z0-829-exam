@@ -1607,14 +1607,533 @@ Desafortunadamente, esto solo te dice el número de bloques que pueden ser leíd
 En otras palabras, puede retornar 0 incluso si hay más bytes para ser leídos.
 ---------------------------------------------------------------------
 
+### Understanding the Deserialization Creation Process
 
+* Para el examen, necesitas entender cómo se crea un objeto deserializado. 
+* Cuando deserializas un objeto, the constructor of the serialized class, along with any instance initializers, is not called when the object is created. 
+* Java llamará al constructor no-arg de la primera clase padre no-serializable que pueda encontrar en la jerarquía de clases. 
+* En nuestro ejemplo Gorilla, esto sería simplemente el constructor no-arg de Object.
 
+* Como afirmamos anteriormente, cualquier campo static o transient es ignorado. 
+* Los valores que no son proporcionados recibirán su valor Java por defecto, tal como null para String, o 0 para valores int.
 
+* Echemos un vistazo a una nueva clase Chimpanzee. 
+* Esta vez listamos los constructores para ilustrar que ninguno de ellos se usa en la deserialización.
 
+```java
+import java.io.Serializable;
+public class Chimpanzee implements Serializable {
+  private static final long serialVersionUID = 2L;
+  private transient String name;
+  private transient int age = 10;
+  private static char type = 'C';
+  { this.age = 14; }
 
+  public Chimpanzee() {
+      this.name = "Unknown";
+      this.age = 12;
+      this.type = 'Q';
+  }
 
+  public Chimpanzee(String name, int age, char type) {
+      this.name = name;
+      this.age = age;
+      this.type = type;
+  }
 
+  // Getters/Setters/toString() omitted
+}
+```
 
+Asumiendo que reescribimos nuestros métodos previos de serialización y deserialización para procesar un objeto Chimpanzee en lugar de un objeto Gorilla, ¿qué piensas que imprime lo siguiente?
+
+```java
+var chimpanzees = new ArrayList<Chimpanzee>();
+chimpanzees.add(new Chimpanzee("Ham", 2, 'A'));
+chimpanzees.add(new Chimpanzee("Enos", 4, 'B'));
+File dataFile = new File("chimpanzee.data");
+saveToFile(chimpanzees, dataFile);
+var chimpanzeesFromDisk = readFromFile(dataFile);
+System.out.println(chimpanzeesFromDisk);
+```
+
+Piénsalo. Adelante, esperaremos.
+
+* ¿Listo para la respuesta? Bueno, para empezar, ninguno de los instance members son serializados a un archivo. 
+* Las variables name y age están ambas marcadas como transient, mientras la variable type es static. 
+* Accedimos propositalmente a la variable type usando this para ver si estabas prestando atención.
+
+* En la deserialización, ninguno de los constructores en Chimpanzee es llamado. 
+* Incluso el constructor no-arg que establece los valores `[name=Unknown,age=12,type=Q]` es ignorado. 
+* El instance initializer que establece age a 14 tampoco es ejecutado.
+
+* En este caso, la variable name es inicializada a `null`, ya que ese es el valor por defecto para String en Java. 
+* De igual manera, la variable age es inicializada a 0. 
+* El programa imprime lo siguiente, asumiendo que el método `toString()` está implementado:
+
+```java
+[[name=null,age=0,type=B],
+ [name=null,age=0,type=B]]
+```
+
+* ¿Qué sobre la variable type? Dado que es static, mostrará cualquier valor que fue establecido último. 
+* Si los datos son serializados y deserializados dentro de la misma ejecución, mostrará B, ya que ese fue el último Chimpanzee que creamos. 
+* Por otro lado, si el programa realiza la deserialización e impresión al inicio, imprimirá C, ya que ese es el valor con el que la clase es inicializada.
+
+* Para el examen, asegúrate de entender que el constructor y cualquier inicialización de instancia definida en la clase serializada son ignorados durante el proceso de deserialización. 
+* Java solo llama al constructor de la primera clase padre no-serializable en la jerarquía de clases.
+
+Finalmente, añadamos una subclase:
+
+```java
+public class BabyChimpanzee extends Chimpanzee {
+  private static final long serialVersionUID = 3L;
+  
+  private String mother = "Mom";
+  
+  public BabyChimpanzee() { super(); }
+  
+  public BabyChimpanzee(String name, char type) {
+    super(name, 0, type);
+  }
+// Getters/Setters/toString() omitted
+}
+```
+
+* Nota que esta subclase es serializable porque la superclase ha implementado Serializable. 
+* Ahora tenemos una variable de instancia adicional. El código para serializar y deserializar permanece el mismo. 
+* Podemos incluso hacer cast a Chimpanzee porque esto es una subclase.
+
+## Interacting with Users
+
+* Java incluye numerosas clases para interactuar con el usuario. 
+* Por ejemplo, podrías querer escribir una aplicación que le pida a un usuario iniciar sesión y luego imprimir un mensaje de éxito. 
+* Esta sección contiene numerosas técnicas para manejar y responder a la entrada del usuario.
+
+### Printing Data to the User
+
+* Java incluye dos instancias PrintStream para proporcionar información al usuario: `System.out` y `System.err`. 
+* Mientras `System.out` debería ser viejo sombrero para ti, `System.err` podría ser nuevo para ti. 
+* La sintaxis para llamar y usar System.err es la misma que `System.out` pero se usa para reportar errores al usuario en un stream I/O separado de la información de salida regular.
+
+```java
+try (var in = new FileInputStream("zoo.txt")) {
+  System.out.println("Found file!");
+} catch (FileNotFoundException e) {
+  System.err.println("File not found!");
+}
+```
+
+* ¿Cómo difieren en la práctica? En parte, eso depende de qué está ejecutando el programa. 
+* Por ejemplo, si estás ejecutando desde un command prompt, probablemente imprimirán texto en el mismo formato. 
+* Por otro lado, si estás trabajando en un integrated development environment (IDE), podrían imprimir el texto System.err en un color diferente. 
+* Finalmente, si el código se está ejecutando en un servidor, el stream System.err podría escribir a un archivo de log diferente.
+
+---------------------------------------------------------------------
+**Using Logging APIs**
+
+* Mientras `System.out` y `System.err` son increíblemente útiles para debugging aplicaciones stand-alone o simples, raramente se usan en desarrollo de software profesional. 
+* La mayoría de aplicaciones dependen de un logging service o API.
+* Mientras muchas APIs de logging están disponibles, tienden a compartir un número de atributos similares. 
+* Primero creas un objeto logging estático en cada clase. Luego registras un mensaje con un nivel de logging apropiado: debug(), info(), warn(), o error(). 
+* Los métodos debug() e info() son útiles, ya que permiten a los desarrolladores registrar cosas que no son errores, pero pueden ser útiles.
+---------------------------------------------------------------------
+
+### Reading Input as an I/O Stream
+
+* El System.in retorna un InputStream y se usa para recuperar entrada de texto del usuario. 
+* Es comúnmente wrapped con un BufferedReader vía un InputStreamReader para usar el método readLine().
+
+```java
+var reader = new BufferedReader(new InputStreamReader(System.in));
+String userInput = reader.readLine();
+System.out.println("You entered: " + userInput);
+```
+
+* Cuando se ejecuta, esta aplicación primero obtiene texto del usuario hasta que el usuario presiona la tecla Enter. 
+* Luego genera el texto que el usuario ingresó a la pantalla.
+
+### Closing System Streams
+
+* Podrías haber notado que nunca creamos o cerramos `System.out`, `System.err`, y System.in cuando los usamos. 
+* De hecho, estos son los únicos streams I/O en todo el capítulo que no usamos un bloque try-with-resources!
+
+* Porque estos son objetos static, los System streams son compartidos por toda la aplicación. 
+* La JVM los crea y abre por nosotros. Pueden ser usados en una declaración try-with-resources o llamando close(), aunque closing them is not recommended. 
+* Cerrar los System streams los hace permanentemente no disponibles para todos los threads en el resto del programa.
+* ¿Qué piensas que imprime el siguiente fragmento de código?
+
+```java
+try (var out = System.out) {}
+System.out.println("Hello");
+```
+
+Nada. No imprime nada. Los métodos de PrintStream no lanzan ninguna excepción chequeada y dependen del checkError() para reportar errores, por lo que fallan silenciosamente.
+
+¿Qué sobre este ejemplo?
+
+```java
+try (var err = System.err) {}
+System.err.println("Hello");
+```
+
+* Este también no imprime nada. Como `System.out`, System.err es un PrintStream. 
+* Incluso si lanzara una excepción, tendríamos dificultades para verla, ya que nuestro stream I/O de stream para reportar errores está cerrado 
+* Cerrar System.err es una idea particularmente mala, ya que los stack traces de todas las excepciones serán ocultados.
+
+Finalmente, ¿qué piensas que hace este fragmento de código?
+
+```java
+var reader = new BufferedReader(new InputStreamReader(System.in));
+try (reader) {}
+String data = reader.readLine(); // IOException
+```
+
+Imprime una excepción en tiempo de ejecución. A diferencia de la clase PrintStream, la mayoría de implementaciones InputStream lanzarán una excepción si intentas operar sobre un stream I/O cerrado.
+
+### Acquiring Input with Console
+
+* La clase `java.io.Console` está específicamente diseñada para manejar interacciones de usuario. 
+* Después de todo, `System.in` y `System.out` son solo raw streams, mientras Console es una clase con numerosos métodos centrados alrededor de la entrada del usuario.
+
+* La clase Console es un singleton porque solo es accesible desde un método factory y solo una instancia de ella es creada por la JVM. 
+* Por ejemplo, si te encuentras con código en el examen como el siguiente, no compila, ya que los constructores son todos privados:
+
+```java
+Console c = new Console(); // DOES NOT COMPILE
+```
+
+El siguiente fragmento muestra cómo obtener una Console y usarla para recuperar entrada del usuario:
+
+```java
+Console console = System.console();
+if (console != null) {
+  String userInput = console.readLine();
+  console.writer().println("You entered: " + userInput);
+} else {
+  System.err.println("Console not available");
+}
+```
+
+---------------------------------------------------------------------
+* El objeto Console puede no estar disponible, dependiendo de dónde el código está siendo llamado. 
+* Si no está disponible, System.console() retorna null. 
+* Es imperativo que verifiques un valor null antes de intentar usar un objeto Console.
+---------------------------------------------------------------------
+
+* Este programa primero recupera una instancia de Console y verifica que está disponible, generando un mensaje a System.err si no lo está. 
+* Si está disponible, el programa recupera una línea de entrada del usuario e imprime el resultado. 
+* Como podrías haber notado, este ejemplo es equivalente a nuestro ejemplo anterior de leer entrada de usuario con `System.in` y `System.out`.
+
+### Obtaining Underlying I/O Streams
+
+La clase Console incluye acceso a dos streams para leer y escribir datos.
+
+```java
+public Reader reader()
+public PrintWriter writer()
+```
+
+* Acceder a estas clases es análogo a llamar `System.in` y `System.out` directamente, aunque usan character streams en lugar de byte streams. 
+* De esta manera, son más apropiadas para manejar datos de texto.
+
+### Formatting Console Data
+
+* En Chapter 4, aprendiste sobre el método format() en String; y en Chapter 11, "Exceptions and Localization," trabajaste con formateo usando locales. 
+* Convenientemente, cada clase print stream incluye un método format(), que incluye una versión sobrecargada que toma un Locale para combinar ambos de estos:
+
+```java
+// PrintStream
+public PrintStream format(String format, Object... args)
+public PrintStream format(Locale loc, String format, Object... args)
+
+// PrintWriter
+public PrintWriter format(String format, Object... args)
+public PrintWriter format(Locale loc, String format, Object... args)
+```
+
+* Por conveniencia (así como para hacer que los desarrolladores C se sientan más en casa), Java incluye métodos printf(), que funcionan idénticamente a los métodos format(). 
+* Lo único que necesitas saber sobre estos métodos es que son intercambiables con format().
+
+Echemos un vistazo a usar múltiples métodos para imprimir información para el usuario:
+
+```java
+Console console = System.console();
+if (console == null) {
+  throw new RuntimeException("Console not available");
+} else {
+  console.writer().println("Welcome to Our Zoo!");
+  console.format("It has %d animals and employs %d people", 391, 25);
+  console.writer().println();
+  console.printf("The zoo spans %5.1f acres", 128.91);
+}
+```
+
+Asumiendo que Console está disponible en tiempo de ejecución, imprime lo siguiente:
+
+Welcome to Our Zoo!
+It has 391 animals and employs 25 people
+The zoo spans 128.9 acres.
+
+---------------------------------------------------------------------
+**Using Console with a Locale**
+
+A diferencia de las clases print stream, Console no incluye un método format() sobrecargado que toma una instancia Locale. 
+En su lugar, Console depende del system locale. Por supuesto, siempre podrías usar un Locale específico recuperando el objeto Writer y pasando tu propia instancia Locale, tal como en el siguiente ejemplo:
+
+```java
+Console console = System.console();
+console.writer().format(new Locale("fr", "CA"), "Hello World");
+```
+---------------------------------------------------------------------
+
+### Reading Console Data
+
+La clase Console incluye cuatro métodos para recuperar datos de texto regular del usuario.
+
+```java
+public String readLine()
+public String readLine(String fmt, Object... args)
+
+public char[] readPassword()
+public char[] readPassword(String fmt, Object... args)
+```
+
+* Como usar System.in con un BufferedReader, el método readLine() de Console lee entrada hasta que el usuario presiona la tecla Enter. 
+* La versión sobrecargada de readLine() muestra un formatted message prompt antes de solicitar entrada.
+* Los métodos readPassword() son similares al método readLine(), con dos diferencias importantes:
+
+* El texto que el usuario escribe no es echoed back y mostrado en la pantalla mientras están escribiendo.
+* Los datos son retornados como un char[] en lugar de un String. 
+* La primera característica mejora la seguridad al no mostrar la contraseña en la pantalla si alguien está sentado junto a ti. 
+* La segunda característica involucra prevenir que las contraseñas entren al String pool.
+
+### Reviewing Console Methods
+
+La última muestra de código que presentamos le pregunta al usuario una serie de preguntas e imprime resultados basados en esta información usando muchos de los varios métodos que aprendimos en esta sección:
+
+```java
+Console console = System.console();
+if (console == null) {
+  throw new RuntimeException("Console not available");
+} else {
+  String name = console.readLine("Please enter your name: ");
+  console.writer().format("Hi %s", name);
+  console.writer().println();
+  
+  console.format("What is your address? ");
+  String address = console.readLine();
+  
+  char[] password = console.readPassword("Enter a password "
+    + "between %d and %d characters: ", 5, 10);
+  char[] verify = console.readPassword("Enter the password again: ");
+  console.printf("Passwords "
+    + (Arrays.equals(password, verify) ? "match" : "do not match"));
+}
+```
+
+Asumiendo que Console está disponible, la salida debería parecerse a lo siguiente:
+
+Please enter your name: Max
+Hi Max
+What is your address? Spoonerville
+Enter a password between 5 and 10 characters:
+Enter the password again:
+Passwords match
+
+## Working with Advanced APIs
+
+Files, paths, I/O streams: ¡has trabajado con mucho en este capítulo!. 
+En esta sección final, cubrimos algunas características avanzadas de streams I/O y NIO.2 que pueden ser bastante útiles en la práctica—y se sabe que aparecen en el examen de vez en cuando
+
+### Manipulating Input Streams
+
+Todas las clases input stream incluyen los siguientes métodos para manipular el orden en el cual los datos son leídos desde un stream I/O:
+
+```java
+// InputStream and Reader
+public boolean markSupported()
+public void mark(int readLimit)
+public void reset() throws IOException
+public long skip(long n) throws IOException
+```
+
+* Los métodos mark() y reset() retornan un stream I/O a una posición anterior. 
+* Antes de llamar a cualquiera de estos métodos, deberías llamar al método markSupported(), que retorna true solo si mark() está soportado. 
+* El método skip() es bastante simple; básicamente lee datos del stream I/O y descarta los contenidos.
+
+* No todas las clases input stream soportan mark() y reset(). 
+* Asegúrate de llamar markSupported() en el stream I/O antes de llamar a estos métodos, o se lanzará una excepción en tiempo de ejecución.
+
+### Marking Data
+
+Asume que tenemos una instancia InputStream cuyos próximos valores son LION. Considera el siguiente fragmento de código:
+
+```java
+public void readData(InputStream is) throws IOException {
+  System.out.print((char) is.read()); // L
+  if (is.markSupported()) {
+    is.mark(100); // Marks up to 100 bytes
+    System.out.print((char) is.read()); // I
+    System.out.print((char) is.read()); // O
+    is.reset(); // Resets stream to position before I
+  }
+  System.out.print((char) is.read()); // I
+  System.out.print((char) is.read()); // O
+  System.out.print((char) is.read()); // N
+}
+```
+
+* El fragmento de código generará LIOION si mark() está soportado y LION de lo contrario. 
+* Es una buena práctica organizar tus operaciones read() de manera que el stream I/O termine en la misma posición independientemente de si mark() está soportado.
+
+* ¿Qué sobre el valor de 100 que pasamos al método mark()? Este valor se llama readLimit. 
+* Instruye al stream I/O que esperamos llamar reset() después de como mucho 100 bytes. 
+* Si nuestro programa llama reset() después de leer más de 100 bytes desde llamar mark(100), puede lanzar una excepción, dependiendo de la clase del stream I/O.
+
+---------------------------------------------------------------------
+* En realidad, mark() y reset() no están poniendo los datos de vuelta en el stream I/O, sino que están almacenando los datos en un buffer temporal en memoria para ser leídos de nuevo. 
+* Por lo tanto, no deberías llamar a la operación mark() con un valor demasiado grande, ya que esto podría ocupar mucha memoria.
+---------------------------------------------------------------------
+
+### Skipping Data
+
+Asume que tenemos una instancia InputStream cuyos próximos valores son TIGERS. Considera el siguiente fragmento de código:
+
+```java
+System.out.print ((char)is.read()); // T
+is.skip(2); // Skips I and G
+is.read(); // Reads E but doesn't output it
+System.out.print((char)is.read()); // R
+System.out.print((char)is.read()); // S
+```
+
+* Este código imprime TRS en tiempo de ejecución. Saltamos dos caracteres, I y G. 
+* También leímos E, pero no lo usamos en ningún lugar, por lo que se comportó como llamar skip(1).
+
+* El parámetro de retorno de skip() nos dice cuántos valores fueron saltados. 
+* Por ejemplo, si estamos cerca del final del stream I/O y llamamos skip(1000), el valor de retorno podría ser 20, indicando que el final del stream I/O fue alcanzado después de que 20 valores fueron saltados. 
+* Usar el valor de retorno de skip() es importante si necesitas mantener registro de dónde estás en un stream I/O y cuántos bytes han sido procesados.
+
+### Reviewing Manipulation APIs
+
+* Table 14.11 revisa estas APIs relacionadas con manipular streams I/O de input. 
+* Aunque puede que no las hayas usado en la práctica, necesitas conocerlas para el examen.
+
+![ch14_01_17.png](images/ch14/ch14_01_17.png)
+
+### Discovering File Attributes
+
+Comenzamos nuestra discusión presentando los métodos básicos para leer atributos de archivo. 
+Estos métodos son usables dentro de cualquier sistema de archivos, aunque pueden tener significado limitado en algunos sistemas de archivos.
+
+### Checking for Symbolic Links
+
+* Anteriormente, vimos que la clase Files tiene métodos llamados isDirectory() e isRegularFile(), que son similares a los métodos isDirectory() e isFile() en File. 
+* Mientras el objeto File no puede decirte si una referencia es un enlace simbólico, el método isSymbolicLink() en Files puede.
+
+* Es posible que isDirectory() o isRegularFile() retornen true para un enlace simbólico, siempre y cuando el link se resuelva a un directorio o archivo regular, respectivamente. 
+* Echemos un vistazo a algo de código de muestra:
+
+```java
+System.out.print(Files.isDirectory(Paths.get("/canine/fur.jpg")));
+System.out.print(Files.isSymbolicLink(Paths.get("/canine/coyote")));
+System.out.print(Files.isRegularFile(Paths.get("/canine/types.txt")));
+```
+
+* El primer ejemplo imprime true si fur.jpg es un directorio o un enlace simbólico a un directorio y false de lo contrario. 
+* El segundo ejemplo imprime true si /canine/coyote es un enlace simbólico, independientemente de si el archivo o directorio al que apunta existe. 
+* El tercer ejemplo imprime true si types.txt apunta a un archivo regular o un enlace simbólico que apunta a un archivo regular.
+
+### Checking File Accessibility
+
+* En muchos sistemas de archivos, es posible establecer un atributo boolean a un archivo que lo marca como hidden, readable, o executable. 
+* La clase Files incluye métodos que exponen esta información: isHidden(), isReadable(), isWriteable(), y isExecutable().
+
+* Un archivo hidden no puede ser normalmente visto cuando se lista el contenido de un directorio. 
+* Los flags readable, writable, y executable son importantes en sistemas de archivos donde el nombre del archivo puede ser visto, pero el usuario puede no tener permiso para abrir los contenidos del archivo, modificar el archivo, o ejecutar el archivo como un programa, respectivamente.
+
+Aquí presentamos un ejemplo de cada método:
+
+```java
+System.out.print(Files.isHidden(Paths.get("/walrus.txt")));
+System.out.print(Files.isReadable(Paths.get("/seal/baby.png")));
+System.out.print(Files.isWritable(Paths.get("dolphin.txt")));
+System.out.print(Files.isExecutable(Paths.get("whale.png")));
+```
+
+* Si el archivo walrus.txt existe y está hidden dentro del sistema de archivos, el primer ejemplo imprime true. 
+* El segundo ejemplo imprime true si el archivo baby.png existe y sus contenidos son readable. 
+* El tercer ejemplo imprime true si el archivo dolphin.txt puede ser modificado. 
+* Finalmente, el último ejemplo imprime true si el archivo puede ser ejecutado dentro del sistema operativo. 
+* Nota que la extensión del archivo no determina necesariamente si un archivo es ejecutable. 
+* Por ejemplo, un archivo de imagen que termina en .png podría ser marcado como ejecutable en algunos sistemas de archivos.
+
+Con la excepción del método isHidden(), estos métodos no declaran ninguna excepción chequeada y retornan false si el archivo no existe.
+
+### Improving Attribute Access
+
+* Hasta ahora, hemos estado accediendo atributos de archivo individuales con múltiples llamadas de método. 
+* Aunque esto es funcionalmente correcto, frecuentemente hay un costo cada vez que uno de estos métodos es llamado. 
+* Dicho simplemente, es mucho más eficiente pedirle al sistema de archivos todos los atributos de una vez en lugar de realizar múltiples viajes de ida y vuelta al sistema de archivos. 
+* Además, algunos atributos son específicos del sistema de archivos y no pueden ser fácilmente generalizados para todos los sistemas de archivos.
+
+* NIO.2 aborda ambas de estas preocupaciones permitiéndote construir views para varios sistemas de archivos con una sola llamada de método. 
+* Un view es un grupo de atributos relacionados para un tipo de sistema de archivos particular. 
+* Eso no significa que los métodos de atributo anteriores que acabamos de terminar de discutir no tengan sus usos. 
+* Si necesitas leer solo un atributo de un archivo o directorio, solicitar un view es innecesario.
+
+### Understanding Attribute and View Types
+
+* NIO.2 incluye dos métodos para trabajar con atributos en una sola llamada de método: un método de atributos read-only y un método de view actualizable. 
+* Para cada método, necesitas proporcionar un objeto de tipo de sistema de archivos, que le dice al método NIO.2 qué tipo de view estás solicitando. 
+* Por updatable view, queremos decir que podemos tanto leer como escribir atributos con el mismo objeto.
+
+* Table 14.12 lista los tipos de atributos y view comúnmente usados. 
+* Para el examen, solo necesitas saber sobre los tipos de atributo de archivo básicos. 
+* Los otros views son para gestionar información específica del sistema operativo.
+
+![ch14_01_18.png](images/ch14/ch14_01_18.png)
+
+### Retrieving Attributes
+
+La clase Files incluye el siguiente método para leer atributos de una clase en capacidad read-only:
+
+```java
+public static <A extends BasicFileAttributes> A readAttributes(
+  Path path,
+  Class<A> type,
+  LinkOption... options) throws IOException
+```
+
+Aplicarlo requiere especificar los parámetros Path y BasicFileAttributes.class.
+
+```java
+var path = Paths.get("/turtles/sea.txt");
+BasicFileAttributes data = Files.readAttributes(path, BasicFileAttributes.class);
+
+System.out.println("Is a directory? " + data.isDirectory());
+        System.out.println("Is a regular file? " + data.isRegularFile());
+        System.out.println("Is a symbolic link? " + data.isSymbolicLink());
+        System.out.println("Size (in bytes): " + data.size());
+        System.out.println("Last modified: " + data.lastModifiedTime());
+```
+
+* La clase BasicFileAttributes incluye muchos valores con el mismo nombre que los métodos de atributo en la clase Files. 
+* La ventaja de usar este método, sin embargo, es que todos los atributos son recuperados de una vez para algunos sistemas operativos.
+
+### Modifying Attributes
+
+El siguiente método Files retorna un view actualizable:
+
+```java
+public static <V extends FileAttributeView> V getFileAttributeView(
+  Path path,
+  Class<V> type,
+  LinkOption... options)
+```
+
+Podemos usar el view actualizable para incrementar el valor de last modified date/time de un archivo por 10,000 milisegundos, o 10 segundos.
 
 
 
@@ -1628,7 +2147,5 @@ En otras palabras, puede retornar 0 incluso si hay más bytes para ser leídos.
 ```
 
 ---------------------------------------------------------------------
-Interacting with Users
-Working with Advanced APIs
 Review of Key APIs
 Summary
