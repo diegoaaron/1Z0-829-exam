@@ -203,40 +203,142 @@ Path zooPath2 = FileSystems.getDefault()
 * Sabemos que esto es confuso, ¡pero son de APIs completamente diferentes!
 ---------------------------------------------------------------------
 
+* Table 14.2 revisa las APIs que hemos cubierto para crear objetos `java.io.File` y `java.nio.file.Path`. 
+* Cuando lees la tabla, recuerda que los métodos estáticos operan sobre la clase/interfaz, mientras los métodos de instancia requieren una instancia de un objeto. 
+* Asegúrate de saber esto bien antes de proceder con el resto del capítulo.
+
+![ch14_01_05.png](images/ch14/ch14_01_05.png)
+
+## Operating on File and Path
+
+Ahora que sabemos cómo crear objetos File y Path, podemos comenzar a usarlos para hacer cosas útiles. 
+En esta sección, exploramos la funcionalidad disponible para nosotros que involucra directorios.
+
+### Using Shared Functionality
+
+* Muchas operaciones pueden ser hechas usando tanto las librerías I/O como NIO.2. 
+* Presentamos muchas APIs comunes en Table 14.3 y Table 14.4. 
+* Aunque estas tablas pueden parecer como muchos métodos para aprender, muchos de ellos son autoexplicativos. 
+* Puedes ignorar los parámetros varargs por ahora. Los explicamos más adelante en el capítulo.
+
+![ch14_01_06.png](images/ch14/ch14_01_06.png)
+
+![ch14_01_07.png](images/ch14/ch14_01_07.png)
+
+* Ahora intentemos usar algunas de estas APIs. Lo siguiente es un programa de muestra usando solo APIs I/O legacy. 
+* Dada una ruta de archivo, genera información sobre el archivo o directorio, tal como si existe, qué archivos están contenidos dentro de él, y así sucesivamente:
+
+```java
+10: public static void io() {
+11:   var file = new File("C:\\data\\zoo.txt");
+12:   if (file.exists()) {
+13:     System.out.println("Absolute Path: " + file.getAbsolutePath());
+14:     System.out.println("Is Directory: " + file.isDirectory());
+15:     System.out.println("Parent Path: " + file.getParent());
+16:     if (file.isFile()) {
+17:       System.out.println("Size: " + file.length());
+18:       System.out.println("Last Modified: " + file.lastModified());
+19:     } else {
+20:       for (File subfile : file.listFiles()) {
+21:         System.out.println("  " + subfile.getName());
+22:     } } } }
+```
+
+Si la ruta proporcionada apunta a un archivo válido, el programa genera algo similar a lo siguiente debido a la declaración if en la línea 16:
+
+Absolute Path: C:\data\zoo.txt
+Is Directory: false
+Parent Path: C:\data
+Size: 12382
+Last Modified: 1650610000000
+
+Finalmente, si la ruta proporcionada apunta a un directorio válido, tal como `C:\data`, el programa genera algo similar a lo siguiente, gracias al bloque else:
+
+Absolute Path: C:\data
+Is Directory: true
+Parent Path: C:\
+ employees.txt
+ zoo.txt
+ zoo-backup.txt
+
+En estos ejemplos, ves que la salida de un programa basado en I/O es completamente dependiente de los directorios y archivos disponibles en tiempo de ejecución en el sistema de archivos subyacente.
+
+* En el examen, podrías ver rutas que parecen archivos, pero son directorios o viceversa. 
+* Por ejemplo, /data/zoo.txt podría ser un archivo o un directorio, incluso aunque tiene una extensión de archivo. 
+* ¡No asumas que es alguno a menos que la pregunta te lo diga!
+
+---------------------------------------------------------------------
+En el ejemplo anterior, usamos dos barras invertidas `(\\)` en el String de ruta, tal como `C:\\data\\zoo.txt`. 
+Cuando el compilador ve un `\\` dentro de una expresión String, lo interpreta como un valor `\` único.
+---------------------------------------------------------------------
+
+```java
+25: public static void nio() throws IOException {
+26:   var path = Path.of("C:\\data\\zoo.txt");
+27:   if (Files.exists(path)) {
+28:     System.out.println("Absolute Path: " + path.toAbsolutePath());
+29:     System.out.println("Is Directory: " + Files.isDirectory(path));
+30:     System.out.println("Parent Path: " + path.getParent());
+31:     if (Files.isRegularFile(path)) {
+32:       System.out.println("Size: " + Files.size(path));
+33:       System.out.println("Last Modified: "
+34:         + Files.getLastModifiedTime(path));
+35:     } else {
+36:       try (Stream<Path> stream = Files.list(path)) {
+37:         stream.forEach(p ->
+38:           System.out.println("  " + p.getName()));
+39:     } } } }
+```
+
+* La mayor parte de este ejemplo es equivalente y reemplaza las llamadas al método I/O en las tablas anteriores con las versiones NIO.2. 
+* Sin embargo, hay diferencias clave. Primero, la línea 25 declara una excepción chequeada. Más APIs en NIO.2 lanzan IOException que las APIs I/O. 
+* En este caso, Files.size(), Files.getLastModifiedTime(), y Files.list() lanzan una IOException.
+
+* Segundo, las líneas 36-39 usan un Stream y una lambda en lugar de un loop. 
+* Dado que los streams usan evaluación lazy, esto significa que el método cargará cada elemento de ruta según sea necesario, en lugar del directorio completo de una vez.
+
+---------------------------------------------------------------------
+**Closing the Stream**
+* ¿Notaste que en la última muestra de código, pusimos nuestro objeto Stream dentro de un try-with-resources? 
+* Los métodos basados en stream de NIO.2 abren una conexión al sistema de archivos that must be properly closed; de lo contrario, podría ocurrir una fuga de recursos. 
+* Una fuga de recursos dentro del sistema de archivos significa que la ruta puede estar bloqueada de modificación mucho después de que el proceso que la usó se complete.
+
+* Si asumiste que la operación terminal de un stream cerraría automáticamente los recursos del sistema de archivos subyacentes, estarías equivocado. 
+* Hubo mucho de debate sobre este comportamiento cuando fue presentado por primera vez; en resumen, requerir a los desarrolladores cerrar el stream ganó.
+
+* En el lado positivo, no todos los streams necesitan ser cerrados: solo aquellos que abren recursos, como los encontrados en NIO.2. 
+* Por ejemplo, no necesitas cerrar ninguno de los streams con los que trabajaste en Chapter 10, "Streams."
+
+* Finalmente, el examen no siempre cierra apropiadamente los recursos NIO.2. 
+* Para coincidir con el examen, a veces omitimos cerrar recursos NIO.2 en preguntas de revisión y práctica. 
+* Siempre usa declaraciones try-with-resources con estos métodos NIO.2 en tu propio código.
+---------------------------------------------------------------------
+
+* Para el resto de esta sección, solo discutimos los métodos NIO.2, porque son más importantes. 
+* También hay más para saber sobre ellos, y es más probable que aparezcan en el examen.
+
+### Handling Methods That Declare IOException
+
+Muchos de los métodos presentados en este capítulo declaran IOException. Las causas comunes de que un método lance esta excepción incluyen lo siguiente:
+* Pérdida de comunicación con el sistema de archivos subyacente.
+* El archivo o directorio existe, pero no puede ser accedido o modificado.
+* El archivo existe, pero no puede ser sobreescrito.
+* El archivo o directorio es requerido pero no existe.
+
+* Los métodos que acceden o cambian archivos y directorios, tal como aquellos en la clase Files, frecuentemente declaran IOException. 
+* Hay excepciones a esta regla, como veremos. Por ejemplo, el método Files.exists() no declara IOException. 
+* Si lanzara una excepción cuando el archivo no existe, ¡nunca sería capaz de retornar false! 
+* Como regla general, si un método NIO.2 declara una IOException, usually requiere que las rutas sobre las que opera existan.
+
+### Providing NIO.2 Optional Parameters
+
+* Muchos de los métodos NIO.2 en este capítulo incluyen un varargs que toma una lista opcional de valores. 
+* Table 14.5 presenta los argumentos con los que deberías estar familiarizado para el examen.
+
+![ch14_01_08.png](images/ch14/ch14_01_08.png)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Continuar en la página 12
 
 
 
@@ -246,8 +348,8 @@ Path zooPath2 = FileSystems.getDefault()
 ```
 
 ---------------------------------------------------------------------
-Referencing Files and Directories
-Operating on File and Path
+
+
 Introducing I/O Streams
 Reading and Writing Files
 Serializing Data
