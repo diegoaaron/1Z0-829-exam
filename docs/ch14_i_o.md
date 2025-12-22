@@ -748,6 +748,551 @@ public void copyPath(Path source, Path target) {
 * Luego, verifica si la ruta es un directorio y, si lo es, realiza una copia recursiva de cada uno de sus elementos. 
 * ¿Qué pasa si el método se encuentra con un enlace simbólico? No te preocupes: la JVM no seguirá enlaces simbólicos cuando usa el método list().
 
+### Copying and Replacing Files
+
+* Por defecto, si el objetivo ya existe, el método copy() lanzará una excepción. 
+* Puedes cambiar este comportamiento proporcionando el valor enum StandardCopyOption REPLACE_EXISTING al método. 
+* La siguiente llamada al método sobrescribirá el archivo movie.txt si ya existe:
+
+```java
+Files.copy(Paths.get("book.txt"), Paths.get("movie.txt"),
+  StandardCopyOption.REPLACE_EXISTING);
+```
+
+Para el examen, necesitas saber que sin la opción REPLACE_EXISTING, este método lanzará una excepción si el archivo ya existe.
+
+### Copying Files with I/O Streams
+
+La clase Files incluye dos métodos copy() que operan con streams I/O.
+
+```java
+public static long copy(InputStream in, Path target,
+  CopyOption... options) throws IOException
+
+public static long copy(Path source, OutputStream out)
+  throws IOException
+```
+
+* El primer método lee los contenidos de un stream I/O y escribe la salida a un archivo. 
+* El segundo método lee los contenidos de un archivo y escribe la salida a un stream I/O. 
+* Estos métodos son bastante convenientes si necesitas rápidamente leer/escribir datos desde/hacia disco.
+
+Los siguientes son ejemplos de cada método copy():
+
+```java
+try (var is = new FileInputStream("source-data.txt")) {
+  // Write I/O stream data to a file
+  Files.copy(is, Paths.get("/mammals/wolf.txt"));
+}
+
+Files.copy(Paths.get("/fish/clown.xsl"), System.out);
+```
+
+* Mientras usamos FileInputStream en el primer ejemplo, el stream I/O podría haber sido cualquier stream I/O válido incluyendo conexiones a sitios web, recursos de stream en memoria, y así sucesivamente. 
+* El segundo ejemplo imprime los contenidos de un archivo directamente al stream `System.out`.
+
+### Copying Files into a Directory
+
+* Para el examen, es importante que entiendas cómo el método copy() opera sobre archivos y directorios. 
+* Por ejemplo, digamos que tenemos un archivo, food.txt, y un directorio, /enclosure. 
+* Tanto el archivo como el directorio existen. ¿Qué piensas que es el resultado de ejecutar el siguiente proceso?
+
+```java
+var file = Paths.get("food.txt");
+var directory = Paths.get("/enclosure");
+Files.copy(file, directory);
+```
+
+* Si dijiste que crearía un nuevo archivo en /enclosure/food.txt, estás muy equivocado. 
+* Lanza una excepción. El comando intenta crear un nuevo archivo llamado /enclosure. 
+* Dado que la ruta /enclosure ya existe, se lanza una excepción en tiempo de ejecución.
+
+* Por otro lado, si el directorio no existiera, el proceso crearía un nuevo archivo con los contenidos de food.txt, pero el archivo se llamaría /enclosure. 
+* Recuerda, dijimos que los archivos pueden no necesitar tener extensiones, y en este ejemplo, importa.
+
+* Este comportamiento se aplica tanto a los métodos copy() como move(), este último del cual cubrimos a continuación. 
+* En caso de que tengas curiosidad, la manera correcta de copiar el archivo al directorio es hacer lo siguiente:
+
+```java
+var file = Paths.get("food.txt");
+var directory = Paths.get("/enclosure/food.txt");
+Files.copy(file, directory);
+```
+
+### Moving or Renaming Paths with move()
+
+La clase Files proporciona un método útil para mover o renombrar archivos y directorios.
+
+```java
+public static Path move(Path source, Path target,
+  CopyOption... options) throws IOException
+```
+
+El siguiente código de muestra usa el método move():
+
+```java
+Files.move(Path.of("C:\\zoo"), Path.of("C:\\zoo-new"));
+Files.move(Path.of("C:\\user\\addresses.txt"),
+  Path.of("C:\\zoo-new\\addresses2.txt"));
+```
+
+* El primer ejemplo renombra el directorio zoo a un directorio zoo-new, manteniendo todos los contenidos originales del directorio fuente. 
+* El segundo ejemplo mueve el archivo addresses.txt desde el directorio user al directorio zoo-new y lo renombra a addresses2.txt.
+
+### Similarities between move() and copy()
+
+* Como copy(), move() requiere REPLACE_EXISTING para sobrescribir el objetivo si existe; de lo contrario, lanzará una excepción. 
+* También como copy(), move() no pondrá un archivo en un directorio si la fuente es un archivo y el objetivo es un directorio. 
+* En su lugar, creará un nuevo archivo con el nombre del directorio.
+
+### Performing an Atomic Move
+
+Otro valor enum que necesitas conocer para el examen cuando trabajas con el método move() es el valor StandardCopyOption ATOMIC_MOVE.
+
+```java
+Files.move(Path.of("mouse.txt"), Path.of("gerbil.txt"),
+  StandardCopyOption.ATOMIC_MOVE);
+```
+
+* Puedes recordar la propiedad atomic desde Chapter 13, "Concurrency," y el principio de un atomic move es similar. 
+* Un atomic move es uno en el cual un archivo se mueve dentro del sistema de archivos como una sola operación indivisible. 
+* Dicho de otra manera, cualquier proceso monitoreando el sistema de archivos nunca ve un archivo incompleto o parcialmente escrito. 
+* Si el sistema de archivos no soporta esta característica, se lanzará una AtomicMoveNotSupportedException.
+
+Nota que aunque ATOMIC_MOVE está disponible como un miembro del tipo StandardCopyOption, probablemente lanzará una excepción si se pasa a un método copy().
+
+### Deleting a File with delete() and deleteIfExists()
+
+La clase Files incluye dos métodos que eliminan un archivo o directorio vacío dentro del sistema de archivos.
+
+```java
+public static void delete(Path path) throws IOException
+
+public static boolean deleteIfExists(Path path) throws IOException
+```
+
+* Para eliminar un directorio, debe estar vacío. Ambos de estos métodos lanzan una excepción si se opera sobre un directorio no vacío. 
+* Además, si la ruta es un enlace simbólico, el enlace simbólico será eliminado, no la ruta a la que el enlace simbólico apunta.
+
+* Los métodos difieren en cómo manejan una ruta que no existe. 
+* El método delete() lanza una excepción si la ruta no existe, mientras el método deleteIfExists() retorna true si la eliminación fue exitosa o false de lo contrario. 
+* Similar a createDirectories(), deleteIfExists() es útil en situaciones donde quieres asegurar que una ruta no existe y eliminarla si existe.
+
+Aquí proporcionamos código de muestra que realiza operaciones delete():
+
+```java
+Files.delete(Paths.get("/vulture/feathers.txt"));
+Files.deleteIfExists(Paths.get("/pigeon"));
+```
+
+* El primer ejemplo elimina el archivo feathers.txt en el directorio vulture, y lanza una NoSuchFileException si el archivo o directorio no existe. 
+* El segundo ejemplo elimina el directorio pigeon, asumiendo que está vacío. Si el directorio pigeon no existe, la segunda línea no lanzará una excepción.
+
+### Comparing Files with isSameFile() and mismatch()
+
+* Dado que una ruta puede incluir símbolos de ruta y enlaces simbólicos dentro de un sistema de archivos, el método `equals()` no puede ser confiable para saber si dos instancias Path se refieren al mismo archivo. 
+* Afortunadamente, existe el método `isSameFile()`. Este método toma dos objetos Path como entrada, resuelve todos los símbolos de ruta, y sigue enlaces simbólicos. 
+* A pesar del nombre, el método también puede ser usado para determinar si dos objetos Path se refieren al mismo directorio.
+
+* Mientras la mayoría de usos de `isSameFile()` lanzarán una excepción si las rutas no existen, hay un caso especial en el cual no lo hace. 
+* Si los dos objetos path son iguales en términos de `equals()`, el método simplemente retornará true sin verificar si el archivo existe.
+
+Asume que el sistema de archivos existe, como se muestra en Figure 14.4, con un enlace simbólico desde /animals/snake a /animals/cobra.
+
+![ch14_01_10.png](images/ch14/ch14_01_10.png)
+
+Dada la estructura definida en Figure 14.4, ¿qué genera lo siguiente?
+
+```java
+System.out.println(Files.isSameFile(
+  Path.of("/animals/cobra"),
+  Path.of("/animals/snake")));
+
+System.out.println(Files.isSameFile(
+  Path.of("/animals/monkey/ears.png"),
+  Path.of("/animals/wolf/ears.png")));
+```
+
+* Dado que snake es un enlace simbólico a cobra, el primer ejemplo genera true. 
+* En el segundo ejemplo, las rutas se refieren a diferentes archivos, por lo que se imprime false.
+
+* A veces quieres comparar los contenidos del archivo en lugar de si es físicamente el mismo archivo. 
+* Por ejemplo, podríamos tener dos archivos con texto hello. El método mismatch() fue introducido en Java 12 para ayudarnos aquí. 
+* Toma dos objetos Path como entrada. El método retorna -1 si los archivos son los mismos; de lo contrario, retorna el índice de la primera posición en el archivo que difiere.
+
+```java
+System.out.println(Files.mismatch(
+  Path.of("/animals/monkey.txt"),
+  Path.of("/animals/wolf.txt")));
+```
+
+* Supón que monkey.txt contiene el nombre Harold y wolf.txt contiene el nombre Howler. 
+* El código anterior imprime 1 en ese caso porque la segunda posición es diferente, y usamos indexación basada en cero en Java. 
+* Dados esos valores, ¿qué piensas que imprime este código?
+
+```java
+System.out.println(Files.mismatch(
+  Path.of("/animals/wolf.txt"),
+  Path.of("/animals/monkey.txt")));
+```
+
+* La respuesta es la misma que el ejemplo anterior. El código imprime 1 de nuevo. 
+* El método mismatch() es simétrico y retorna el mismo resultado independientemente del orden de los parámetros.
+
+## Introducing I/O Streams
+
+* Ahora que tenemos lo básico fuera del camino, pasemos a los streams I/O, que son mucho más interesantes. 
+* En esta sección, te mostramos cómo usar streams I/O para leer y escribir datos. 
+* El "I/O" se refiere a la naturaleza de cómo los datos son accedidos, ya sea leyendo los datos desde un recurso (input) o escribiendo los datos a un recurso (output).
+
+---------------------------------------------------------------------
+* Cuando nos referimos a I/O streams en este capítulo, nos estamos refiriendo a los encontrados en la API java.io. 
+* Si solo decimos streams, significa los de Chapter 10. ¡Aceptamos que el nombramiento puede ser un poco confuso!
+---------------------------------------------------------------------
+
+### Understanding I/O Stream Fundamentals
+
+* Los contenidos de un archivo pueden ser accedidos o escritos vía un I/O stream, que es una lista de elementos de datos presentados secuencialmente. 
+* Un stream I/O puede ser conceptualmente pensado como un largo, casi interminable stream de agua con datos presentados una ola a la vez.
+
+* Demostramos este principio en Figure 14.5. El stream I/O es tan grande que una vez que comenzamos a leerlo, no tenemos idea de dónde está el principio o el final. 
+* Solo tenemos un puntero a nuestra posición actual en el stream I/O y leemos datos un bloque a la vez.
+
+![ch14_01_11.png](images/ch14/ch14_01_11.png)
+
+* Cada tipo de stream I/O segmenta datos en una ola o bloque de una manera particular. 
+* Por ejemplo, algunas clases de stream I/O leen o escriben datos como bytes individuales. 
+* Otras clases de stream I/O leen o escriben caracteres individuales o strings de caracteres. 
+* Además de eso, algunas clases de stream I/O leen o escriben grupos más grandes de bytes o caracteres a la vez, específicamente aquellas con la palabra Buffered en su nombre.
+
+---------------------------------------------------------------------
+* Aunque la API java.io está llena de streams I/O que manejan caracteres, strings, grupos de bytes, y así sucesivamente, casi todos están construidos sobre leer o escribir un byte individual o un array de bytes a la vez. 
+* Los streams I/O de nivel superior existen por conveniencia así como por desempeño.
+---------------------------------------------------------------------
+
+* Aunque los streams I/O son comúnmente usados con I/O de archivos, son más generalmente usados para manejar la lectura/escritura de cualquier fuente de datos secuencial. 
+* Por ejemplo, podrías construir una aplicación Java que envía datos a un sitio web usando un output stream y lee el resultado vía un input stream.
+
+---------------------------------------------------------------------
+**I/O Streams Can Be Big**
+* Cuando escribes código donde no sabes qué tan grande será el stream I/O en tiempo de ejecución, puede ser útil visualizar un stream I/O como siendo tan grande que todos los datos contenidos en él no podrían posiblemente caber en memoria. 
+* Por ejemplo, un archivo de 1 TB no podría ser almacenado enteramente en memoria por la mayoría de sistemas de computadora (al momento en que este libro está siendo escrito). 
+* El archivo todavía puede ser leído y escrito por un programa con muy poca memoria, ya que el stream I/O permite a la aplicación enfocarse en solo una pequeña porción del stream I/O general en cualquier momento dado.
+---------------------------------------------------------------------
+
+### Learning I/O Stream Nomenclature
+
+La API java.io proporciona numerosas clases para crear, acceder, y manipular streams I/O—tantas que tiende a abrumar a muchos nuevos desarrolladores Java. 
+¡Mantén la calma! Revisamos las principales diferencias entre cada clase de stream I/O y te mostramos cómo distinguir entre ellas.
+
+Incluso si te encuentras con un stream I/O particular en el examen que no reconoces, el nombre del stream I/O frecuentemente te da suficiente información para entender exactamente qué hace.
+
+* El objetivo de esta sección es familiarizarte con la terminología común y convenciones de nombramiento usadas con streams I/O. 
+* No te preocupes si no reconoces los nombres de clases de stream particulares usados en esta sección o su función; cubrimos cómo usarlos en detalle en este capítulo.
+
+### Storing Data as Bytes
+
+* Los datos se almacenan en un sistema de archivos (y memoria) como un 0 o 1, llamado un bit. 
+* Dado que es realmente difícil para los humanos leer/escribir datos que son solo `0s` y `1s`, están agrupados en un conjunto de 8 bits, llamado un byte.
+
+¿Qué sobre el tipo primitivo byte de Java? Como aprenderás más adelante, cuando usamos streams I/O, los valores son frecuentemente leídos o escritos usando valores byte y arrays.
+
+### Byte Streams vs. Character Streams
+
+* La API java.io define dos conjuntos de clases de stream I/O para leer y escribir streams I/O: byte I/O streams y character I/O streams. 
+* Usamos ambos tipos de streams I/O a lo largo de este capítulo.
+
+### Differences between Byte and Character I/O Streams
+
+1. Los streams I/O de byte leen/escriben datos binarios (`0s` y `1s`) y tienen nombres de clase que terminan en InputStream u OutputStream.
+2. Los streams I/O de carácter leen/escriben datos de texto y tienen nombres de clase que terminan en Reader o Writer.
+
+* La API frecuentemente incluye clases similares para ambos streams I/O de byte y carácter, tal como FileInputStream y FileReader. 
+* La diferencia entre las dos clases está basada en cómo los bytes son leídos o escritos.
+* Es importante recordar que aunque los streams I/O de carácter no contienen la palabra Stream en su nombre de clase, todavía son streams I/O. 
+* El uso de Reader/Writer en el nombre es solo para distinguirlos de los streams de byte.
+
+A lo largo del capítulo, nos referimos tanto a InputStream como a Reader como input streams, y nos referimos tanto a OutputStream como a Writer como output streams.
+
+* Los streams I/O de byte son usados principalmente para trabajar con datos binarios, tal como una imagen o archivo ejecutable, mientras los streams I/O de carácter son usados para trabajar con archivos de texto. 
+* Por ejemplo, puedes usar una clase Writer para generar un valor String a un archivo sin necesariamente tener que preocuparte sobre la codificación de caracteres subyacente del archivo.
+
+* El character encoding determina cómo los caracteres son codificados y almacenados en bytes en un stream I/O y luego leídos de vuelta o decodificados como caracteres. 
+* Aunque esto puede sonar simple, Java soporta una amplia variedad de codificaciones de caracteres, desde las que pueden usar un byte para caracteres latinos, UTF-8 y ASCII por ejemplo, hasta usar dos o más bytes por carácter, tal como UTF-16. 
+* Para el examen, no necesitas memorizar las codificaciones de caracteres, pero deberías estar familiarizado con los nombres.
+
+---------------------------------------------------------------------
+**Character Encoding in Java**
+En Java, la codificación de caracteres puede ser especificada usando la clase Charset pasando un valor de nombre al método estático Charset.forName(), tal como en los siguientes ejemplos:
+
+```java
+Charset usAsciiCharset = Charset.forName("US-ASCII");
+Charset utf8Charset = Charset.forName("UTF-8");
+Charset utf16Charset = Charset.forName("UTF-16");
+```
+
+Java soporta numerosas codificaciones de caracteres, cada una especificada por un valor de nombre estándar diferente.
+---------------------------------------------------------------------
+
+### Input vs. Output Streams
+
+* La mayoría de clases InputStream tienen una clase OutputStream correspondiente, y viceversa. 
+* Por ejemplo, la clase FileOutputStream escribe datos que pueden ser leídos por un FileInputStream. 
+* Si entiendes las características de una clase Input u Output stream particular, deberías saber naturalmente qué hace su clase complementaria.
+
+* Se sigue, entonces, que la mayoría de clases Reader tienen una clase Writer correspondiente. 
+* Por ejemplo, la clase FileWriter escribe datos que pueden ser leídos por un FileReader.
+
+* Hay excepciones a esta regla. Para el examen, deberías saber que PrintWriter no tiene una clase PrintReader acompañante. 
+* De igual manera, el PrintStream es un OutputStream que no tiene un InputStream correspondiente. 
+* Tampoco tiene Output en su nombre. Discutimos estas clases más adelante en este capítulo.
+
+### Low-Level vs. High-Level Streams
+
+Otra manera en que puedes familiarizarte con la API java.io es segmentando los streams I/O en low-level y high-level streams.
+
+* Un low-level stream se conecta directamente con la fuente de los datos, tal como un archivo, un array, o un String. 
+* Los streams I/O de low-level procesan los datos crudos o recurso y son accedidos de manera directa y no filtrada. 
+* Por ejemplo, un FileInputStream es una clase que lee datos de archivo un byte a la vez. 
+* Alternativamente, un high-level stream está construido sobre otro stream I/O usando wrapping. 
+* Wrapping es el proceso por el cual una instancia es pasada al constructor de otra clase, y las operaciones sobre la instancia resultante son filtradas y aplicadas a la instancia original. 
+* Por ejemplo, echa un vistazo a los objetos FileReader y BufferedReader en el siguiente código de muestra:
+
+```java
+try (var br = new BufferedReader(new FileReader("zoo-data.txt"))) {
+  System.out.println(br.readLine());
+}
+```
+
+* En este ejemplo, FileReader es el stream I/O de low-level, mientras BufferedReader es el stream I/O de high-level que toma un FileReader como input. 
+* Muchas operaciones en el stream I/O de high-level pasan a través como operaciones al stream I/O de low-level subyacente, tal como read() o close(). 
+* Otras operaciones sobrescriben o añaden nueva funcionalidad a los métodos del stream I/O de low-level. 
+* El stream I/O de high-level puede añadir nuevos métodos, tal como readLine(), así como mejoras de desempeño para leer y filtrar los datos de low-level.
+
+* Los streams I/O de high-level también pueden tomar otros streams I/O de high-level como input. 
+* Por ejemplo, aunque el siguiente código puede parecer un poco extraño al principio, el estilo de wrapping un stream I/O es bastante común en la práctica:
+
+```java
+try (var ois = new ObjectInputStream(
+  new BufferedInputStream(
+    new FileInputStream("zoo-data.txt")))) {
+  System.out.print(ois.readObject());
+}
+```
+
+* En este ejemplo, el FileInputStream de low-level interactúa directamente con el archivo, que está wrapped por un BufferedInputStream de high-level para mejorar el desempeño. 
+* Finalmente, el objeto completo está wrapped por otro ObjectInputStream de high-level, que nos permite interpretar los datos como un objeto Java.
+
+* Para el examen, las únicas clases de stream de low-level con las que necesitas estar familiarizado son las que operan sobre archivos. 
+* El resto de las clases de stream no abstractas son todas streams de high-level.
+
+### Stream Base Classes
+
+La librería java.io define cuatro clases abstractas que son los padres de todas las clases de stream I/O definidas dentro de la API: InputStream, OutputStream, Reader, y Writer.
+
+* Los constructores de los streams I/O de high-level frecuentemente toman una referencia a la clase abstracta. 
+* Por ejemplo, BufferedWriter toma un objeto Writer como input, lo que le permite tomar cualquier subclase de Writer.
+
+* Un área común donde al examen le gusta jugar trucos contigo es mezclando y emparejando clases de stream I/O que no son compatibles entre sí. 
+* Por ejemplo, echa un vistazo a cada uno de los siguientes ejemplos y ve si puedes determinar por qué no compilan:
+
+```java
+new BufferedInputStream(new FileReader("z.txt")); // DOES NOT COMPILE
+new BufferedWriter(new FileOutputStream("z.txt")); // DOES NOT COMPILE
+new ObjectInputStream(
+  new FileOutputStream("z.txt"));      // DOES NOT COMPILE
+new BufferedInputStream(new InputStream());  // DOES NOT COMPILE
+```
+
+* Los primeros dos ejemplos no compilan porque mezclan clases Reader/Writer con clases InputStream/OutputStream, respectivamente. 
+* El tercer ejemplo no compila porque estamos mezclando un OutputStream con un InputStream. 
+* Aunque es posible leer datos desde un InputStream y escribirlo a un OutputStream, wrapping el stream I/O no es la manera de hacerlo. 
+* Como verás más adelante en este capítulo, los datos deben ser copiados. 
+* Finalmente, el último ejemplo no compila porque InputStream es una clase abstracta, y por lo tanto no puedes crear una instancia de ella.
+
+### Decoding I/O Class Names
+
+* Presta mucha atención al nombre de la clase I/O en el examen, ya que decodificarla frecuentemente te da pistas de contexto sobre qué hace la clase. 
+* Por ejemplo, sin necesidad de buscarlo, debería ser claro que FileReader es una clase que lee datos desde un archivo como caracteres o strings. 
+* Además, ObjectOutputStream suena como una clase que escribe datos de objeto a un byte stream.
+
+Table 14.7 lista las clases base abstractas de las que todos los streams I/O heredan.
+
+![ch14_01_12.png](images/ch14/ch14_01_12.png)
+
+* Table 14.8 lista los streams I/O concretos con los que deberías estar familiarizado para el examen. 
+* Nota que la mayor parte de la información sobre cada stream I/O, tal como si es un input u output stream o si accede datos usando bytes o caracteres, puede ser decodificada solo por el nombre.
+
+![ch14_01_13.png](images/ch14/ch14_01_13.png)
+
+* Mantén Table 14.7 y Table 14.8 a mano mientras aprendes más sobre streams I/O en este capítulo. 
+* Los discutimos con más detalle, incluyendo ejemplos de cada uno.
+
+## Reading and Writing Files
+
+Hay un número de maneras de leer y escribir desde un archivo. Las mostramos en esta sección copiando un archivo a otro.
+
+### Using I/O Streams
+
+* Los streams I/O son todo sobre leer/escribir datos, por lo que no debería ser una sorpresa que los métodos más importantes sean read() y write(). 
+* Tanto InputStream como Reader declaran un método read() para leer datos de byte desde un stream I/O. 
+* De igual manera, OutputStream y Writer ambos definen un método write() para escribir un byte al stream:
+
+* Los siguientes métodos copyStream() muestran un ejemplo de leer todos los valores de un InputStream y Reader y escribiéndolos a un OutputStream y Writer, respectivamente. 
+* En ambos ejemplos, -1 se usa para indicar el final del stream.
+
+```java
+void copyStream(InputStream in, OutputStream out) throws IOException {
+  int b;
+  while ((b = in.read()) != -1) {
+    out.write(b);
+  }
+}
+
+void copyStream(Reader in, Writer out) throws IOException {
+  int b;
+  while ((b = in.read()) != -1) {
+      out.write(b);
+  }
+}
+```
+
+* Espera. Dijimos que estamos leyendo y escribiendo bytes, ¿entonces por qué los métodos usan int en lugar de byte? 
+* Recuerda, el tipo de dato byte tiene un rango de 256 caracteres. Necesitaban un valor extra para indicar el final de un stream I/O. 
+* Los autores de Java decidieron usar un tipo de dato más grande, int, para que valores especiales como -1 pudieran indicar el final de un stream I/O. 
+* Las clases de output stream usan int también, para ser consistentes con las clases de input stream.
+
+* Leer y escribir un byte a la vez no es una manera particularmente eficiente de hacer esto. 
+* Afortunadamente, hay métodos sobrecargados para leer y escribir múltiples bytes a la vez. Los valores offset y length son aplicados al array en sí. 
+* Por ejemplo, un offset de 3 y length de 5 indica que el stream debería leer hasta cinco bytes/caracteres de datos y ponerlos en el array comenzando con la posición 3. Veamos un ejemplo:
+
+```java
+10: void copyStream(InputStream in, OutputStream out) throws
+IOException {
+11:   int batchSize = 1024;
+12:   var buffer = new byte[batchSize];
+13:   int lengthRead;
+14:   while ((lengthRead = in.read(buffer, 0, batchSize)) > 0) {
+15:     out.write(buffer, 0, lengthRead);
+16:     out.flush();
+17: }
+```
+
+* En lugar de leer los datos un byte a la vez, leemos y escribimos hasta 1024 bytes a la vez en la línea 14. 
+* El valor de retorno lengthRead es crítico para determinar si estamos al final del stream y saber cuántos bytes deberíamos escribir en nuestro output stream.
+
+* A menos que nuestro archivo sea un múltiplo de 1024 bytes, la última iteración del bucle while escribirá algún valor menor que 1024 bytes. 
+* Por ejemplo, si el tamaño del buffer es 1,024 bytes y el tamaño del archivo es 1,054 bytes, la última lectura será solo 30 bytes. 
+* Si ignoráramos este valor de retorno y en su lugar escribiéramos 1,024 bytes, 994 bytes del loop anterior serían escritos al final del archivo.
+
+* También añadimos un método flush() en la línea 16 para reducir la cantidad de datos perdidos si la aplicación termina inesperadamente. 
+* Cuando los datos son escritos a un output stream, el sistema operativo subyacente no garantiza que los datos llegarán al sistema de archivos inmediatamente. 
+* El método flush() solicita que todos los datos acumulados sean escritos inmediatamente a disco. Sin embargo, no es sin costo. 
+* Cada vez que se usa, puede causar un retraso notable en la aplicación, especialmente para archivos grandes. 
+* A menos que los datos que estás escribiendo sean extremadamente críticos, el método flush() debería ser usado solo intermitentemente. 
+* Por ejemplo, no debería ser necesariamente llamado después de cada escritura, como lo es en este ejemplo.
+
+* Métodos equivalentes existen en Reader y Writer, pero usan char en lugar de byte, haciendo el método copyStream() equivalente muy similar.
+* El ejemplo anterior hace que leer y escribir un archivo parezca mucho para pensar. 
+* Eso es porque solo usa streams I/O de low-level. Intentemos de nuevo usando streams de high-level.
+
+```java
+26: void copyTextFile(File src, File dest) throws IOException {
+27:   try (var reader = new BufferedReader(new FileReader(src));
+28:     var writer = new BufferedWriter(new FileWriter(dest))) {
+29:     String line = null;
+30:     while ((line = reader.readLine()) != null) {
+31:       writer.write(line);
+32:       writer.newLine();
+33:   } } }
+```
+
+* La clave es elegir las clases de high-level más útiles. En este caso, estamos tratando con un File, así que queremos usar un FileReader y FileWriter. 
+* Ambas clases tienen constructores que pueden tomar ya sea un String representando la ubicación o un File directamente.
+
+* Si el archivo fuente no existe, se lanzará una FileNotFoundException, que hereda IOException. 
+* Si el archivo de destino ya existe, esta implementación lo sobrescribirá. 
+* Podemos pasar un parámetro boolean segundo opcional a FileWriter para un flag append si queremos cambiar este comportamiento.
+
+* También elegimos usar un BufferedReader y BufferedWriter para que podamos leer una línea completa a la vez. 
+* Esto nos da los beneficios de leer lotes de caracteres en la línea 30 sin tener que escribir lógica personalizada. 
+* La línea 31 escribe la línea completa de datos de una vez. Dado que leer una línea quita los saltos de línea, los añadimos de vuelta en la línea 32. 
+* Las líneas 27 y 28 demuestran encadenar constructores. El constructor try-with-resources se encarga de cerrar todos los objetos en la cadena.
+
+* Ahora imagina que queríamos datos de byte en lugar de caracteres. 
+* Necesitaríamos elegir diferentes clases de high-level: BufferedInputStream, BufferedOutputStream, FileInputStream, y FileOuputStream. 
+* Llamaríamos readAllBytes() en lugar de readLine() y almacenar el resultado en un byte[] en lugar de un String. 
+* Finalmente, no necesitaríamos manejar nuevas líneas, ya que los datos son binarios.
+
+* Podemos hacer un poco mejor que BufferedOutputStream y BufferedWriter usando un PrintStream y PrintWriter. 
+* Estas clases contienen cuatro métodos clave. Los métodos print() y println() imprimen datos con y sin una nueva línea, respectivamente. 
+* También están los métodos format() y printf(), que describimos en la sección sobre interacciones de usuario.
+
+```java
+void copyTextFile(File src, File dest) throws IOException {
+  try (var reader = new BufferedReader(new FileReader(src));
+    var writer = new PrintWriter(new FileWriter(dest))) {
+    String line = null;
+    while ((line = reader.readLine()) != null)
+      writer.println(line);
+  }
+}
+```
+
+* Mientras usamos un String, hay numerosas versiones sobrecargadas de println(), que toman todo desde primitivos y valores String hasta objetos. 
+* Bajo las cubiertas, estos métodos frecuentemente solo realizan String.valueOf().
+
+* Las clases print stream tienen la distinción de ser las únicas clases de stream I/O que cubrimos que no tienen clases de input stream correspondientes. 
+* Y a diferencia de otras clases OutputStream, PrintStream no tiene Output en su nombre.
+
+---------------------------------------------------------------------
+Puede sorprenderte que has estado usando regularmente un PrintStream a lo largo de este libro. 
+Tanto `System.out` como System.err son objetos PrintStream. 
+De igual manera, System.in, frecuentemente útil para leer entrada de usuario, es un InputStream.
+---------------------------------------------------------------------
+
+* A diferencia de la mayoría de los otros streams I/O que hemos cubierto, los métodos en las clases print stream no lanzan ninguna excepción chequeada. 
+* Si lo hicieran, se te requeriría atrapar una excepción chequeada cada vez que llamaras System.out.print()
+
+* El separador de línea es \n o \r\n, dependiendo de tu sistema operativo. 
+* El método println() se encarga de esto por ti. 
+* Si necesitas obtener el carácter directamente, cualquiera de los siguientes lo retornará para ti:
+
+```java
+System.getProperty("line.separator");
+System.lineSeparator();
+```
+
+### Enhancing with Files
+
+Las APIs NIO.2 proporcionan maneras incluso más fáciles de leer y escribir un archivo usando la clase Files. 
+Comencemos mirando tres maneras de copiar un archivo leyendo los datos y escribiéndolos de vuelta:
+
+```java
+private void copyPathAsString(Path input, Path output) throws IOException
+{
+    String string = Files.readString(input);
+    Files.writeString(output, string);
+}
+
+private void copyPathAsBytes(Path input, Path output) throws IOException {
+    byte[] bytes = Files.readAllBytes(input);
+    Files.write(output, bytes);
+}
+
+private void copyPathAsLines(Path input, Path output) throws IOException {
+    List<String> lines = Files.readAllLines(input);
+    Files.write(output, lines);
+}
+```
+
+* ¡Eso es bastante conciso! Puedes leer un Path como un String, un byte array, o una List. 
+* Ten en cuenta que el archivo completo es leído de una vez para los tres de estos, por lo tanto, almacenando todos los contenidos del archivo en memoria al mismo tiempo. 
+* Si el archivo es significativamente grande, puedes disparar un OutOfMemoryError al intentar cargar todo en memoria. 
+* Afortunadamente, hay una alternativa. Esta vez, imprimimos el archivo mientras lo leemos.
+
+
+
 
 
 
@@ -770,8 +1315,6 @@ public void copyPath(Path source, Path target) {
 ```
 
 ---------------------------------------------------------------------
-Introducing I/O Streams
-Reading and Writing Files
 Serializing Data
 Interacting with Users
 Working with Advanced APIs
