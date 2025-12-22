@@ -586,6 +586,168 @@ Este fragmento de código produce la siguiente salida:
 ..\sanctuary\raven\poe.txt
 ..\..\..\habitat
 
+El método relativize() requiere que ambas rutas sean absolutas o relativas y lanza una excepción si los tipos están mezclados.
+
+```java
+Path path1 = Paths.get("/primate/chimpanzee");
+Path path2 = Paths.get("bananas.txt");
+path1.relativize(path2); // IllegalArgumentException
+```
+
+* En sistemas basados en Windows, también requiere que si se usan rutas absolutas, ambas rutas deben tener el mismo directorio raíz o letra de unidad. 
+* Por ejemplo, lo siguiente también lanzaría una IllegalArgumentException en un sistema basado en Windows:
+
+```java
+Path path3 = Paths.get("C:\\primate\\chimpanzee");
+Path path4 = Paths.get("D:\\storage\\bananas.txt");
+path3.relativize(path4); // IllegalArgumentException
+```
+
+### Normalizing a Path
+
+* Hasta ahora, hemos presentado un número de ejemplos que incluían símbolos de ruta que eran innecesarios. 
+* Afortunadamente, Java proporciona el método normalize() para eliminar redundancias innecesarias en una ruta.
+
+* Recuerda, el símbolo de ruta `..` se refiere al directorio padre, mientras el símbolo de ruta. 
+* Se refiere al directorio actual. Podemos aplicar normalize() a algunas de nuestras rutas anteriores.
+
+```java
+var p1 = Path.of("./armadillo/../shells.txt");
+System.out.println(p1.normalize()); // shells.txt
+
+var p2 = Path.of("/cats/../panther/food");
+System.out.println(p2.normalize()); // /panther/food
+
+var p3 = Path.of("../../fish.txt");
+System.out.println(p3.normalize()); // ../../fish.txt
+```
+
+Los primeros dos ejemplos aplican los símbolos de ruta para remover las redundancias, pero ¿qué sobre el último? Eso está tan simplificado como puede ser. 
+El método normalize() no remueve todos los símbolos de ruta, solo aquellos que pueden ser reducidos.
+
+El método normalize() también nos permite comparar rutas equivalentes. Considera el siguiente ejemplo:
+
+```java
+var p1 = Paths.get("/pony/../weather.txt");
+var p2 = Paths.get("/weather.txt");
+System.out.println(p1.equals(p2)); // false
+System.out.println(p1.normalize().equals(p2.normalize())); // true
+```
+
+* El método equals() retorna true si dos rutas representan el mismo valor. 
+* En la primera comparación, los valores de ruta son diferentes. 
+* En la segunda comparación, los valores de ruta han sido ambos reducidos al mismo valor normalizado, /weather.txt. 
+* Esta es la función primaria del método normalize(): permitirnos comparar mejor diferentes rutas.
+
+### Retrieving the Real File System Path
+
+* Mientras trabajar con rutas teóricas es útil, a veces quieres verificar que la ruta existe dentro del sistema de archivos usando toRealPath(). 
+* Este método es similar a normalize() en que elimina cualquier símbolo de ruta redundante. 
+* También es similar a toAbsolutePath(), en que unirá la ruta con el directorio de trabajo actual si la ruta es relativa.
+
+* A diferencia de esos dos métodos, sin embargo, toRealPath() lanzará una excepción si la ruta no existe. 
+* Además, seguirá enlaces simbólicos, con un parámetro varargs LinkOption opcional para ignorarlos.
+
+* Digamos que tenemos un sistema de archivos en el cual tenemos un enlace simbólico desde /zebra a /horse. 
+* ¿Qué piensas que imprimirá lo siguiente, dado un directorio de trabajo actual de /horse/schedule?
+
+```java
+System.out.println(Paths.get("/zebra/food.txt").toRealPath());
+System.out.println(Paths.get("../../food.txt").toRealPath());
+```
+
+La salida de ambas líneas es la siguiente:
+
+/horse/food.txt
+
+* En este ejemplo, las rutas absolutas y relativas ambas resuelven al mismo archivo absoluto, ya que el enlace simbólico apunta a un archivo real dentro del sistema de archivos. 
+* También podemos usar el método toRealPath() para ganar acceso al directorio de trabajo actual como un objeto Path.
+
+`System.out.println(Paths.get(".").toRealPath());`
+
+### Reviewing NIO.2 Path APIs
+
+Hemos cubierto muchos métodos de instancia en Path en esta sección. Table 14.6 los lista para revisión.
+
+![ch14_01_09.png](images/ch14/ch14_01_09.png)
+
+### Creating, Moving, and Deleting Files and Directories
+
+Dado que crear, mover y eliminar tienen algo de matiz, los desarrollamos en esta sección.
+
+### Making Directories
+
+Para crear un directorio, usamos estos métodos Files:
+
+```java
+public static Path createDirectory(Path dir,
+  FileAttribute<?>... attrs) throws IOException
+
+public static Path createDirectories(Path dir,
+  FileAttribute<?>... attrs) throws IOException
+```
+
+* El método createDirectory() creará un directorio y lanzará una excepción si ya existe o si las rutas que conducen al directorio no existen. 
+* El método createDirectories() crea el directorio objetivo junto con cualquier directorio padre no existente que conduce a la ruta. 
+* Si todos los directorios ya existen, createDirectories() simplemente completará sin hacer nada. 
+* Esto es útil en situaciones donde quieres asegurar que un directorio existe y crearlo si no existe.
+
+* Ambos de estos métodos también aceptan una lista opcional de valores FileAttribute<?> para aplicar al directorio o directorios recién creados. 
+* Discutimos atributos de archivo hacia el final del capítulo.
+
+Lo siguiente muestra cómo crear directorios:
+
+```java
+Files.createDirectory(Path.of("/bison/field"));
+Files.createDirectories(Path.of("/bison/field/pasture/green"));
+```
+
+* El primer ejemplo crea un nuevo directorio, field, en el directorio /bison, asumiendo que /bison existe; de lo contrario, se lanza una excepción. 
+* Contrasta esto con el segundo ejemplo, que crea el directorio green junto con cualquiera de los siguientes directorios padre si no existen ya, incluyendo bison, field, y pasture.
+
+### Copying Files
+
+La clase Files proporciona un método para copiar archivos y directorios dentro del sistema de archivos.
+
+```java
+public static Path copy(Path source, Path target,
+  CopyOption... options) throws IOException
+```
+
+* El método copia un archivo o directorio desde una ubicación a otra usando objetos Path. 
+* Lo siguiente muestra un ejemplo de copiar un archivo y un directorio:
+
+```java
+Files.copy(Paths.get("/panda/bamboo.txt"),
+  Paths.get("/panda-save/bamboo.txt"));
+
+Files.copy(Paths.get("/turtle"), Paths.get("/turtleCopy"));
+```
+
+* Cuando los directorios son copiados, la copia es superficial. 
+* Un shallow copy significa que los archivos y subdirectorios dentro del directorio no son copiados. 
+* Un deep copy significa que el árbol completo es copiado, incluyendo todo su contenido y subdirectorios. 
+* Una deep copy típicamente requiere recursion, donde un método se llama a sí mismo.
+
+```java
+public void copyPath(Path source, Path target) {
+  try {
+    Files.copy(source, target);
+    if(Files.isDirectory(source))
+      try (Stream<Path> s = Files.list(source)) {
+        s.forEach(p -> copyPath(p,
+                target.resolve(p.getFileName())));
+      }
+  } catch(IOException e) {
+   // Handle exception
+  }
+}
+```
+
+* El método primero copia la ruta, ya sea un archivo o un directorio. Si es un directorio, solo se realiza una shallow copy. 
+* Luego, verifica si la ruta es un directorio y, si lo es, realiza una copia recursiva de cada uno de sus elementos. 
+* ¿Qué pasa si el método se encuentra con un enlace simbólico? No te preocupes: la JVM no seguirá enlaces simbólicos cuando usa el método list().
+
 
 
 
