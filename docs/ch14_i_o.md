@@ -1291,6 +1291,53 @@ private void copyPathAsLines(Path input, Path output) throws IOException {
 * Si el archivo es significativamente grande, puedes disparar un OutOfMemoryError al intentar cargar todo en memoria. 
 * Afortunadamente, hay una alternativa. Esta vez, imprimimos el archivo mientras lo leemos.
 
+```java
+private void readLazily(Path path) throws IOException {
+  try (Stream<String> s = Files.lines(path)) {
+    s.forEach(System.out::println);
+  }
+}
+```
+
+* Ahora los contenidos del archivo son leídos y procesados lazily, lo que significa que solo una pequeña porción del archivo es almacenada en memoria en cualquier momento dado. 
+* Llevando las cosas un paso más adelante, podemos aprovechar otros métodos de stream para un ejemplo más poderoso.
+
+```java
+try (var s = Files.lines(path)) {
+  s.filter(f -> f.startsWith("WARN:"))
+   .map(f -> f.substring(5))
+   .forEach(System.out::println);
+}
+```
+
+* Este código de muestra busca en un log líneas que comienzan con WARN:, generando el texto que sigue. 
+* Asumiendo que el archivo de entrada sharks.log es como sigue:
+
+INFO:Server starting
+DEBUG:Processes available = 10
+WARN:No database could be detected
+DEBUG:Processes available reset to 0
+WARN:Performing manual recovery
+INFO:Server successfully started
+
+Entonces la salida de muestra sería la siguiente:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
