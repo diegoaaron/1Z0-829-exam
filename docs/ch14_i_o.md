@@ -1322,24 +1322,290 @@ INFO:Server successfully started
 
 Entonces la salida de muestra sería la siguiente:
 
+No database could be detected
+Performing manual recovery
 
+Como puedes ver, tenemos la habilidad de manipular archivos de maneras complejas, frecuentemente con solo unas pocas expresiones cortas.
 
+---------------------------------------------------------------------
+**Files.readAllLines() vs. Files.lines()**
 
+Para el examen, necesitas saber la diferencia entre readAllLines() y lines(). Ambos de estos ejemplos compilan y se ejecutan:
 
+```java
+Files.readAllLines(Paths.get("birds.txt")).forEach(System.out::println);
+Files.lines(Paths.get("birds.txt")).forEach(System.out::println);
+```
 
+* La primera línea lee el archivo completo en memoria y realiza una operación de impresión sobre el resultado, mientras la segunda línea procesa lazily cada línea y la imprime mientras es leída. 
+* La ventaja del segundo fragmento de código es que no requiere que el archivo completo sea almacenado en memoria en ningún momento.
 
+También deberías estar consciente de cuándo están mezclando tipos incompatibles en el examen. ¿Ves por qué lo siguiente no compila?
 
+```java
+Files.readAllLines(Paths.get("birds.txt"))
+  .filter(s -> s.length() > 2)
+  .forEach(System.out::println);
+```
 
+El método readAllLines() retorna una List, no un Stream, por lo que el método filter() no está disponible.
+---------------------------------------------------------------------
 
+### Combining with newBufferedReader() and newBufferedWriter()
 
+A veces necesitas mezclar streams I/O y NIO.2. Convenientemente, Files incluye dos métodos de conveniencia para obtener streams I/O.
 
+```java
+private void copyPath(Path input, Path output) throws IOException {
+  try (var reader = Files.newBufferedReader(input);
+    var writer = Files.newBufferedWriter(output)) {
+    
+    String line = null;
+    while ((line = reader.readLine()) != null)
+      writer.write(line);
+      writer.newLine();
+  } } }
+```
 
+* Puedes wrappear constructores de stream I/O para producir el mismo efecto, aunque es mucho más fácil usar el método factory. 
+* El primer método, newBufferedReader(), lee el archivo especificado en la ubicación Path usando un objeto BufferedReader.
 
+### Reviewing Common Read and Write Methods
 
+* Table 14.9 revisa los métodos públicos comunes de stream I/O que deberías conocer para leer y escribir. 
+* También incluimos close() y flush() ya que se usan cuando se realizan estas acciones. 
+* Table 14.10 hace lo mismo para métodos públicos comunes de lectura y escritura NIO.2.
 
+![ch14_01_14.png](images/ch14/ch14_01_14.png)
 
+![ch14_01_15.png](images/ch14/ch14_01_15.png)
 
+## Serializing Data
 
+* A lo largo de este libro, hemos estado gestionando nuestro modelo de datos usando clases, por lo que tiene sentido que querríamos guardar estos objetos entre ejecuciones de programa. 
+* Los datos sobre la salud de los animales de nuestro zoológico no serían particularmente útiles si tuvieran que ser ingresados cada vez que el programa se ejecuta
+
+* Ciertamente, puedes usar las clases de stream I/O que has aprendido hasta ahora para almacenar datos de texto y binarios, pero todavía tienes que descifrar cómo poner los datos en el stream I/O y luego decodificarlo después. 
+* Hay varios formatos de archivo como XML y CSV que puedes estandarizar, pero frecuentemente tienes que construir la traducción tú mismo.
+
+* Alternativamente, podemos usar serialización para resolver el problema de cómo convertir objetos to/from un stream I/O. 
+* Serialization es el proceso de convertir un objeto en memoria a un byte stream. 
+* De igual manera, deserialization es el proceso de convertir desde un byte stream a un objeto. 
+* La serialización frecuentemente involucra escribir un objeto a un formato almacenado o transmitible, mientras la deserialización es el proceso recíproco.
+
+Figure 14.6 muestra una representación visual de serializar y deserializar un objeto Giraffe to and from un archivo giraffe.txt.
+
+![ch14_01_16.png](images/ch14/ch14_01_16.png)
+
+En esta sección, te mostramos cómo Java proporciona mecanismos incorporados para serializar y deserializar streams I/O de objetos directamente to and from disco, respectivamente.
+
+### Applying the Serializable Interface
+
+* Para serializar un objeto usando la API I/O, el objeto debe implementar la interfaz `java.io.Serializable`. 
+* La interfaz Serializable es una marker interface, lo que significa que no tiene ningún método. 
+* Cualquier clase puede implementar la interfaz Serializable, ya que no hay métodos requeridos para implementar.
+
+---------------------------------------------------------------------
+* Dado que Serializable es una marker interface sin miembros abstractos, ¿por qué no simplemente aplicarla a cada clase? 
+* Hablando generalmente, solo deberías marcar clases orientadas a datos como serializables. 
+* Las clases orientadas a procesos, tal como los streams I/O discutidos en este capítulo o las instancias Thread que aprendiste en Chapter 13, son frecuentemente candidatos pobres para serialización, ya que el estado interno de esas clases tiende a ser efímero o de corta vida.
+---------------------------------------------------------------------
+
+* El propósito de usar la interfaz Serializable es informar a cualquier proceso que intenta serializar el objeto que has tomado los pasos apropiados para hacer el objeto serializable. 
+* Todos los primitivos Java y muchas de las clases incorporadas Java con las que has trabajado a lo largo de este libro son Serializable. 
+* Por ejemplo, esta clase puede ser serializada:
+
+```java
+import java.io.Serializable;
+public class Gorilla implements Serializable {
+  private static final long serialVersionUID = 1L;
+  private String name;
+  private int age;
+  private Boolean friendly;
+  private transient String favoriteFood;
+
+  // Constructors/Getters/Setters/toString() omitted
+}
+```
+
+* En este ejemplo, la clase Gorilla contiene tres instance members (name, age, friendly) que serán guardados a un stream I/O si la clase es serializada. 
+* Nota que dado que Serializable no es parte del paquete java.lang, debe ser importado o referenciado con el nombre del paquete.
+
+* ¿Qué sobre el campo favoriteFood que está marcado como transient? Cualquier campo que está marcado como transient no será guardado a un stream I/O cuando la clase es serializada. 
+* Discutimos eso con más detalle a continuación.
+
+---------------------------------------------------------------------
+**Maintaining a serialVersionUID**
+
+* Es una buena práctica declarar una variable static serialVersionUID en cada clase que implementa Serializable. 
+* La versión es almacenada con cada objeto como parte de la serialización. Luego, cada vez que la estructura de la clase cambia, este valor es actualizado o incrementado.
+
+* Quizás nuestra clase Gorilla recibe un nuevo instance member Double banana, o tal vez el campo age es renombrado. 
+* La idea es que una clase podría haber sido serializada con una versión anterior de la clase y deserializada con una versión más nueva de la clase.
+
+* El serialVersionUID ayuda a informar a la JVM que los datos almacenados pueden no coincidir con la nueva definición de clase. 
+* Si se encuentra una versión anterior de la clase durante la deserialización, puede lanzarse una `java.io.InvalidClassException`. 
+* Alternativamente, algunas APIs soportan convertir datos entre versiones.
+---------------------------------------------------------------------
+
+### Marking Data transient
+
+* El modificador transient puede ser usado para datos sensibles de la clase, como una contraseña. 
+* Hay otros objetos que no tiene sentido serializar, como el estado de un Thread en memoria. 
+* Si el objeto es parte de un objeto serializable, simplemente lo marcamos como transient para ignorar estos instance members selectos.
+
+* ¿Qué sucede con los datos marcados como transient en la deserialización? 
+* Se revierte a sus valores Java por defecto, tal como 0.0 para double, o null para un objeto. 
+* Verás ejemplos de esto en breve cuando presentemos las clases object stream.
+
+---------------------------------------------------------------------
+Marcar campos static como transient tiene poco efecto en la serialización. 
+Aparte del serialVersionUID, solo los instance members de una clase son serializados.
+---------------------------------------------------------------------
+
+### Ensuring That a Class Is Serializable
+
+* Dado que Serializable es una marker interface, podrías pensar que no hay reglas para usarla. ¡No del todo! 
+* Cualquier proceso que intenta serializar un objeto lanzará una NotSerializableException si la clase no implementa la interfaz Serializable apropiadamente.
+
+### How to Make a Class Serializable
+
+* La clase debe estar marcada como Serializable.
+* Cada instance member de la clase debe ser serializable, marcado como transient, o tener un valor null al momento de la serialización.
+
+* Ten cuidado con la segunda regla. Para que una clase sea serializable, debemos aplicar la segunda regla recursivamente. 
+* ¿Ves por qué la siguiente clase Cat no es serializable?
+
+```java
+public class Cat implements Serializable {
+  private Tail tail = new Tail();
+}
+
+public class Tail implements Serializable {
+  private Fur fur = new Fur();
+}
+
+public class Fur {}
+```
+
+* Cat contiene una instancia de Tail, y ambas de esas clases están marcadas como Serializable, por lo que no hay problemas ahí. 
+* Desafortunadamente, Tail contiene una instancia de Fur que no está marcada como Serializable.
+
+Cualquiera de los siguientes cambios arregla el problema y permite que Cat sea serializado:
+
+```java
+public class Tail implements Serializable {
+  private transient Fur fur = new Fur();
+}
+
+public class Fur implements Serializable {}
+```
+
+También podríamos hacer que nuestros instance members tail o fur sean null, aunque esto haría que Cat fuera serializable solo para instancias particulares, en lugar de todas las instancias.
+
+---------------------------------------------------------------------
+**Serializing Records**
+
+¿Piensas que este record es serializable?
+
+```java
+record Record(String name) {}
+```
+
+* No es serializable porque no implementa Serializable. Un record sigue las mismas reglas que otros tipos de clases con respecto a si puede ser serializado. 
+* Por lo tanto, este puede ser:
+
+```java
+record Record(String name) implements Serializable {}
+```
+---------------------------------------------------------------------
+
+### Storing Data with ObjectOutputStream and ObjectInputStream
+
+* La clase ObjectInputStream se usa para deserializar un objeto, mientras la ObjectOutputStream se usa para serializar un objeto. 
+* Son streams de high-level que operan sobre streams I/O existentes. 
+* Aunque ambas de estas clases contienen un número de métodos para tipos de datos incorporados como primitivos, los dos métodos que necesitas conocer para el examen son los relacionados con trabajar con objetos.
+
+```java
+// ObjectInputStream
+public Object readObject() throws IOException, ClassNotFoundException
+
+// ObjectOutputStream
+public void writeObject(Object obj) throws IOException
+```
+
+* Nota los parámetros, tipos de retorno, y excepciones lanzadas. 
+* Ahora proporcionamos un método de muestra que serializa una List de objetos Gorilla a un archivo:
+
+```java
+void saveToFile(List<Gorilla> gorillas, File dataFile)
+  throws IOException {
+  try (var out = new ObjectOutputStream(
+    new BufferedOutputStream(
+      new FileOutputStream(dataFile)))) {
+    for (Gorilla gorilla : gorillas)
+      out.writeObject(gorilla);
+  }
+}
+```
+
+* ¿Bastante fácil, verdad? Nota que comenzamos con un file stream, lo wrapeamos en un stream I/O buffered para mejorar el desempeño, y luego wrapeamos eso con un object stream. 
+* Serializar los datos es tan simple como pasarlo a writeObject().
+
+Una vez que los datos están almacenados en un archivo, podemos deserializarlo usando el siguiente método:
+
+```java
+List<Gorilla> readFromFile(File dataFile) throws IOException,
+  ClassNotFoundException {
+  var gorillas = new ArrayList<Gorilla>();
+  try (var in = new ObjectInputStream(
+    new BufferedInputStream(
+      new FileInputStream(dataFile)))) {
+    while (true) {
+      var object = in.readObject();
+      if (object instanceof Gorilla g)
+        gorillas.add(g);
+    }
+  } catch (EOFException e) {
+    // File end reached
+  }
+  return gorillas;
+}
+```
+
+* Ah, ¿no tan simple como nuestro método save, verdad? Cuando llamamos readObject(), null y -1 no tienen ningún significado especial, ya que alguien podría haber serializado objetos con esos valores. 
+* A diferencia de nuestras técnicas anteriores para métodos de lectura desde un input stream, necesitamos usar un loop infinito para procesar los datos, que lanza una EOFException cuando se alcanza el final del stream I/O.
+
+Si tu programa sucede saber el número de objetos en el stream I/O, puedes llamar readObject() un número fijo de veces, en lugar de usar un loop infinito.
+
+* Dado que el tipo de retorno de readObject() es Object, necesitamos verificar el tipo antes de obtener acceso a nuestras propiedades Gorilla. 
+* Nota que readObject() declara una ClassNotFoundException chequeada, ya que la clase podría no estar disponible en la deserialización.
+
+El siguiente fragmento de código muestra cómo llamar a los métodos de serialización:
+
+```java
+var gorillas = new ArrayList<Gorilla>();
+gorillas.add(new Gorilla("Grodd", 5, false));
+gorillas.add(new Gorilla("Ishmael", 8, true));
+File dataFile = new File("gorilla.data");
+
+saveToFile(gorillas, dataFile);
+var gorillasFromDisk = readFromFile(dataFile);
+System.out.print(gorillasFromDisk);
+```
+
+Asumiendo que el método `toString()` fue apropiadamente sobrescrito en la clase Gorilla, esto imprime lo siguiente en tiempo de ejecución:
+
+```java
+[[name=Grodd, age=5, friendly=false],
+ [name=Ishmael, age=8, friendly=true]]
+```
+
+---------------------------------------------------------------------
+ObjectInputStream hereda un método available() desde InputStream que podrías pensar puede ser usado para verificar el final del stream I/O en lugar de lanzar una EOFException. 
+Desafortunadamente, esto solo te dice el número de bloques que pueden ser leídos sin bloquear otro thread. 
+En otras palabras, puede retornar 0 incluso si hay más bytes para ser leídos.
+---------------------------------------------------------------------
 
 
 
@@ -1362,7 +1628,6 @@ Entonces la salida de muestra sería la siguiente:
 ```
 
 ---------------------------------------------------------------------
-Serializing Data
 Interacting with Users
 Working with Advanced APIs
 Review of Key APIs
