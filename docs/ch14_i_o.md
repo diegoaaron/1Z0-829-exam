@@ -337,8 +337,35 @@ Muchos de los métodos presentados en este capítulo declaran IOException. Las c
 
 ![ch14_01_08.png](images/ch14/ch14_01_08.png)
 
+* Con las excepciones de Files.copy() y Files.move(), no discutiremos estos parámetros varargs cada vez que presentemos un método. 
+* Su comportamiento debería ser directo, sin embargo. 
+* Por ejemplo, ¿puedes descifrar qué hace la siguiente llamada a Files.exists() con el LinkOption en el siguiente fragmento de código?
 
-Continuar en la página 12
+```java
+Path path = Paths.get("schedule.xml");
+boolean exists = Files.exists(path, LinkOption.NOFOLLOW_LINKS);
+```
+
+* El Files.exists() simplemente verifica si un archivo existe. 
+* Pero si el parámetro es un enlace simbólico, el método verifica si el objetivo del enlace simbólico existe, en su lugar. 
+* Proporcionar LinkOption.NOFOLLOW_LINKS significa que el comportamiento predeterminado será anulado, y el método verificará si el enlace simbólico en sí existe.
+
+* Nota que algunos de los enums en Table 14.5 heredan una interfaz. 
+* Eso significa que algunos métodos aceptan una variedad de tipos enum. 
+* Por ejemplo, el método Files.move() toma un varargs CopyOption, por lo que puede tomar enums de diferentes tipos, y más opciones pueden ser añadidas con el tiempo.
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
