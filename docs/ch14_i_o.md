@@ -354,6 +354,239 @@ boolean exists = Files.exists(path, LinkOption.NOFOLLOW_LINKS);
 * Eso significa que algunos métodos aceptan una variedad de tipos enum. 
 * Por ejemplo, el método Files.move() toma un varargs CopyOption, por lo que puede tomar enums de diferentes tipos, y más opciones pueden ser añadidas con el tiempo.
 
+```java
+void copy(Path source, Path target) throws IOException {
+  Files.move(source, target,
+    LinkOption.NOFOLLOW_LINKS,
+    StandardCopyOption.ATOMIC_MOVE);
+}
+```
+
+### Interacting with NIO.2 Paths
+
+Justo como los valores String, las instancias Path son inmutables. 
+En el siguiente ejemplo, la operación Path en la segunda línea se pierde, ya que `p` es inmutable:
+
+```java
+Path p = Path.of("whale");
+p.resolve("krill");
+System.out.println(p); // whale
+```
+
+* Muchos de los métodos disponibles en la interfaz Path transforman el valor de ruta de alguna manera y retornan un nuevo objeto Path, permitiendo que los métodos sean encadenados. 
+* Demostramos el encadenamiento en el siguiente ejemplo, los detalles de lo cual discutimos en esta sección del capítulo:
+
+`Path.of("/zoo/../home").getParent().normalize().toAbsolutePath();`
+
+### Viewing the Path
+
+* La interfaz Path contiene tres métodos para recuperar información básica sobre la representación de ruta. 
+* El método toString() retorna una representación String de la ruta completa. De hecho, es el único método en la interfaz Path para retornar un String. 
+* Muchos de los otros métodos en la interfaz Path retornan instancias Path.
+
+* Los métodos getNameCount() y getName() son frecuentemente usados juntos para recuperar el número de elementos en la ruta y una referencia a cada elemento, respectivamente. 
+* Estos dos métodos no incluyen el directorio raíz como parte de la ruta.
+
+```java
+Path path = Paths.get("/land/hippo/harry.happy");
+System.out.println("The Path Name is: " + path);
+for(int i=0; i<path.getNameCount(); i++)
+  System.out.println(" Element " + i + " is: " + path.getName(i));
+```
+
+* Nota que no llamamos `toString()` explícitamente en la segunda línea. Recuerda, Java llama `toString()` en cualquier Object como parte de la concatenación de strings. 
+* Usamos esta característica a lo largo de los ejemplos en este capítulo.
+
+El código imprime lo siguiente:
+
+The Path Name is: /land/hippo/harry.happy
+Element 0 is: land
+Element 1 is: hippo
+Element 2 is: harry.happy
+
+```java
+var p = Path.of("/");
+System.out.print(p.getNameCount()); // 0
+System.out.print(p.getName(0)); // IllegalArgumentException
+```
+
+Nota que si intentas llamar getName() con un índice inválido, lanzará una excepción en tiempo de ejecución.
+
+---------------------------------------------------------------------
+Nuestros ejemplos imprimen `/` como el carácter separador de archivo porque el sistema que estamos usando. 
+Tu salida real puede variar a lo largo de este capítulo.
+---------------------------------------------------------------------
+
+### Creating Part of the Path
+
+* La interfaz Path incluye el método subpath() para seleccionar porciones de una ruta. 
+* Toma dos parámetros: un beginIndex inclusivo y un endIndex exclusivo. 
+* Esto debería sonar familiar, ya que es como funciona el método substring() de String, como viste en Chapter 4, "Core APIs."
+
+* El siguiente fragmento de código muestra cómo funciona subpath(). 
+* También imprimimos los elementos del Path usando getName() para que puedas ver cómo los índices son usados.
+
+```java
+var p = Paths.get("/mammal/omnivore/raccoon.image");
+System.out.println("Path is: " + p);
+for (int i = 0; i < p.getNameCount(); i++) {
+  System.out.println(" Element " + i + " is: " + p.getName(i));
+}
+System.out.println();
+System.out.println("subpath(0,3): " + p.subpath(0, 3));
+System.out.println("subpath(1,2): " + p.subpath(1, 2));
+System.out.println("subpath(1,3): " + p.subpath(1, 3));
+```
+
+La salida de este fragmento de código es la siguiente:
+
+Path is: /mammal/omnivore/raccoon.image
+  Element 0 is: mammal
+  Element 1 is: omnivore
+  Element 2 is: raccoon.image
+
+```java
+subpath(0,3): mammal/omnivore/raccoon.image
+subpath(1,2): omnivore
+subpath(1,3): omnivore/raccoon.image
+```
+
+* Como getNameCount() y getName(), subpath() está indexado en cero y no incluye la raíz. 
+* También como getName(), subpath() lanza una excepción si se proporcionan índices inválidos.
+
+```java
+var q = p.subpath(0, 4); // IllegalArgumentException
+var x = p.subpath(1, 1); // IllegalArgumentException
+```
+
+* El primer ejemplo lanza una excepción en tiempo de ejecución, ya que el valor de índice máximo permitido es 3. 
+* El segundo ejemplo lanza una excepción, ya que los índices de inicio y fin son los mismos, llevando a un valor de ruta vacío.
+
+### Accessing Path Elements
+
+* La interfaz Path contiene numerosos métodos para recuperar elementos particulares de un Path, retornados como objetos Path ellos mismos. 
+* El método getFileName() retorna el elemento Path del archivo o directorio actual, mientras getParent() retorna la ruta completa del directorio contenedor. 
+* El método getParent() retorna null si se opera sobre la ruta raíz o en la parte superior de una ruta relativa. 
+* El método getRoot() retorna el elemento raíz del archivo dentro del sistema de archivos, o null si la ruta es una ruta relativa.
+
+Considera el siguiente método, que imprime varios elementos Path:
+
+```java
+public void printPathInformation(Path path) {
+  System.out.println("Filename is: " + path.getFileName());
+  System.out.println(" Root is: " + path.getRoot());
+  Path currentParent = path;
+  while((currentParent = currentParent.getParent()) != null)
+    System.out.println(" Current parent is: " + currentParent);
+  System.out.println();
+}
+```
+
+* El bucle while en el método printPathInformation() continúa hasta que getParent() retorna null. 
+* Aplicamos este método a las siguientes tres rutas:
+
+```java
+printPathInformation(Path.of("zoo"));
+printPathInformation(Path.of("/zoo/armadillo/shells.txt"));
+printPathInformation(Path.of("./armadillo/../shells.txt"));
+```
+
+Esta aplicación de muestra produce la siguiente salida:
+
+Filename is: zoo
+  Root is: null
+
+Filename is: shells.txt
+  Root is: /
+
+Current parent is: /zoo/armadillo
+Current parent is: /zoo
+Current parent is: /
+
+Filename is: shells.txt
+Root is: null
+Current parent is: ./armadillo/..
+Current parent is: ./armadillo
+Current parent is: .
+
+* Revisando la salida de muestra, puedes ver la diferencia en el comportamiento de getRoot() en rutas absolutas y relativas. 
+* Como puedes ver en los ejemplos primero y último, el método getParent() no recorre rutas relativas fuera del directorio de trabajo actual.
+
+* También ves que estos métodos no resuelven los símbolos de ruta y los tratan como una parte distinta de la ruta. 
+* Mientras la mayoría de los métodos en esta parte del capítulo tratan los símbolos de ruta como parte de la ruta, presentamos uno en breve que limpia los símbolos de ruta.
+
+### Resolving Paths
+
+* Supón que quieres concatenar rutas de una manera similar a cómo concatenamos strings. 
+* El método resolve() proporciona versiones sobrecargadas que te permiten pasar ya sea un Path o un parámetro String. 
+* El objeto sobre el cual se invoca el método resolve() se convierte en la base del nuevo objeto Path, con el argumento de entrada siendo añadido a la ruta. 
+* Veamos qué sucede si aplicamos resolve() a una ruta absoluta y una ruta relativa:
+
+```java
+Path path1 = Path.of("/cats/../panther");
+Path path2 = Path.of("food");
+System.out.println(path1.resolve(path2));
+```
+
+El fragmento de código genera la siguiente salida:
+
+`/cats/../panther/food`
+
+* Como los otros métodos que hemos visto, resolve() no limpia símbolos de ruta. 
+* En este ejemplo, el argumento de entrada al método resolve() era una ruta relativa, pero ¿qué si hubiera sido una ruta absoluta?
+
+```java
+Path path3 = Path.of("/turkey/food");
+System.out.println(path3.resolve("/tiger/cage"));
+```
+
+Dado que el parámetro de entrada es una ruta absoluta, la salida sería la siguiente:
+
+`/tiger/cage`
+
+* Para el examen, deberías ser consciente de mezclar rutas absolutas y relativas con el método resolve(). 
+* Si se proporciona una ruta absoluta como entrada al método, ese es el valor retornado. 
+* Dicho simplemente, no puedes combinar dos rutas absolutas usando resolve().
+
+* En el examen, cuando veas resolve(), piensa en concatenación.
+
+### Relativizing a Path
+
+* La interfaz Path incluye un método relativize() para construir la ruta relativa desde un Path a otro, frecuentemente usando símbolos de ruta. 
+* ¿Qué piensas que imprimirán los siguientes ejemplos?
+
+```java
+var path1 = Path.of("fish.txt");
+var path2 = Path.of("friendly/birds.txt");
+System.out.println(path1.relativize(path2));
+System.out.println(path2.relativize(path1));
+```
+
+Los ejemplos imprimen lo siguiente:
+
+../friendly/birds.txt
+../../fish.txt
+
+* La idea es esta: si estás apuntando a una ruta en el sistema de archivos, ¿qué pasos necesitarías tomar para alcanzar la otra ruta? 
+* Por ejemplo, para llegar a fish.txt desde friendly/birds.txt, necesitas subir dos niveles (el archivo en sí cuenta como un nivel) y luego seleccionar fish.txt.
+
+* Si ambos valores de ruta son relativos, el método relativize() calcula las rutas como si estuvieran en el mismo directorio de trabajo actual. 
+* Alternativamente, si ambos valores de ruta son absolutos, el método calcula la ruta relativa desde una ubicación absoluta a otra, independientemente del directorio de trabajo actual. 
+* El siguiente ejemplo demuestra esta propiedad cuando se ejecuta en una computadora Windows:
+
+```java
+Path path3 = Paths.get("E:\\habitat");
+Path path4 = Paths.get("E:\\sanctuary\\raven\\poe.txt");
+System.out.println(path3.relativize(path4));
+System.out.println(path4.relativize(path3));
+```
+
+Este fragmento de código produce la siguiente salida:
+
+..\sanctuary\raven\poe.txt
+..\..\..\habitat
+
+
 
 
 
@@ -375,8 +608,6 @@ boolean exists = Files.exists(path, LinkOption.NOFOLLOW_LINKS);
 ```
 
 ---------------------------------------------------------------------
-
-
 Introducing I/O Streams
 Reading and Writing Files
 Serializing Data
