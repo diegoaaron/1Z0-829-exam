@@ -841,6 +841,43 @@ En las siguientes cuatro secciones, vemos cómo llamar a cada uno de estos store
 Nuestro stored procedure read_e_names() no toma ningún parámetro. Retorna un ResultSet. 
 Dado que trabajamos con un ResultSet en la sección PreparedStatement, aquí podemos enfocarnos en cómo se llama el stored procedure.
 
+```java
+12: String sql = "{call read_e_names()}";
+13: try (CallableStatement cs = conn.prepareCall(sql);
+14:   ResultSet rs = cs.executeQuery()) {
+15:
+16:   while (rs.next()) {
+17:     System.out.println(rs.getString(3));
+18:   }
+19: }
+```
+
+* La línea 12 introduce un nuevo bit de sintaxis. Un stored procedure se llama poniendo la palabra call y el nombre del procedimiento entre llaves ({}). 
+* La línea 13 crea un objeto CallableStatement. Cuando creamos un PreparedStatement, usamos el método prepareStatement(). 
+* Aquí, usamos el método prepareCall() en su lugar.
+
+* Las líneas 14–18 deberían verse familiares. Son la lógica estándar que hemos estado usando para obtener un ResultSet y hacer un loop a través de él. 
+* Este stored procedure retorna la tabla subyacente, así que las columnas son las mismas.
+
+### Passing an IN Parameter
+
+* Un stored procedure que siempre retorna lo mismo es solo algo útil. Hemos creado una nueva versión de ese stored procedure que es más genérica. 
+* El stored procedure read_names_by_letter() toma un parámetro para el prefijo o primera letra del stored procedure. Un parámetro IN se usa para input.
+
+Hay dos diferencias al llamarlo comparado con nuestro stored procedure anterior.
+
+continuar en la 26
+
+
+
+
+
+
+
+
+
+
+
 
 
 
