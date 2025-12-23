@@ -2135,17 +2135,221 @@ public static <V extends FileAttributeView> V getFileAttributeView(
 
 Podemos usar el view actualizable para incrementar el valor de last modified date/time de un archivo por 10,000 milisegundos, o 10 segundos.
 
-
-
-
-
-
-
-
 ```java
+// Read file attributes
+var path = Paths.get("/turtles/sea.txt");
+BasicFileAttributeView view = Files.getFileAttributeView(path,
+  BasicFileAttributeView.class);
+BasicFileAttributes attributes = view.readAttributes();
 
+// Modify file last modified time
+FileTime lastModifiedTime = FileTime.fromMillis(
+  attributes.lastModifiedTime().toMillis() + 10_000);
+view.setTimes(lastModifiedTime, null, null);
 ```
 
+* Después de que el view actualizable es recuperado, necesitamos llamar readAttributes() en el view para obtener los metadatos del archivo. 
+* Desde ahí, creamos un nuevo valor FileTime y lo establecemos usando el método setTimes():
+
+```java
+// BasicFileAttributeView instance method
+public void setTimes(FileTime lastModifiedTime,
+  FileTime lastAccessTime, FileTime createTime)
+```
+
+* Este método nos permite pasar null para cualquier valor de fecha/hora que no queramos modificar. 
+* En nuestro código de muestra, solo la fecha/hora de última modificación es cambiada.
+
 ---------------------------------------------------------------------
-Review of Key APIs
-Summary
+* No todos los atributos de archivo pueden ser modificados con un view. 
+* Por ejemplo, no puedes establecer una propiedad que cambie un archivo en un directorio. 
+* De igual manera, no puedes cambiar el tamaño del objeto sin modificar sus contenidos.
+---------------------------------------------------------------------
+
+### Traversing a Directory Tree
+
+* Mientras el método Files.list() es útil, recorre los contenidos de solo un directorio único. 
+* ¿Qué si queremos visitar todas las rutas dentro de un árbol de directorios? 
+* Antes de proceder, necesitamos revisar algunos conceptos básicos sobre sistemas de archivos. 
+* Recuerda que un directorio está organizado de manera jerárquica. 
+* Por ejemplo, un directorio puede contener archivos y otros directorios, que a su vez pueden contener otros archivos y directorios. 
+* Cada registro en un sistema de archivos tiene exactamente un padre, con la excepción del directorio raíz, que se sitúa encima de todo.
+
+* Un sistema de archivos es comúnmente visualizado como un árbol con un nodo raíz único y muchas ramas y hojas. 
+* En este modelo, un directorio es una rama o nodo interno, y un archivo es un nodo hoja.
+
+* Una tarea común en un sistema de archivos es iterar sobre los descendientes de una ruta, ya sea registrando información sobre ellos o, más comúnmente, filtrándolos para un conjunto específico de archivos. 
+* Por ejemplo, podrías querer buscar una carpeta e imprimir una lista de todos los archivos .java. 
+* Además, los sistemas de archivos almacenan registros de archivo de manera jerárquica. 
+* Hablando generalmente, si quieres buscar un archivo, tienes que comenzar con un directorio padre, leer sus elementos hijo, luego leer sus hijos, y así sucesivamente.
+
+* Traversing a directory, también referido como walking a directory tree, es el proceso por el cual comienzas con un directorio padre e iteras sobre todos sus descendientes hasta que se cumple alguna condición o no hay más elementos sobre los cuales iterar. 
+* Por ejemplo, si estamos buscando un archivo único, podemos terminar la búsqueda cuando el archivo es encontrado o hemos verificado todos los archivos y llegamos vacíos. 
+* La ruta inicial es usualmente un directorio específico; después de todo, sería consumidor de tiempo buscar en todo el sistema de archivos en cada solicitud.
+
+---------------------------------------------------------------------
+**Don't Use DirectoryStream and FileVisitor**
+
+* Mientras navegas por los Javadocs NIO.2, podrías encontrarte con métodos que usan las clases DirectoryStream y FileVisitor para recorrer un directorio. 
+* Estos métodos preceden la existencia de la API Stream y fueron incluso conocimiento requerido para exámenes de certificación Java más antiguos.
+* El mejor consejo que podemos darte es no usarlos. Los métodos más nuevos basados en Stream API son superiores y logran lo mismo, frecuentemente con mucho menos código.
+---------------------------------------------------------------------
+
+### Selecting a Search Strategy
+
+* Dos estrategias comunes están asociadas con recorrer un árbol de directorios: una búsqueda depth-first y una búsqueda breadth-first. 
+* Un depth-first search recorre la estructura desde la raíz hasta una hoja arbitraria y luego navega de vuelta hacia la raíz, recorriendo completamente cualquier ruta que saltó en el camino. 
+* La search depth es la distancia desde la raíz hasta el nodo actual. 
+* Para prevenir búsquedas interminables, Java incluye una profundidad de búsqueda que se usa para limitar cuántos niveles (o saltos) desde la raíz se permite que vaya la búsqueda.
+
+* Alternativamente, un breadth-first search comienza en la raíz y procesa todos los elementos de cada profundidad particular antes de proceder al siguiente nivel de profundidad. 
+* Los resultados están ordenados por profundidad, con todos los nodos en profundidad 1 leídos antes que todos los nodos en profundidad 2, y así sucesivamente. 
+* Mientras una búsqueda breadth-first tiende a ser balanceada y predecible, también requiere más memoria, ya que una lista de nodos visitados debe ser mantenida.
+
+* Para el examen, no tienes que entender los detalles de cada estrategia de búsqueda que Java emplea; solo necesitas estar consciente de que la API Stream NIO.2 
+* Los métodos API usan búsqueda depth-first con un límite de profundidad, que puede ser opcionalmente cambiado.
+
+### Walking a Directory
+
+* Eso es suficiente información de fondo; obtengamos más métodos de Stream API. 
+* La clase Files incluye dos métodos para recorrer el árbol de directorios usando una búsqueda depth-first.
+
+```java
+public static Stream<Path> walk(Path start,
+  FileVisitOption... options) throws IOException
+
+public static Stream<Path> walk(Path start, int maxDepth,
+  FileVisitOption... options) throws IOException
+```
+
+* Como nuestros otros métodos stream, walk() usa evaluación lazy y evalúa una Path solo cuando llega a ella. 
+* Esto significa que incluso si el árbol de directorios incluye cientos o miles de archivos, la memoria requerida para procesar un árbol de directorios es baja. 
+* El primer método walk() depende de una profundidad máxima por defecto de Integer.MAX_VALUE, mientras la versión sobrecargada permite al usuario establecer una profundidad máxima. 
+* Esto es útil en casos donde el sistema de archivos podría ser grande y sabemos que la información que estamos buscando está cerca de la raíz.
+
+* En lugar de solo imprimir los contenidos de un árbol de directorios, podemos hacer algo más interesante. 
+* El siguiente método getPathSize() recorre un árbol de directorios y retorna el tamaño total de todos los archivos en el directorio:
+
+```java
+private long getSize(Path p) {
+  try {
+    return Files.size(p);
+  } catch (IOException e) {
+    throw new UncheckedIOException(e);
+  }
+}
+
+public long getPathSize(Path source) throws IOException {
+  try (var s = Files.walk(source)) {
+    return s.parallel()
+      .filter(p -> !Files.isDirectory(p))
+      .mapToLong(this::getSize)
+      .sum();
+  }
+}
+```
+
+* El método helper getSize() es necesario porque Files.size() declara IOException, y preferimos no poner un bloque try/catch dentro de una expresión lambda. 
+* En su lugar, la wrapeamos en la clase de excepción no chequeada UncheckedIOException. Podemos imprimir los datos usando el método format():
+
+```java
+var size = getPathSize(Path.of("/fox/data"));
+System.out.format("Total Size: %.2f megabytes", (size/1000000.0));
+```
+
+Dependiendo del directorio en el que ejecutes esto, imprimirá algo como esto:
+
+Total Size: 15.30 megabytes
+
+### Applying a Depth Limit
+
+Digamos que nuestro árbol de directorios es bastante profundo, por lo que aplicamos un límite de profundidad cambiando una línea de código en nuestro método getPathSize().
+
+`try (var s = Files.walk(source, 5)) {`
+
+* Esta nueva versión verifica archivos solo dentro de 5 pasos del nodo inicial. 
+* Un valor de profundidad de 0 indica la ruta actual en sí. 
+* Dado que el método calcula valores solo sobre archivos, tendrías que establecer un límite de profundidad de al menos 1 para obtener un resultado no cero cuando este método se aplica a un árbol de directorios.
+
+### Avoiding Circular Paths
+
+* Muchos de nuestros métodos NIO.2 anteriores recorren enlaces simbólicos por defecto, con un NOFOLLOW_LINKS usado para deshabilitar este comportamiento. 
+* El método walk() es diferente en que no sigue enlaces simbólicos por defecto y requiere la opción FOLLOW_LINKS para ser habilitada. 
+* Podemos alterar nuestro método getPathSize() para habilitar seguir enlaces simbólicos añadiendo el FileVisitOption:
+
+```java
+try (var s = Files.walk(source,
+  FileVisitOption.FOLLOW_LINKS)) {
+```
+
+* Cuando se recorre un árbol de directorios, tu programa necesita tener cuidado con los enlaces simbólicos, si están habilitados. 
+* Por ejemplo, si nuestro proceso encuentra un enlace simbólico que apunta al directorio raíz del sistema de archivos, ¡todos los archivos en el sistema serán buscados!
+
+* Peor aún, un enlace simbólico podría llevar a un ciclo en el cual una ruta es visitada repetidamente. 
+* Un cycle es una dependencia circular infinita en la cual una entrada en un árbol de directorios apunta a uno de sus directorios ancestros. 
+* Digamos que tuviéramos un árbol de directorios como se muestra en Figure 14.7 con el enlace simbólico /birds/robin/allBirds que apunta a /birds.
+
+![ch14_01_19.png](images/ch14/ch14_01_19.png)
+
+¿Qué sucede si intentamos recorrer este árbol y seguir todos los enlaces simbólicos, comenzando con /birds/robin? 
+Table 14.13 muestra las rutas visitadas después de recorrer una profundidad de 3. 
+Por simplicidad, recorremos el árbol en un ordenamiento breadth-first, aunque se produce un ciclo independientemente de la estrategia de búsqueda utilizada.
+
+![ch14_01_20.png](images/ch14/ch14_01_20.png)
+
+* Después de recorrer una distancia de 1 desde el inicio, encontramos el enlace simbólico /birds/robin/allBirds y volvemos a la parte superior del árbol de directorios /birds. 
+* Eso está bien porque no hemos visitado /birds todavía, ¡así que no hay ciclo aún!
+
+* Desafortunadamente, en profundidad 2, encontramos un ciclo. 
+* Ya hemos visitado el directorio /birds/robin en nuestro primer paso, y ahora lo estamos encontrando de nuevo.
+
+* Si el proceso continúa, estaremos condenados a visitar el directorio una y otra vez.
+* Ten en cuenta que cuando la opción FOLLOW_LINKS es usada, el método walk() rastreará todas las rutas que ha visitado, lanzando una FileSystemLoopException si una ruta es visitada dos veces.
+
+### Searching a Directory
+
+En el ejemplo anterior, aplicamos un filtro al objeto Stream<Path> para filtrar los resultados, aunque hay un método más conveniente.
+
+```java
+public static Stream<Path> find(Path start,
+  int maxDepth,
+  BiPredicate<Path, BasicFileAttributes> matcher,
+  FileVisitOption... options) throws IOException
+```
+
+* El método find() se comporta de manera similar al método walk(), excepto que toma un BiPredicate para filtrar los datos. 
+* También requiere que un límite de profundidad sea establecido. Como walk(), find() también soporta la opción FOLLOW_LINK.
+
+* Los dos parámetros del BiPredicate son un objeto Path y un objeto BasicFileAttributes, que viste anteriormente en el capítulo. 
+* De esta manera, Java automáticamente recupera la información básica de archivo por ti, permitiéndote escribir expresiones lambda complejas que tienen acceso directo a este objeto. 
+* Ilustramos esto con el siguiente ejemplo:
+
+```java
+Path path = Paths.get("/bigcats");
+long minSize = 1_000;
+try (var s = Files.find(path, 10,
+  (p, a) -> a.isRegularFile()
+    && p.toString().endsWith(".java")
+    && a.size() > minSize)) {
+  s.forEach(System.out::println);
+}
+```
+
+* Este ejemplo busca en un árbol de directorios e imprime todos los archivos .java con un tamaño de al menos 1,000 bytes, usando un límite de profundidad de 10. 
+* Aunque podríamos haber logrado esto usando el método walk() junto con una llamada a readAttributes(), esta implementación es mucho más corta y conveniente que las que habrían sido. 
+* Tampoco tenemos que preocuparnos de que ningún método dentro de la expresión lambda declare una excepción chequeada, como vimos en el ejemplo getPathSize().
+
+## Review of Key APIs
+
+* Las APIs clave que necesitas conocer para el examen están listadas en Table 14.14. 
+* Nosotros sabemos que algunas de las clases se ven similares. Necesitas conocer esta tabla realmente bien antes de tomar el examen.
+
+![ch14_01_21.png](images/ch14/ch14_01_21.png)
+
+Adicionalmente, Figure 14.8 muestra todas las clases de stream I/O que deberías estar familiarizado con para el examen, con la excepción de los filter streams.
+
+FilterInputStream y FilterOutputStream son superclases de high-level que filtran o transforman datos. Raramente se usan directamente.
+
+![ch14_01_22.png](images/ch14/ch14_01_22.png)
+
+InputStreamReader y OutputStreamWriter son increíblemente convenientes y también son únicos porque son las únicas clases de flujo de E/S que tienen InputStream/OutputStream y Reader/Writer en su nombre.
