@@ -24,7 +24,7 @@ Toma un capitulo del libro mencionado y revisa los apuntes, diagramas y código 
 12. [Modules](docs/ch12_modulos.md)
 13. [Concurrency](docs/ch13_concurrencia.md)
 14. [I/O](docs/ch14_i_o.md)
-15. [JDBC](docs/ch15.md)
+15. [JDBC](docs/ch15_jdbc.md)
 
 ### Extra
 - [Credentials](docs/exam.md)
