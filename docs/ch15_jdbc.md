@@ -449,17 +449,397 @@ public static void register(Connection conn) throws SQLException {
 * Una bind variable es como un parámetro, y verás que las bind variables se referencian tanto como variables como parámetros. 
 * Podemos reescribir nuestro statement SQL usando bind variables.
 
+`String sql = "INSERT INTO names VALUES(?, ?, ?)";`
 
+* Las bind variables hacen que el SQL sea más fácil de leer dado que ya no necesitas usar comillas alrededor de los valores String en el SQL. 
+* Ahora podemos pasar los parámetros al método mismo.
 
+```java
+14: public static void register(Connection conn, int key,
+15:   int type, String name) throws SQLException {
+16:
+17:   String sql = "INSERT INTO names VALUES(?, ?, ?)";
+18:
+19:   try (PreparedStatement ps = conn.prepareStatement(sql)) {
+20:     ps.setInt(1, key);
+21:     ps.setString(3, name);
+22:     ps.setInt(2, type);
+23:     ps.executeUpdate();
+24:   }
+25: }
+```
 
+* La línea 19 crea un PreparedStatement usando nuestro SQL que contiene tres bind variables. Las líneas 20–22 configuran esas variables. 
+* Puedes pensar en las bind variables como una lista de parámetros, donde cada uno se configura por turno. 
+* Nota cómo las bind variables pueden configurarse en cualquier orden. La línea 23 ejecuta la query y ejecuta el update.
 
+Nota cómo las bind variables se cuentan empezando con 1 en lugar de 0. Esto es realmente importante, así que lo repetiremos.
 
+Recuerda que JDBC comienza a contar columnas con 1 en lugar de 0. ¡Una pregunta común del examen prueba que sabes esto!
 
+* En el ejemplo anterior, configuramos los parámetros fuera de orden. 
+* Eso está perfectamente bien. La regla es solo que se configure cada uno antes de que se ejecute la query. 
+* Veamos qué pasa si no configuras todas las bind variables.
 
+```java
+var sql = "INSERT INTO names VALUES(?, ?, ?)";
+try (var ps = conn.prepareStatement(sql)) {
+  ps.setInt(1, key);
+  ps.setInt(2, type);
+  // missing the set for parameter number 3
+  ps.executeUpdate();
+}
+```
 
+El código compila, y obtienes un SQLException. El mensaje puede variar según tu driver de base de datos.
 
+`Exception in thread "main" java.sql.SQLException: Parameter not set`
 
+¿Qué hay si intentas configurar más valores de los que tienes como bind variables?
 
+```java
+var sql = "INSERT INTO names VALUES(?, ?)";
+try (var ps = conn.prepareStatement(sql)) {
+  ps.setInt(1, key);
+  ps.setInt(2, type);
+  ps.setString(3, name);
+  ps.executeUpdate();
+}
+```
+
+De nuevo, obtienes un SQLException, esta vez con un mensaje diferente. En HyperSQL, ese mensaje fue el siguiente:
+
+```java
+Exception in thread "main" java.sql.SQLException:
+row column count mismatch in statement [INSERT INTO names
+VALUES(?, ?)]
+```
+
+* Table 15.5 muestra los métodos que necesitas conocer para el examen para configurar bind variables. 
+* Los que necesitas conocer para el examen son fáciles de recordar dado que se llaman set seguido del nombre del tipo que estás configurando. 
+* Hay muchos otros, como dates, que están fuera del alcance del examen.
+
+![ch15_01_09.png](images/ch15/ch15_01_09.png)
+
+* La primera columna muestra el nombre del método, y la segunda columna muestra el tipo que Java usa. 
+* La tercera columna muestra el nombre del tipo que podría estar en la base de datos. 
+* Hay alguna variación por bases de datos, así que verifica la documentación de tu base de datos específica. 
+* Necesitas conocer solo las primeras dos columnas para el examen.
+
+* El método setNull() toma un parámetro int que representa el tipo de columna en la base de datos. 
+* No necesitas conocer estos tipos. Nota que el método setObject() funciona con cualquier tipo Java. 
+* Si pasas un primitivo, será autoboxeado en un tipo wrapper. Eso significa que podemos reescribir nuestro ejemplo como sigue:
+
+```java
+String sql = "INSERT INTO names VALUES(?, ?, ?)";
+try (PreparedStatement ps = conn.prepareStatement(sql)) {
+  ps.setObject(1, key);
+  ps.setObject(2, type);
+  ps.setObject(3, name);
+  ps.executeUpdate();
+}
+```
+
+* Java manejará la conversión de tipo por ti. 
+* Todavía es mejor llamar a los métodos setter más específicos dado que eso te dará un error en tiempo de compilación si pasas el tipo incorrecto en lugar de un error en runtime.
+
+### Updating Multiple Records
+
+Supongamos que obtenemos dos nuevos elefantes y queremos agregar ambos. Podemos usar el mismo objeto PreparedStatement.
+
+```java
+var sql = "INSERT INTO names VALUES(?, ?, ?)";
+
+try (var ps = conn.prepareStatement(sql)) {
+
+  ps.setInt(1, 20);
+  ps.setInt(2, 1);
+  ps.setString(3, "Ester");
+  ps.executeUpdate();
+  ps.setInt(1, 21);
+  ps.setString(3, "Elias");
+  ps.executeUpdate();
+}
+
+```
+
+* Nota que configuramos los tres parámetros cuando agregamos `Ester` pero solo dos para Elias. 
+* El PreparedStatement es lo suficientemente inteligente para recordar los parámetros que ya fueron configurados y retenerlos. 
+* Solo tienes que configurar los que son diferentes.
+
+---------------------------------------------------------------------
+**Batching Statements**
+
+* JDBC soporta batching para que puedas ejecutar múltiples statements en menos viajes a la base de datos. 
+* A menudo la base de datos está ubicada en una máquina diferente a la que el código Java se ejecuta. 
+* Guardar viajes a la base de datos ahorra tiempo porque las llamadas de red pueden ser costosas. 
+* Por ejemplo, si necesitas insertar 1,000 registros en la base de datos, insertarlos como una sola llamada de red (en oposición a 1,000 llamadas de red) es usualmente a lot más rápido.
+* No necesitas conocer los métodos addBatch() y executeBatch() para el examen, pero son útiles en la práctica.
+
+```java
+public static void register(Connection conn, int firstKey,
+  int type, String... names) throws SQLException {
+  
+  var sql = "INSERT INTO names VALUES(?, ?, ?)";
+  var nextIndex = firstKey;
+  
+  try (var ps = conn.prepareStatement(sql)) {
+    ps.setInt(2, type);
+    
+    for(var name: names) {
+      ps.setInt(1, nextIndex);
+      ps.setString(3, name);
+      ps.addBatch();
+      
+      nextIndex++;
+    }
+    int[] result = ps.executeBatch();
+    System.out.println(Arrays.toString(result));
+  }
+}
+register(conn, 100, 1, "Elias", "Ester");
+```
+
+El output muestra que el array tiene dos elementos dado que hay dos ítems diferentes en el batch. Cada uno agregó una fila en la base de datos.
+
+```java
+[1, 1]
+```
+
+* Puedes usar batching para dividir operaciones grandes, como insertar 10 millones de registros en grupos de 100. 
+* En la práctica, toma un poco de trabajo determinar un tamaño de batch apropiado, pero el rendimiento de usar batch normalmente es mucho mejor que insertar una fila a la vez (o los diez millones a la vez).
+---------------------------------------------------------------------
+
+## Getting Data from a ResultSet
+
+* Una base de datos no es útil si no puedes obtener tu data. Empezamos mostrándote cómo recorrer un ResultSet. 
+* Luego recorremos los diferentes métodos para obtener columnas por tipo.
+
+### Reading a ResultSet
+
+Cuando trabajas con un ResultSet, la mayor parte del tiempo, escribirás un loop para mirar cada fila. El código luce así:
+
+```java
+20: String sql = "SELECT id, name FROM exhibits";
+21: var idToNameMap = new HashMap<Integer, String>();
+22:
+23: try (var ps = conn.prepareStatement(sql);
+24:   ResultSet rs = ps.executeQuery()) {
+25:
+26:   while (rs.next()) {
+27:     int id = rs.getInt("id");
+28:     String name = rs.getString("name");
+29:     idToNameMap.put(id, name);
+30:   }
+31:   System.out.println(idToNameMap);
+32: }
+```
+
+Esto genera:
+
+```java
+{1=African Elephant, 2=Zebra}
+```
+
+* Hay algunas cosas que notar aquí. Primero, usamos el método executeQuery() en la línea 24, dado que queremos que se retorne un ResultSet. 
+* En la línea 26, hacemos un loop a través de los resultados. Cada vez a través del loop representa una fila en el ResultSet. 
+* Las líneas 27 y 28 te muestran la mejor manera de obtener las columnas para una fila dada.
+
+Un ResultSet tiene un cursor, que apunta a la ubicación actual en la data. Figure 15.5 muestra la posición mientras hacemos el loop.
+
+![ch15_01_10.png](images/ch15/ch15_01_10.png)
+
+* En la línea 24, el cursor empieza apuntando a la ubicación antes de la primera fila en el ResultSet. 
+* En la primera iteración del loop, rs.next() retorna true, y el cursor se mueve para apuntar a la primera fila de data. 
+* En la segunda iteración del loop, rs.next() retorna true de nuevo, y el cursor se mueve para apuntar a la segunda fila de data. 
+* La siguiente llamada a rs.next() retorna false. El cursor avanza más allá del final de la data. 
+* El false significa que no hay más data disponible para obtener.
+
+* Dijimos que la "mejor manera" de obtener data era con nombres de columna. Hay otra forma de acceder a las columnas. 
+* Puedes usar un índice, contando desde 1 en lugar de un nombre de columna.
+
+```java
+27:   int id = rs.getInt(1);
+28:   String name = rs.getString(2);
+```
+
+* Ahora puedes ver las posiciones de columna. Nota cómo las columnas se cuentan empezando con 1 en lugar de 0. 
+* Justo como con un PreparedStatement, JDBC empieza a contar en 1 en un ResultSet.
+
+* El nombre de columna es mejor porque es más claro qué está pasando cuando lees el código. 
+* También te permite cambiar el SQL para reordenar las columnas.
+
+---------------------------------------------------------------------
+En el examen, ya sea se te dirán los nombres de las columnas en una tabla, o puedes asumir que son correctos. 
+De manera similar, puedes asumir que todo el SQL es correcto.
+---------------------------------------------------------------------
+
+* A veces quieres obtener solo una fila de la tabla. Tal vez necesitas solo una pieza de data. 
+* O tal vez el SQL está simplemente retornando el número de filas en la tabla. 
+* Cuando quieres solo una fila, usas un statement if en lugar de un loop while.
+
+```java
+var sql = "SELECT count(*) FROM exhibits";
+
+try (var ps = conn.prepareStatement(sql);
+  var rs = ps.executeQuery()) {
+  
+  if (rs.next()) {
+    int count = rs.getInt(1);
+    System.out.println(count);
+  }
+}
+```
+
+* Es importante verificar que rs.next() retorna true antes de intentar llamar a un getter en el ResultSet. 
+* Si una query no retornó ninguna fila, lanzaría un SQLException, así que el statement if verifica que es seguro llamarlo. 
+* Alternativamente, puedes usar el nombre de columna.
+
+`var count = rs.getInt("count");`
+
+Intentemos leer una columna que no existe.
+
+```java
+var sql = "SELECT count(*) AS count FROM exhibits";
+
+try (var ps = conn.prepareStatement(sql);
+  var rs = ps.executeQuery()) {
+  
+  if (rs.next()) {
+    var count = rs.getInt("total");
+    System.out.println(count);
+  }
+}
+```
+
+Esto lanza un SQLException con un mensaje como este:
+
+```java
+Exception in thread "main" java.sql.SQLException: Column not found: total
+```
+
+* Intentar acceder a un nombre de columna o índice que no existe lanza un SQLException, como lo hace obtener data de un ResultSet cuando no está apuntando a una fila válida. 
+* Necesitas ser capaz de reconocer tal código. Aquí hay algunos ejemplos a tener cuidado. ¿Ves qué está mal cuando no hay filas coincidentes?
+
+```java
+var sql = "SELECT * FROM exhibits where name='Not in table'";
+
+try (var ps = conn.prepareStatement(sql);
+
+var rs = ps.executeQuery()) {
+
+        rs.next();
+  rs.getInt(1); // SQLException
+}
+```
+
+* Llamar a rs.next() funciona. Retorna false. Sin embargo, llamar a un getter después lanza un SQLException porque el cursor del result set no apunta a una posición válida. 
+* Si se hubiera retornado una coincidencia, este código habría funcionado. ¿Ves qué está mal con lo siguiente?
+
+```java
+var sql = "SELECT count(*) FROM exhibits";
+
+try (var ps = conn.prepareStatement(sql);
+  var rs = ps.executeQuery()) {
+  
+  rs.getInt(1); // SQLException
+}
+```
+
+No llamar a rs.next() en absoluto es un problema. El cursor del result set todavía está apuntando a una ubicación antes de la primera fila, así que el getter no tiene nada a lo cual apuntar.
+
+Para resumir esta sección, es importante recordar lo siguiente:
+* Siempre usa un statement if o loop while cuando llames a rs.next().
+* Los índices de columna comienzan con 1.
+
+### Getting Data for a Column
+
+* Hay muchos métodos get en la interface ResultSet. Table 15.6 muestra los métodos get que necesitas conocer. 
+* Estos son los equivalentes getter de los setters en Table 15.5.
+
+![ch15_01_11.png](images/ch15/ch15_01_11.png)
+
+* Podrías notar que no todos los tipos primitivos están en Table 15.6. Hay métodos getByte() y getFloat(), pero no necesitas saber sobre ellos para el examen. 
+* No hay un método getChar(). Afortunadamente, no necesitas recordar esto. El examen no intentará engañarte usando un nombre de método get que no existe para JDBC. 
+* ¿No es agradable de parte de los creadores del examen?
+
+El método getObject() puede retornar cualquier tipo. Para un primitivo, usa la clase wrapper. Veamos el siguiente ejemplo:
+
+```java
+16: var sql = "SELECT id, name FROM exhibits";
+17: try (var ps = conn.prepareStatement(sql);
+18:   var rs = ps.executeQuery()) {
+19:
+20:   while (rs.next()) {
+21:     Object idField = rs.getObject("id");
+22:     Object nameField = rs.getObject("name");
+23:     if (idField instanceof Integer id)
+24:       System.out.println(id);
+25:     if (nameField instanceof String name)
+26:       System.out.println(name);
+27:   }
+28: }
+```
+
+* Las líneas 21 y 22 obtienen la columna como cualquier tipo de Object que sea más apropiado. 
+* Las líneas 23–26 usan pattern matching para obtener los tipos reales. 
+* Tú probablemente no usarías getObject() cuando escribes código para un trabajo, pero es bueno saber sobre ello para el examen.
+
+### Using Bind Variables
+
+* Hemos estado creando el PreparedStatement y ResultSet en el mismo statement try-with-resources. 
+* Esto no funciona si tienes bind variables porque necesitan ser configuradas en el medio. 
+* Afortunadamente, podemos anidar try-with-resources para manejar esto. Este código imprime el ID para cualquier exhibits que coincidan con un nombre dado:
+
+```java
+30: var sql = "SELECT id FROM exhibits WHERE name = ?";
+31:
+32: try (var ps = conn.prepareStatement(sql)) {
+33:   ps.setString(1, "Zebra");
+34:
+35:   try (var rs = ps.executeQuery()) {
+36:     while (rs.next()) {
+37:       int id = rs.getInt("id");
+38:       System.out.println(id);
+39:     }
+40:   }
+41: }
+```
+
+* Presta atención al flujo aquí. Primero creamos el PreparedStatement en la línea 32. Luego configuramos la bind variable en la línea 33. 
+* Es solo después de que ambas están hechas que tenemos un try-with-resources anidado en la línea 35 para crear el ResultSet.
+
+## Calling a CallableStatement
+
+* En algunas situaciones, es útil almacenar queries SQL en la base de datos en lugar de empaquetarlas con el código Java. 
+* Esto es particularmente útil cuando hay muchas queries complejas. 
+* Un stored procedure es código que se compila por adelantado y se almacena en la base de datos. 
+* Los stored procedures se escriben comúnmente en una variante específica de base de datos de SQL, que varía entre proveedores de software de bases de datos.
+
+* Usar un stored procedure reduce los viajes de ida y vuelta de red. También permite a los expertos en bases de datos poseer esa parte del código. 
+* Sin embargo, los stored procedures son específicos de base de datos e introducen complejidad en mantener tu aplicación. 
+* En el examen, necesitas saber cómo llamar a un stored procedure, pero no decidir cuándo usar uno.
+
+* No necesitas saber cómo leer o escribir un stored procedure para el examen. Por lo tanto, no hemos incluido ninguno en el libro. 
+* Están en el código de configuración de la base de datos de ejemplo si tienes curiosidad.
+
+---------------------------------------------------------------------
+No necesitas aprender nada específico de base de datos para el examen. 
+Dado que estudiar stored procedures puede ser bastante complicado, recomendamos limitar tu estudio de CallableStatement a lo que está en este libro.
+---------------------------------------------------------------------
+
+* Usaremos cuatro stored procedures en esta sección. Table 15.7 resume lo que necesitas saber sobre ellos. 
+* En el mundo real, ninguno de estos sería buena implementación dado que no son lo suficientemente complejos para justificar ser stored procedures. 
+* Como puedes ver en la tabla, los stored procedures permiten que los parámetros sean para input solamente, output solamente, o ambos.
+
+![ch15_01_12.png](images/ch15/ch15_01_12.png)
+
+En las siguientes cuatro secciones, vemos cómo llamar a cada uno de estos stored procedures.
+
+### Calling a Procedure without Parameters
+
+Nuestro stored procedure read_e_names() no toma ningún parámetro. Retorna un ResultSet. 
+Dado que trabajamos con un ResultSet en la sección PreparedStatement, aquí podemos enfocarnos en cómo se llama el stored procedure.
 
 
 
@@ -469,7 +849,5 @@ public static void register(Connection conn) throws SQLException {
 ```
 
 ---------------------------------------------------------------------
-Getting Data from a ResultSet
-Calling a CallableStatement
 Controlling Data with Transactions
 Closing Database Resources
