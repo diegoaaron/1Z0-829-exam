@@ -866,7 +866,170 @@ Dado que trabajamos con un ResultSet en la sección PreparedStatement, aquí pod
 
 Hay dos diferencias al llamarlo comparado con nuestro stored procedure anterior.
 
-continuar en la 26
+```java
+25: var sql = "{call read_names_by_letter(?)}";
+26: try (var cs = conn.prepareCall(sql)) {
+27:   cs.setString("prefix", "Z");
+28:
+29:   try (var rs = cs.executeQuery()) {
+30:     while (rs.next()) {
+31:       System.out.println(rs.getString(3));
+32:     }
+33:   }
+34: }
+```
+
+* En la línea 25, tenemos que pasar un `?` para mostrar que tenemos un parámetro. Esto debería ser familiar de las bind variables con un PreparedStatement.
+* En la línea 27, configuramos el valor de ese parámetro. A diferencia de PreparedStatement, podemos usar ya sea el número de parámetros (empezando con 1) o el nombre del parámetro. 
+* Eso significa que estos dos statements son equivalentes:
+
+```java
+cs.setString(1, "Z");
+cs.setString("prefix", "Z");
+```
+
+### Returning an OUT Parameter
+
+* En nuestros ejemplos previos, retornamos un ResultSet. Algunos stored procedures
+* retornan otra información. Afortunadamente, los stored procedures pueden tener parámetros OUT para output. 
+* El stored procedure magic_number() configura su parámetro OUT a 42. Hay algunas diferencias aquí:
+
+```java
+40: var sql = "{?= call magic_number(?)}";
+41: try (var cs = conn.prepareCall(sql)) {
+42:   cs.registerOutParameter(1, Types.INTEGER);
+43:   cs.execute();
+44:   System.out.println(cs.getInt("num"));
+45: }
+```
+
+* En la línea 40, incluimos dos caracteres especiales (?=) para especificar que el stored procedure tiene un valor de output. 
+* Esto es opcional dado que tenemos el parámetro OUT, pero ayuda en legibilidad.
+
+* En la línea 42, registramos el parámetro OUT. Esto es importante. Permite a JDBC recuperar el valor en la línea 44. 
+* Recuerda siempre llamar registerOutParameter() para cada parámetro OUT o INOUT (que cubrimos a continuación).
+
+En la línea 43, llamamos a execute() en lugar de executeQuery() dado que no estamos retornando un ResultSet de nuestro stored procedure.
+
+---------------------------------------------------------------------
+**Database-Specific Behavior**
+
+* Algunas bases de datos son indulgentes sobre ciertas cosas que este capítulo dice que son requeridas. 
+* Por ejemplo, algunas bases de datos te permiten omitir lo siguiente:
+  * Braces ({})
+  * Bind variable (?) si es un parámetro OUT
+  * Call to registerOutParameter()
+
+* Para el examen, necesitas responder de acuerdo con los requisitos completos, que están descritos en este libro. 
+* Por ejemplo, deberías responder preguntas del examen como si las llaves fueran requeridas.
+---------------------------------------------------------------------
+
+### Working with an INOUT Parameter
+
+* Finalmente, es posible usar el mismo parámetro para tanto input como output. 
+* A medida que lees este código, ve si puedes detectar qué líneas son requeridas para la parte IN y cuáles son requeridas para la parte OUT:
+
+```java
+50: var sql = "{call double_number(?)}";
+51: try (var cs = conn.prepareCall(sql)) {
+52:   cs.setInt(1, 8);
+53:   cs.registerOutParameter(1, Types.INTEGER);
+54:   cs.execute();
+55:   System.out.println(cs.getInt("num"));
+56: }
+```
+
+* Para un parámetro IN, la línea 52 es requerida dado que configura el valor. Para un parámetro OUT, la línea 53 es requerida para registrarlo. 
+* La línea 54 usa execute() de nuevo porque no estamos retornando un ResultSet.
+
+Recuerda que un parámetro INOUT actúa como tanto un parámetro IN como un parámetro OUT, así que tiene todos los requisitos de ambos.
+
+### Comparing Callable Statement Parameters
+
+Table 15.8 revisa los diferentes tipos de parámetros. Necesitas conocer esto bien para el examen.
+
+![ch15_01_13.png](images/ch15/ch15_01_13.png)
+
+### Using Additional Options
+
+* Hasta ahora, hemos estado creando PreparedStatement y CallableStatement con las opciones predeterminadas. 
+* Ambos soportan opciones de tipo ResultSet y concurrencia. No todas las opciones están disponibles en todas las bases de datos. 
+* Afortunadamente, solo tienes que ser capaz de reconocerlas como válidas en el examen.
+
+Hay tres valores integer de tipo ResultSet:
+* ResultSet.TYPE_FORWARD_ONLY: Can go through the ResultSet only one row at a time
+* ResultSet.TYPE_SCROLL_INSENSITIVE: Can go through the ResultSet in any order but will not see changes made to the underlying database table
+* ResultSet.TYPE_SCROLL_SENSITIVE: Can go through the ResultSet in any order and will see changes made to the underlying database table
+
+Hay dos valores integer de modo de concurrencia ResultSet:
+* ResultSet.CONCUR_READ_ONLY: The ResultSet cannot be updated.
+* ResultSet.CONCUR_UPDATABLE: The ResultSet can be updated.
+
+Estas opciones son valores integer, no valores enum, lo que significa que los pasas como parámetros adicionales después del SQL.
+
+```java
+conn.prepareCall(sql, ResultSet.TYPE_FORWARD_ONLY,
+  ResultSet.CONCUR_READ_ONLY);
+
+conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE,
+  ResultSet.CONCUR_UPDATABLE);
+```
+
+---------------------------------------------------------------------
+Si ves estas opciones en el examen, presta atención a cómo se usan. 
+Recuerda que type siempre viene primero. 
+También, los métodos que toman type también toman concurrency mode, así que ten cuidado con cualquier pregunta que pasa solo una opción.
+---------------------------------------------------------------------
+
+## Controlling Data with Transactions
+
+* Hasta ahora, cualquier cambio que hicimos a la base de datos tuvo efecto inmediatamente. 
+* Un commit es como guardar un archivo. En el examen, los cambios se confirman automáticamente a menos que se especifique lo contrario. 
+* Sin embargo, puedes cambiar este comportamiento para controlar los commits tú mismo. 
+* Una transaction es cuando uno o más statements se agrupan con los resultados finales confirmados o revertidos. 
+* Rollback es como cerrar un archivo sin guardarlo. Todos los cambios desde el inicio de la transacción se descartan. 
+* Primero, vemos escribir código para hacer commit y roll back. Luego vemos cómo controlar tus puntos de rollback.
+
+### Committing and Rolling Back
+
+* Nuestro zoológico está renovando y ha decidido dar más espacio a los elefantes. 
+* Sin embargo, solo tenemos tanto espacio, así que el exhibit de zebras necesitará hacerse más pequeño. 
+* Dado que no podemos inventar espacio de la nada, queremos asegurar que la cantidad total de espacio permanece igual. 
+* Si ya sea agregar espacio para los elefantes o remover espacio para las zebras falla, queremos que nuestra transacción haga roll back. 
+* En interés de simplicidad, asumimos que la tabla de base de datos está en un estado válido antes de ejecutar este código. 
+* Ahora, examinemos el código para este escenario:
+
+```java
+5: public static void main(String[] args) throws SQLException {
+6:   try (Connection conn =
+7:     DriverManager.getConnection("jdbc:hsqldb:file:zoo")) {
+8:
+9:     conn.setAutoCommit(false);
+10:
+11:   var elephantRowsUpdated = updateRow(conn, 5, "African Elephant");
+12:   var zebraRowsUpdated = updateRow(conn, -5, "Zebra");
+13:
+14:   if (! elephantRowsUpdated || ! zebraRowsUpdated)
+15:     conn.rollback();
+16:   else {
+17:     String selectSql = """"
+18:       SELECT COUNT(*)
+19:       FROM exhibits
+20:       WHERE num:acres <= 0"""";
+21:     try (PreparedStatement ps = conn.prepareStatement(selectSql);
+22:       ResultSet rs = ps.executeQuery()) {
+23:
+24:       rs.next();
+25:       int count = rs.getInt(1);
+26:       if (count == 0)
+27:         conn.commit();
+28:       else
+29:         conn.rollback();
+30:   }}}}
+31:
+32: private static boolean updateRow(Connection conn,
+33:   int numToAdd, String name)
+```
 
 
 
@@ -886,5 +1049,4 @@ continuar en la 26
 ```
 
 ---------------------------------------------------------------------
-Controlling Data with Transactions
 Closing Database Resources
