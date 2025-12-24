@@ -10,12 +10,12 @@ Este repositorio contiene apuntes, diagramas mentales y código que siguen la es
 Toma un capitulo del libro mencionado y revisa los apuntes, diagramas y código que se encuentran en la carpeta `docs` y `src`.
 
 ## Capítulos
-1. [Building Blocks](docs/ch1.md)
-2. [Operators](docs/ch2.md)
-3. [Making Decisions](docs/ch3.md)
-4. [Core APIs](docs/ch4.md)
-5. [Methods](docs/ch5.md)
-6. [Class Design](docs/ch6.md)
+1. [Building Blocks](docs/ch1_building_blocks.md)
+2. [Operators](docs/ch2_operators.md)
+3. [Making Decisions](docs/ch3_making_decision.md)
+4. [Core APIs](docs/ch4_core_api.md)
+5. [Methods](docs/ch5_methods.md)
+6. [Class Design](docs/ch6_class_design.md)
 7. [Beyond Classes](docs/ch07_01_interfaces.md)
 8. [Lambdas and Functional Interfaces](docs/ch08_01_lambdas.md)
 9. [Collections and Generics](docs/ch09_coleciones_genericos.md)
