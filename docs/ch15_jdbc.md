@@ -1071,6 +1071,76 @@ También, los métodos que toman type también toman concurrency mode, así que 
 Hasta ahora, hemos hecho roll back al punto donde autocommit fue desactivado. 
 Puedes usar `savepoints` para tener más control del punto de rollback. Considera el siguiente ejemplo:
 
+```java
+20: conn.setAutoCommit(false);
+21: Savepoint sp1 = conn.setSavepoint();
+22: // database code
+23: Savepoint sp2 = conn.setSavepoint("second savepoint");
+24: // database code
+25: conn.rollback(sp2);
+26: // database code
+27: conn.rollback(sp1);
+```
+
+* La línea 20 es importante. Solo puedes usar savepoints cuando estás controlando la transacción. 
+* Las líneas 21 y 23 muestran cómo crear un Savepoint. El nombre es opcional y típicamente se incluye en el toString() si imprimes la referencia del savepoint.
+
+* La línea 25 muestra el primer rollback. Eso se deshace de cualquier cambio hecho desde que ese savepoint fue creado: en este caso, el código en la línea 24. 
+* Luego la línea 27 muestra el segundo rollback deshaciéndose del código en la línea 22.
+
+* El orden importa. Si invirtamos las líneas 25 y 27, el código lanzaría una exception. 
+* Hacer rollback a sp1 se deshace de cualquier cambio hecho después de eso, lo cual incluye el segundo savepoint. 
+* De manera similar, llamar a conn.rollback() en la línea 25 anularía ambos savepoints, y la línea 27 nuevamente lanzaría una exception.
+
+### Reviewing Transaction APIs
+
+No hay muchos métodos para trabajar con transacciones, pero necesitas conocer todos los que están en Table 15.9.
+
+![ch15_01_14.png](images/ch15/ch15_01_14.png)
+
+
+## Closing Database Resources
+
+* Como viste en Chapter 14, "I/O," es importante cerrar recursos cuando has terminado con ellos. 
+* Esto es verdad para recursos JDBC también. Los recursos JDBC, como a Connection, son costosos de crear. 
+* No cerrarlos crea una fuga de recursos que eventualmente ralentizará tu programa.
+
+* A lo largo del capítulo, hemos estado usando la sintaxis try-with-resources de Chapter 11. 
+* Los recursos necesitan cerrarse en un orden específico. 
+* El ResultSet se cierra primero, seguido por el PreparedStatement (o CallableStatement) y luego la Connection.
+
+* Aunque es un buen hábito cerrar los tres recursos, no es estrictamente necesario. 
+* Cerrar un recurso JDBC debería cerrar cualquier recurso que creó. En particular, lo siguiente es verdadero:
+  * Closing a Connection also closes PreparedStatement (or CallableStatement) and ResultSet.
+  * Closing a PreparedStatement (or CallableStatement) also closes the ResultSet.
+
+Es importante cerrar recursos en el orden correcto. Esto evita tanto fugas de recursos como exceptions.
+
+---------------------------------------------------------------------
+**Writing a Resource Leak**
+
+En Chapter 11, aprendiste que es posible declarar un tipo antes de un statement try-with-resources. ¿Ves por qué este método es malo?
+
+```java
+40: public void bad() throws SQLException {
+41:   var url = "jdbc:hsqldb:zoo";
+42:   var sql = "SELECT not_a_column FROM names";
+43:   var conn = DriverManager.getConnection(url);
+44:   var ps = conn.prepareStatement(sql);
+45:   var rs = ps.executeQuery();
+46:
+47:   try (conn; ps; rs) {
+48:     while (rs.next())
+49:       System.out.println(rs.getString(1));
+50:   }
+51: }
+```
+
+Supongamos que se lanza una exception en la línea 45. 
+El bloque try-with-resources nunca se ingresa, así que no nos beneficiamos del cierre automático de recursos.
+Eso significa que este código tiene una fuga de recursos si falla. No escribas código como este.
+---------------------------------------------------------------------
+
 
 
 
@@ -1082,4 +1152,4 @@ Puedes usar `savepoints` para tener más control del punto de rollback. Consider
 ```
 
 ---------------------------------------------------------------------
-Closing Database Resources
+
