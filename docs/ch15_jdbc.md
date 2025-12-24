@@ -1141,15 +1141,43 @@ El bloque try-with-resources nunca se ingresa, así que no nos beneficiamos del 
 Eso significa que este código tiene una fuga de recursos si falla. No escribas código como este.
 ---------------------------------------------------------------------
 
+* Hay otra forma de cerrar un ResultSet. JDBC automáticamente cierra un ResultSet cuando ejecutas otro statement SQL desde el mismo Statement. 
+* Esto podría ser un PreparedStatement o un CallableStatement.
 
+---------------------------------------------------------------------
+**Dealing with Exceptions**
 
-
-
-
+En la mayor parte de este capítulo, hemos vivido en un mundo perfecto. 
+Claro, mencionamos que un checked SQLException podría ser lanzado por cualquier método JDBC—pero nunca lo capturamos. 
+Simplemente, lo declaramos y dejamos que el llamador lidiara con él. Ahora capturemos la exception.
 
 ```java
+var sql = "SELECT not_a_column FROM names";
+var url = "jdbc:hsqldb:zoo";
+try (var conn = DriverManager.getConnection(url);
+  var ps = conn.prepareStatement(sql);
+  var rs = ps.executeQuery()) {
+while (rs.next())
+    System.out.println(rs.getString(1));
+} catch (SQLException e) {
+  System.out.println(e.getMessage());
+  System.out.println(e.getSQLState());
+  System.out.println(e.getErrorCode());
 
+}
 ```
 
+El output luce así:
+
+```java
+Column 'NOT_A_COLUMN' is either not in any table ...
+42X04
+30000
+```
+
+* Cada uno de estos métodos te da una pieza diferente de información. El método getMessage() retorna un mensaje legible por humanos sobre lo que salió mal. 
+* Solo hemos incluido el comienzo de él aquí. El método getSQLState() retorna un código sobre qué salió mal. 
+* Puedes buscar en Google el nombre de tu base de datos y el SQL state para obtener más información sobre el error. 
+* En comparación, getErrorCode() es un código específico de base de datos. En esta base de datos, no hace nada.
 ---------------------------------------------------------------------
 
