@@ -1029,14 +1029,47 @@ También, los métodos que toman type también toman concurrency mode, así que 
 31:
 32: private static boolean updateRow(Connection conn,
 33:   int numToAdd, String name)
+34:
+35:   throws SQLException {
+36:
+37:   String updateSql = """"
+38:     UPDATE exhibits
+39:     SET num:acres = num:acres + ?
+40:     WHERE name = ?"""";
+41:
+42:   try (PreparedStatement ps = conn.prepareStatement(updateSql)) {
+43:     ps.setInt(1, numToAdd);
+44:     ps.setString(2, name);
+45:     return ps.executeUpdate()> 0;
+46:   }}
 ```
 
+* Lo primero interesante en este ejemplo está en la línea 9, donde desactivamos el modo autocommit y declaramos que manejaremos las transacciones nosotros mismos. 
+* La mayoría de las bases de datos soportan deshabilitar el modo autocommit. 
+* Si una base de datos no lo hace, lanzará un SQLException en la línea 9. 
+* Luego intentamos actualizar el número de acres asignados a cada animal. 
+* Si no tenemos éxito y no se actualizan filas, hacemos roll back de la transacción en la línea 15, causando que el estado de la base de datos permanezca sin cambios.
 
+* Asumiendo que al menos una fila se actualiza, verificamos exhibits y nos aseguramos de que ninguna de las filas contiene un valor `num:acres` inválido. 
+* Si esto fuera una aplicación real, tendríamos más lógica para asegurarnos de que la cantidad de espacio tiene sentido. 
+* En las líneas 26-30, decidimos si hacer commit de la transacción a la base de datos o hacer roll back de todos los updates hechos a la tabla exhibits.
 
+---------------------------------------------------------------------
+**Autocommit Edge Cases**
 
+* Necesitas conocer dos casos extremos para el examen. 
+* Primero, llamar a setAutoCommit(true) automáticamente activará un commit cuando no estés ya en modo autocommit. 
+* Después de eso, el modo autocommit toma efecto, y cada statement se confirma automáticamente.
 
+* El otro caso extremo es qué pasa si tienes autocommit configurado a `false` y cierras tú `connection` sin hacer roll back o confirmar tus cambios. 
+* La respuesta es que el comportamiento es indefinido. Puede hacer commit o roll back, dependiendo únicamente del driver. 
+* No dependas de este comportamiento; recuerda hacer commit o roll back al final de una transacción.
+---------------------------------------------------------------------
 
+### Bookmarking with Savepoints
 
+Hasta ahora, hemos hecho roll back al punto donde autocommit fue desactivado. 
+Puedes usar `savepoints` para tener más control del punto de rollback. Considera el siguiente ejemplo:
 
 
 
