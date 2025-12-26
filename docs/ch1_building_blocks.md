@@ -109,6 +109,32 @@ En la línea 2, definimos una variable llamada name. También declaramos el tipo
 Un String es un valor en el que podemos poner texto, tal como "this is a string". String es también una clase suministrada con Java. 
 Luego podemos agregar methods.
 
+```java
+1: public class Animal {
+2:    String name;
+3:    public String getName() {
+4:       return name;
+5:    }
+6:    public void setName(String newName) {
+7:       name = newName;
+8:    }
+9: }
+```
+
+* En las líneas 3–5, definimos un método. Un método es una operación que puede ser llamada. 
+* Nuevamente, public es usado para significar que este método puede ser llamado desde otras clases. 
+* Luego viene el tipo de retorno—en este caso, el método retorna un String. En las líneas 6–8 hay otro método. 
+* Este tiene un tipo de retorno especial llamado void. El keyword void significa que ningún valor en absoluto es retornado. 
+* Este método requiere que información sea suministrada a él desde el método que llama; esta información es llamada un parameter. 
+* El método setName() tiene un parámetro llamado newName, y es de tipo String. 
+* Esto significa que el caller debería pasar un parámetro String y esperar que nada sea retornado.
+
+
+
+
+
+
+
 
 
 
