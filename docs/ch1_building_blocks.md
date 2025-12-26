@@ -84,7 +84,30 @@ java -version
 * Si el cambio es importante de recordar, una variable almacena ese cambio. 
 * Eso es todo lo que las clases realmente hacen. Es el trabajo del programador crear y organizar estos elementos de tal manera que el código resultante sea útil y, idealmente, fácil para que otros programadores lo entiendan.
 
+La clase Java más simple que puedes escribir se ve así:
 
+```java
+1: public class Animal {
+2: }
+```
+
+* Java llama a una palabra con significado especial un keyword, que hemos marcado en negrita en el snippet anterior. 
+* A lo largo del libro, a menudo pondremos en negrita partes de los snippets de código para llamar la atención sobre ellas. 
+* La línea 1 incluye el keyword public, que permite a otras clases usarla. El keyword class indica que estás definiendo una clase. 
+* Animal da el nombre de la clase. Ciertamente, esta no es una clase interesante, así que agreguemos tu primer field.
+
+```java
+1: public class Animal {
+2:    String name;
+3: }
+```
+
+Los números de línea no son parte del programa; solo están ahí para hacer el código más fácil de hablar sobre él.
+
+
+En la línea 2, definimos una variable llamada name. También declaramos el tipo de esa variable para que sea String. 
+Un String es un valor en el que podemos poner texto, tal como "this is a string". String es también una clase suministrada con Java. 
+Luego podemos agregar methods.
 
 
 
