@@ -77,7 +77,12 @@ java -version
 * En las siguientes secciones, examinamos fields, methods, y comments. 
 * También exploramos la relación entre clases y archivos.
 
+### Fields and Methods
 
+* Las clases Java tienen dos elementos primarios: methods, a menudo llamados funciones o procedimientos en otros lenguajes, y fields, más generalmente conocidos como variables. 
+* Juntos estos son llamados los members de la clase. Las variables mantienen el estado del programa, y los métodos operan sobre ese estado. 
+* Si el cambio es importante de recordar, una variable almacena ese cambio. 
+* Eso es todo lo que las clases realmente hacen. Es el trabajo del programador crear y organizar estos elementos de tal manera que el código resultante sea útil y, idealmente, fácil para que otros programadores lo entiendan.
 
 
 
