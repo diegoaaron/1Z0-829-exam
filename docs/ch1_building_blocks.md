@@ -208,6 +208,41 @@ String... friends
 * Los caracteres `[]` son corchetes y representan un array. Un **array** es una lista de tamaño fijo de elementos que son todos del mismo tipo. 
 * Los caracteres `...` se llaman varargs (listas de argumentos variables). 
 
+### Passing Parameters to a Java Program
+
+Veamos cómo enviar datos al método main() de nuestro programa. Primero, modificamos el programa Zoo para imprimir los primeros dos argumentos pasados:
+
+```java
+public class Zoo {
+    public static void main(String[] args) {
+        System.out.println(args[0]);
+        System.out.println(args[1]);
+    }
+}
+```
+
+El código `args[0]` accede al primer elemento del array. Eso es correcto: los índices de array comienzan con 0 en Java. Para ejecutarlo, escribe esto:
+
+```java
+javac Zoo.java
+java Zoo Bronx Zoo
+```
+
+* El programa identifica correctamente las primeras dos "palabras" como los argumentos. 
+* Los espacios se usan para separar los argumentos. Si quieres espacios dentro de un argumento, necesitas usar comillas como en este ejemplo:
+
+```java
+javac Zoo.java
+java Zoo "San Diego" Zoo
+```
+
+Ahora tenemos un espacio en la salida:
+
+```
+San Diego
+Zoo
+```
+
 
 
 
