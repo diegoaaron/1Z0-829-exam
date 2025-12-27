@@ -2,9 +2,6 @@
 
 ## Learning about the Environment
 
-El entorno Java consiste en entender una serie de tecnologías. 
-En las siguientes secciones, revisamos los términos clave y acrónimos que necesitas conocer y luego discutimos qué software necesitas para estudiar para el examen.
-
 El Java Development Kit (JDK) contiene el software mínimo que necesitas para hacer desarrollo Java. Los comandos clave incluyen:
 
 * javac: Convierte archivos fuente .java en `bytecode .class`
@@ -12,9 +9,9 @@ El Java Development Kit (JDK) contiene el software mínimo que necesitas para ha
 * jar: Empaqueta archivos juntos
 * javadoc: Genera documentación
 
-* El programa javac genera instrucciones en un formato especial llamado bytecode que el comando java puede ejecutar. 
-* Luego java lanza la Java Virtual Machine (JVM) antes de ejecutar el código. La JVM sabe cómo ejecutar bytecode en la máquina real en la que está. 
-* Puedes pensar en la JVM como una caja mágica especial en tu máquina que sabe cómo ejecutar tú `archivo .class` dentro de tu sistema operativo y hardware particulares.
+* El programa javac genera instrucciones en un formato especial llamado **bytecode** que el comando java puede ejecutar. 
+* Luego java lanza la Java Virtual Machine (JVM) antes de ejecutar el código. La JVM sabe cómo ejecutar bytecode en el equipo real en la que está. 
+* Puedes pensar en la JVM como una caja especial en el equipo que sabe cómo ejecutar un `archivo .class`. 
 
 ---------------------------------------------------------------------
 **Where Did the JRE Go?**
@@ -22,18 +19,7 @@ El Java Development Kit (JDK) contiene el software mínimo que necesitas para ha
 * En Java 8 y versiones anteriores, podías descargar un Java Runtime Environment (JRE) en lugar del JDK completo. 
 * El JRE era un subconjunto del JDK que se usaba para ejecutar un programa, pero no podía compilar uno. 
 * Ahora, las personas pueden usar el JDK completo cuando ejecutan un programa Java. 
-* Alternativamente, los desarrolladores pueden suministrar un ejecutable que contiene las piezas requeridas que habrían estado en el JRE.
 ---------------------------------------------------------------------
-
-* Cuando escribes un programa, hay piezas comunes de funcionalidad y algoritmos que los desarrolladores necesitan. 
-* Afortunadamente, no tenemos que escribir cada una de estas nosotros mismos. 
-* Java viene con un gran conjunto de application programming interfaces (APIs) que puedes usar. 
-* Por ejemplo, hay una clase StringBuilder para crear un String grande y un método en Collections para ordenar una lista. 
-* Cuando escribes un programa, es útil determinar qué piezas de tu tarea pueden ser realizadas por APIs existentes.
-
-* Podrías haber notado que dijimos que el JDK contiene el software mínimo que necesitas. 
-* Muchos desarrolladores usan un integrated development environment (IDE) para hacer que escribir y ejecutar código sea más fácil.
-* Aunque no recomendamos usar uno mientras estudias para el examen, todavía es bueno saber que existen.
 
 ### Downloading a JDK
 
@@ -138,9 +124,7 @@ Luego podemos agregar methods.
 
 
 
-
-
-
+`   `
 
 ```java
 
