@@ -131,14 +131,35 @@ Los comentarios Javadoc tienen una estructura específica que la herramienta Jav
 
 ### Classes and Source Files
 
-* La mayor parte del tiempo, cada clase Java se define en su propio archivo **.java**. 
-* En este capítulo, el único tipo de nivel superior es una clase.
-* Una clase de nivel superior a menudo es public, lo que significa que cualquier código puede llamarla. 
+* La mayor parte del tiempo, cada clase Java se define en su propio archivo **.java**.
+* Una clase de nivel superior (la clase asociada al nombre del archivo .java) a menudo es `public`, lo que significa que cualquier código puede llamarla. 
 * Curiosamente, Java no requiere que el tipo sea public. Por ejemplo, esta clase está bien:
 
 ```java
-
+1: class Animal {
+2:    String name;
+3: }
 ```
+
+Incluso puedes poner dos clases de nivel superior en el mismo archivo. 
+Cuando lo haces, una de estas puede ser `public`. Eso significa que un archivo que contiene lo siguiente también está bien:
+
+```java
+1: public class Animal {
+2:    private String name;
+3: }
+4: class Animal2 {}
+```
+
+Cuando una clase tiene un tipo `public`, necesita que coincida con el nombre del archivo. 
+
+### Writing a main() Method
+
+Un programa Java comienza la ejecución con su método main(). 
+En esta sección, aprendes cómo crear uno, pasar un parámetro y ejecutar un programa. 
+El método main() a menudo se llama un punto de entrada al programa, porque es el punto de inicio que la JVM busca cuando comienza a ejecutar un nuevo programa.
+
+
 
 
 
@@ -157,10 +178,6 @@ Los comentarios Javadoc tienen una estructura específica que la herramienta Jav
 ```
 
 ---------------------------------------------------------------------
-
-
-Writing main() Method
-Writing a main() Method
 Understanding Package Declarations and Imports
 Creating Objects
 Understanding Data Types
