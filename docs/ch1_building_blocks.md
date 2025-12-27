@@ -187,8 +187,26 @@ Para mantener las cosas simples por ahora, seguimos este subconjunto de las regl
 * Naturalmente, public significa acceso completo desde cualquier lugar en el programa.
 * La palabra clave `static` vincula un método a su clase para que pueda ser llamado solo por el nombre de la clase, como en, por ejemplo, `Zoo.main()`. 
 * Java no necesita crear un objeto para llamar al método main() lo cual es bueno, ya que aún no has aprendido sobre crear objetos. 
-* De hecho, la JVM hace esto, más o menos, cuando carga el nombre de la clase dado a ella. Si un método main() no tiene las palabras clave correctas, obtendrás un error tratando de ejecutarlo.
+* De hecho, la JVM hace esto, más o menos, cuando carga el nombre de la clase dado a ella. 
+* Si un método main() no tiene las palabras clave correctas, obtendrás un error tratando de ejecutarlo.
 
+* La palabra clave `void` representa el tipo de retorno (return type). 
+* Un método que no devuelve datos retorna el control al invocador silenciosamente. 
+* En general, es una buena práctica usar void para métodos que cambian el estado de un objeto. 
+* En ese sentido, el método main() cambia el estado del programa de iniciado ha finalizado.
+* Finalmente, llegamos a la lista de parámetros del método main(), representada como un array de objetos `java.lang.String`. 
+* Puedes usar cualquier nombre de variable válido junto con cualquiera de estos tres formatos:
+
+```java
+String[] args
+String options[]
+String... friends
+```
+
+* El compilador acepta cualquiera de estos. 
+* El nombre de variable `args` es común porque sugiere que esta lista contiene valores que fueron leídos (argumentos) cuando la JVM se inició. 
+* Los caracteres `[]` son corchetes y representan un array. Un **array** es una lista de tamaño fijo de elementos que son todos del mismo tipo. 
+* Los caracteres `...` se llaman varargs (listas de argumentos variables). 
 
 
 
