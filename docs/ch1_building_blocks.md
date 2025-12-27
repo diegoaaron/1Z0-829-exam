@@ -153,17 +153,32 @@ Cuando lo haces, una de estas puede ser `public`. Eso significa que un archivo q
 
 Cuando una clase tiene un tipo `public`, necesita que coincida con el nombre del archivo. 
 
-### Writing a main() Method
+## Writing a main() Method
 
-Un programa Java comienza la ejecución con su método main(). 
-En esta sección, aprendes cómo crear uno, pasar un parámetro y ejecutar un programa. 
-El método main() a menudo se llama un punto de entrada al programa, porque es el punto de inicio que la JVM busca cuando comienza a ejecutar un nuevo programa.
+Un programa Java comienza la ejecución con su método `main()`. 
+El método `main()` a menudo se llama un punto de entrada al programa, porque es el punto de inicio que la JVM busca cuando comienza a ejecutar un nuevo programa.
 
+### Creating a main() Method
 
+El método main() permite que la JVM llame a nuestro código. La clase más simple posible con un método main() se ve así:
 
+```java
+1: public class Zoo {
+2:    public static void main(String[] args) {
+3:    System.out.println("Hello World");
+4:    }
+5: }
+```
 
+Para compilar código Java con el comando javac, el archivo debe tener la extensión .java. El nombre del archivo debe coincidir con el nombre de la clase public. El resultado es un archivo de bytecode con el mismo nombre pero con una extensión de nombre de archivo .class. Recuerda que el bytecode consiste en instrucciones que la JVM sabe cómo ejecutar. Nota que debemos omitir la extensión .class para ejecutar Zoo.class.
+Las reglas para lo que un archivo Java contiene, y en qué orden, son más detalladas de lo que hemos explicado hasta ahora (hay más sobre este tema más adelante en el capítulo). Para mantener las cosas simples por ahora, seguimos este subconjunto de las reglas:
+■ Cada archivo puede contener solo una clase public.
+■ El nombre del archivo debe coincidir con el nombre de la clase, incluyendo mayúsculas y minúsculas, y tener una extensión .java.
+■ Si la clase Java es un punto de entrada para el programa, debe contener un método main() válido.
+Primero revisemos las palabras en la firma del método main(), una a la vez. La palabra clave public es lo que se llama un access modifier. Declara el nivel de exposición de este método a los llamadores potenciales en el programa. Naturalmente, public significa acceso completo desde cualquier lugar en el programa. Aprendes más sobre access modifiers en Chapter 5.
+La palabra clave static vincula un método a su clase para que pueda ser llamado solo por el nombre de la clase, como en, por ejemplo, Zoo.main(). Java no necesita crear un objeto para llamar al método main()—lo cual es bueno ya que aún no has aprendido sobre crear objetos! De hecho, la JVM hace esto, más o menos, cuando carga el nombre de la clase dado a ella. Si un método main() no tiene las palabras clave correctas, obtendrás un error tratando de ejecutarlo. Ves static nuevamente en Chapter 6, "Class Design."
 
-
+continuar en la 8
 
 
 
