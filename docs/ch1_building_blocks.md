@@ -170,15 +170,27 @@ El método main() permite que la JVM llame a nuestro código. La clase más simp
 5: }
 ```
 
-Para compilar código Java con el comando javac, el archivo debe tener la extensión .java. El nombre del archivo debe coincidir con el nombre de la clase public. El resultado es un archivo de bytecode con el mismo nombre pero con una extensión de nombre de archivo .class. Recuerda que el bytecode consiste en instrucciones que la JVM sabe cómo ejecutar. Nota que debemos omitir la extensión .class para ejecutar Zoo.class.
-Las reglas para lo que un archivo Java contiene, y en qué orden, son más detalladas de lo que hemos explicado hasta ahora (hay más sobre este tema más adelante en el capítulo). Para mantener las cosas simples por ahora, seguimos este subconjunto de las reglas:
-■ Cada archivo puede contener solo una clase public.
-■ El nombre del archivo debe coincidir con el nombre de la clase, incluyendo mayúsculas y minúsculas, y tener una extensión .java.
-■ Si la clase Java es un punto de entrada para el programa, debe contener un método main() válido.
-Primero revisemos las palabras en la firma del método main(), una a la vez. La palabra clave public es lo que se llama un access modifier. Declara el nivel de exposición de este método a los llamadores potenciales en el programa. Naturalmente, public significa acceso completo desde cualquier lugar en el programa. Aprendes más sobre access modifiers en Chapter 5.
-La palabra clave static vincula un método a su clase para que pueda ser llamado solo por el nombre de la clase, como en, por ejemplo, Zoo.main(). Java no necesita crear un objeto para llamar al método main()—lo cual es bueno ya que aún no has aprendido sobre crear objetos! De hecho, la JVM hace esto, más o menos, cuando carga el nombre de la clase dado a ella. Si un método main() no tiene las palabras clave correctas, obtendrás un error tratando de ejecutarlo. Ves static nuevamente en Chapter 6, "Class Design."
+Para compilar código Java con el comando `javac`, el archivo debe tener la extensión **.java**. 
+El nombre del archivo debe coincidir con el nombre de la clase public. 
+El resultado es un archivo de bytecode con el mismo nombre pero con una extensión de nombre de archivo **.class**. 
+Recuerda que el bytecode consiste en instrucciones que la JVM sabe cómo ejecutar.
 
-continuar en la 8
+Las reglas para lo que un archivo Java contiene, y en qué orden, son más detalladas de lo que hemos explicado hasta ahora (hay más sobre este tema más adelante en el capítulo). 
+Para mantener las cosas simples por ahora, seguimos este subconjunto de las reglas:
+* Cada archivo puede contener solo una clase public.
+* El nombre del archivo debe coincidir con el nombre de la clase, incluyendo mayúsculas y minúsculas, y tener una extensión .**java**.
+* Si la clase Java es un punto de entrada para el programa, debe contener un método `main()` válido.
+
+* Primero revisemos las palabras en la firma del método `main()`, una a la vez. 
+* La palabra clave `public` es lo que se llama un **access modifier**. 
+* Declara el nivel de exposición de este método a los llamadores potenciales en el programa. 
+* Naturalmente, public significa acceso completo desde cualquier lugar en el programa.
+* La palabra clave `static` vincula un método a su clase para que pueda ser llamado solo por el nombre de la clase, como en, por ejemplo, `Zoo.main()`. 
+* Java no necesita crear un objeto para llamar al método main() lo cual es bueno, ya que aún no has aprendido sobre crear objetos. 
+* De hecho, la JVM hace esto, más o menos, cuando carga el nombre de la clase dado a ella. Si un método main() no tiene las palabras clave correctas, obtendrás un error tratando de ejecutarlo.
+
+
+
 
 
 
