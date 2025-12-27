@@ -83,7 +83,62 @@ Luego podemos agregar methods.
 * El keyword `void` significa que ningún valor en absoluto es retornado. 
 * Este método requiere que información sea suministrada a él desde el método que llama; esta información es llamada un `parameter`. 
 * El método `setName()` tiene un parámetro llamado newName, y es de tipo String. 
-* Esto significa que quien utiliza este método debería pasar un parámetro String y esperar que nada sea retornado.
+* Esto significa que quien utiliza este método debería pasar un parámetro String y esperar que nada sea retornado. 
+* El nombre del método y los tipos de parámetros se llaman la firma del método. 
+
+```java
+public int numberVisitors(int month) {
+  return 10;
+}
+```
+
+* El nombre del método es numberVisitors. 
+* Hay un parámetro llamado month, que es de tipo int, el cual es un tipo numérico. 
+* Por lo tanto, **la firma del método es** `numberVisitors(int)`.
+
+### Comments
+
+* Otra parte común del código se llama un comentario (comment). 
+* Debido a que los comentarios no son código ejecutable, puedes colocarlos en muchos lugares. 
+* Los comentarios pueden hacer que tu código sea más fácil de leer. 
+* Hay tres tipos de comentarios en Java. El primero se llama comentario de una sola línea:
+
+`// comment until end of line`
+
+El compilador ignora cualquier cosa que escribas después de eso en la misma línea. 
+A continuación viene el comentario multilínea:
+
+```java
+/* Multiple
+ * line comment
+ */
+```
+
+* Un comentario multilínea incluye cualquier cosa que comience desde el símbolo /* hasta el símbolo */. 
+* A menudo escriben un asterisco (*) al comienzo de cada línea de un comentario multilínea para hacerlo más fácil de leer, pero no tienes que hacerlo. 
+* Finalmente, tenemos un comentario Javadoc:
+
+```java
+/**
+ * Javadoc multiple-line comment
+ * @author Jeanne and Scott
+ */
+```
+
+Este comentario es similar a un comentario multilínea, excepto que comienza con /**. 
+Esta sintaxis especial le indica a la herramienta Javadoc que preste atención al comentario. 
+Los comentarios Javadoc tienen una estructura específica que la herramienta Javadoc sabe cómo leer.
+
+### Classes and Source Files
+
+* La mayor parte del tiempo, cada clase Java se define en su propio archivo **.java**. 
+* En este capítulo, el único tipo de nivel superior es una clase.
+* Una clase de nivel superior a menudo es public, lo que significa que cualquier código puede llamarla. 
+* Curiosamente, Java no requiere que el tipo sea public. Por ejemplo, esta clase está bien:
+
+```java
+
+```
 
 
 
@@ -91,12 +146,11 @@ Luego podemos agregar methods.
 
 
 
-
-**Palabra** cuando es una palabra en inglés importante, pero no es una palabra reservada 
+**Palabra** cuando es una palabra en inglés importante que tiene sentido traducirla, pero no es una palabra reservada 
 
 () version en ingles de la palabra anterior
 
-`   `
+`   `  solo cúando es una línea de código o una palabra reservada que va a ser explicada
 
 ```java
 
