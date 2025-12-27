@@ -23,45 +23,20 @@ El Java Development Kit (JDK) contiene el software mínimo que necesitas para ha
 
 ### Downloading a JDK
 
-Cada seis meses, Oracle lanza una nueva versión de Java. Java 17 salió en septiembre 2021. 
-Esto significa que Java 17 no será la última versión cuando descargues el JDK para estudiar para el examen. 
-Sin embargo, aún deberías usar Java 17 para estudiar, ya que este es un examen Java 17. 
-Las reglas y el comportamiento pueden cambiar con versiones posteriores de Java. 
-No querrías obtener una pregunta incorrecta porque estudiaste con una versión diferente de Java.
+* Cada seis meses, Oracle lanza una nueva versión de Java. Java 17 salió en septiembre 2021. 
+* Hay muchos JDK disponibles, el más popular de los cuales, además del JDK de Oracle, es OpenJDK.
 
-Puedes descargar el JDK de Oracle en el sitio web de Oracle, usando la misma cuenta que usas para registrarte para el examen. 
-Hay muchos JDK disponibles, el más popular de los cuales, además del JDK de Oracle, es OpenJDK.
-
-Muchas versiones de Java incluyen preview features que están desactivadas por defecto, pero que puedes habilitar. 
-Las características de vista previa no están en el examen. 
-Para evitar confusión sobre cuándo se agregó una característica al lenguaje, diremos "fue oficialmente introducida en" para denotar cuándo se movió fuera de vista previa.
-
----------------------------------------------------------------------
-**Check Your Version of Java**
-
-* Antes de que vayamos más lejos, por favor toma esta oportunidad para asegurarte de que tienes la versión correcta de Java en tu path.
-* Ambos de estos comandos deberían incluir el número de versión 17.
-
-```java
-javac -version
-java -version
-```
----------------------------------------------------------------------
 
 ## Understanding the Class Structure
 
 * En programas Java, las clases son los bloques de construcción básicos. 
-* Cuando defines una class, describes todas las partes y características de uno de esos bloques de construcción. 
-* En capítulos posteriores, ves otros bloques de construcción tales como interfaces, records, y enums.
+* Cuando defines una clase, describes todas las partes y características de uno de esos bloques de construcción. 
 
 * Para usar la mayoría de las clases, tienes que crear objetos. 
-* Un object es una instancia en tiempo de ejecución de una clase en memoria. 
-* Un objeto es frecuentemente referido como una instance, ya que representa una única representación de la clase. 
-* Todos los varios objetos de todas las diferentes clases representan el estado de tu programa. 
+* Un objeto es una instancia en tiempo de ejecución de una clase en memoria. 
+* Un objeto es frecuentemente referido como una instancia, ya que representa una única representación de la clase. 
+* El conjunto de todos los varios objetos de todas las diferentes clases representan el estado de tu programa. 
 * Una reference es una variable que apunta a un objeto.
-
-* En las siguientes secciones, examinamos fields, methods, y comments. 
-* También exploramos la relación entre clases y archivos.
 
 ### Fields and Methods
 
