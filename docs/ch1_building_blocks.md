@@ -259,9 +259,31 @@ Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: Index 1 out
     at Zoo.main(Zoo.java:4)
 ```
 
+## Understanding Package Declarations and Imports
+
+Java pone las clases en packages (carpetas para manejar un orden). Estas son agrupaciones lógicas para las clases.
+Supón que intentas compilar este código:
+
+```java
+public class NumberPicker {
+  public static void main(String[] args) {
+    Random r = new Random(); // DOES NOT COMPILE
+    System.out.println(r.nextInt(10));
+  }
+}
+```
+
+El compilador Java útilmente te da un error que se ve así: `error: cannot find symbol`
+
+La causa de este error es omitir una declaración (statement) `import` necesaria. La cual le dice a Java donde buscar la clase `Random`.
+
+```java
+
+```
 
 
 
+---------------------------------------------------------------------
 **Palabra** cuando es una palabra en inglés importante que tiene sentido traducirla, pero no es una palabra reservada 
 
 () version en ingles de la palabra anterior
@@ -272,8 +294,6 @@ Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: Index 1 out
 
 ```
 
----------------------------------------------------------------------
-Understanding Package Declarations and Imports
 Creating Objects
 Understanding Data Types
 Declaring Variables
