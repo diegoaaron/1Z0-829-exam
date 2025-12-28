@@ -250,16 +250,16 @@ javac Zoo.java
 java Zoo Zoo
 ```
 
-Se lee bien `args[0]`, y Zoo se imprime. Luego Java entra en pánico. ¡No hay un segundo argumento! ¿Qué hacer? Java imprime una excepción diciéndote que no tiene idea qué hacer con este argumento en la posición 1. 
+Se lee bien `args[0]`, y Zoo se imprime. Luego Java entra en pánico. ¡No hay un segundo argumento! 
+¿Qué hacer? Java imprime una excepción diciéndote que no tiene idea qué hacer con este argumento en la posición 1. 
 
 ```java
 Zoo
-Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException:
-    Index 1 out of bounds for length 1
+Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: Index 1 out of bounds for length 1
     at Zoo.main(Zoo.java:4)
 ```
 
-continuar en la 10
+
 
 
 **Palabra** cuando es una palabra en inglés importante que tiene sentido traducirla, pero no es una palabra reservada 
