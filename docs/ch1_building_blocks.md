@@ -599,7 +599,76 @@ public class Meerkat { } // DOES NOT COMPILE
 * Recuerda que un objeto es una instancia de una clase. 
 * En las siguientes secciones, examinamos constructores, object fields, instance initializers, y el orden en el cual los valores son inicializados.
 
-continuar en la 23
+### Calling Constructors
+
+Para crear una instancia de una clase, todo lo que tienes que hacer es escribir `new` antes del nombre de la clase y agregar paréntesis después de él. 
+
+`Park p = new Park();`
+
+Hay que ver que `Park()` se le denomina un método constructor, que es un tipo especial de método que crea un nuevo objeto. 
+
+```java
+public class Chick {
+   public Chick() {
+      System.out.println("in constructor");
+   }
+}
+```
+
+Hay dos puntos clave a notar sobre el constructor: el nombre del constructor coincide con el nombre de la clase, y no hay tipo de retorno. 
+
+---------------------------------------------------------------------
+Puedes ver un método como este en el examen:
+
+```java
+public class Chick {
+    public void Chick() {} // NOT A CONSTRUCTOR
+}
+```
+
+Cuando veas un nombre de método que tiene el nombre de la clase y tiene un tipo de retorno, presta especial atención. 
+No es un constructor, ya que tiene un tipo de retorno. Es un método regular que compila, pero no será llamado cuando escribas `new Chick()`.
+---------------------------------------------------------------------
+
+* El propósito de un constructor es inicializar campos, aunque puedes poner cualquier código allí. 
+* Otra forma de inicializar campos es hacerlo directamente en la línea en la que se declaran. Este ejemplo muestra ambos enfoques:
+
+```java
+public class Chicken {
+    int numEggs = 12; // initialize on line
+    String name;
+    
+    public Chicken() {
+        name = "Duke"; // initialize in constructor
+    }
+}
+```
+
+Para la mayoría de las clases, no tienes que codificar un constructor el compilador te suministra un constructor predeterminado que «no hace nada». 
+
+### Reading and Writing Member Fields
+
+Es posible leer y escribir variables de instancia directamente desde donde se invocan el objeto.
+
+```java
+public class Swan {
+    int numberEggs; // instance variable
+    
+    public static void main(String[] args) {
+        Swan mother = new Swan();
+        mother.numberEggs = 1;    // set variable
+        System.out.println(mother.numberEggs); // read variable
+    }
+}
+```
+
+El "caller" en este caso es el método main(), el cual podría estar en la misma clase o en otra clase. 
+Esta clase establece numberEggs a 1 y luego lee numberEggs directamente para imprimirlo. 
+
+Incluso puedes leer valores de campos ya inicializados en una línea inicializando un nuevo field:
+
+
+
 
 
 
