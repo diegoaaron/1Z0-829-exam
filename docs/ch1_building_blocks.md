@@ -479,10 +479,102 @@ Ahora que tu código ha compilado, puedes ejecutarlo escribiendo el siguiente co
 * También proporciona una opción para colocar los archivos de clase en un directorio diferente. 
 * La opción `-d` especifica este directorio objetivo.
 
-* Si estás siguiendo el ejemplo, elimina los archivos ClassA.class y ClassB.class que fueron creados en la sección anterior. 
-* ¿Dónde crees que este comando creará el archivo ClassA.class?
+Si estás siguiendo el ejemplo, elimina los archivos ClassA.class y ClassB.class que fueron creados en la sección anterior. 
+
+¿Dónde crees que este comando creará el archivo ClassA.class?
 
 `javac -d classes packagea/ClassA.java packageb/ClassB.java`
+
+La respuesta correcta está en `classes/packagea/ClassA.class`. La estructura de paquete se preserva bajo el directorio objetivo solicitado. 
+
+* Para ejecutar el programa, especificas el classpath para que Java sepa dónde encontrar las clases. 
+* Hay tres opciones que puedes usar. Las tres hacen lo mismo:
+
+```java
+java -cp classes packageb.ClassB
+java -classpath classes packageb.ClassB
+java --class-path classes packageb.ClassB
+```
+
+![ch01_01_02.png](images/ch01/ch01_01_02.png)
+
+### Compiling with JAR Files
+
+* Tal como el directorio **classes** en el ejemplo anterior, también puedes especificar la ubicación de los otros archivos explícitamente usando un classpath. 
+* Esta técnica es útil cuando los archivos con las clases están ubicados en otro lugar o en archivos JAR especiales. 
+* Un Java archive (JAR) es como un archivo ZIP de principalmente archivos de clase Java.
+
+En Windows, escribes lo siguiente:
+
+`java -cp ".;C:\temp\someOtherLocation;c:\temp\myJar.jar" myPackage.MyClass`
+
+Y en macOS/Linux, escribes esto:
+
+`java -cp ".:/tmp/someOtherLocation:/tmp/myJar.jar" myPackage.MyClass`
+
+* El punto (.) indica que quieres incluir el directorio actual en el classpath. 
+* El resto del comando dice buscar archivos de clase sueltos (o paquetes) en **someOtherLocation** y dentro de **myJar.jar**. 
+* Windows usa el (;) para separar partes del classpath; otros sistemas operativos usan (:).
+
+Igual que cuando estás compilando, puedes usar un wildcard (*) para coincidir con todos los JARs en un directorio. Aquí hay un ejemplo:
+
+`java -cp "C:\temp\directoryWithJars\*" myPackage.MyClass`
+
+* Este comando agregará al classpath todos los JARs que están en **directoryWithJars**. 
+* No incluirá ningún JAR en el classpath que esté en un subdirectorio de **directoryWithJars**.
+
+### Creating a JAR File
+
+* Puedes crear un archivo JAR tú mismo. Para hacerlo, usas el comando jar. 
+* Los comandos más simples crean un jar conteniendo los archivos en el directorio actual. 
+* Puedes usar la forma corta o larga para cada opción.
+
+```java
+jar -cvf myNewFile.jar .
+jar --create --verbose --file myNewFile.jar .
+```
+
+Alternativamente, puedes especificar un directorio en lugar de usar el directorio actual.
+
+`jar -cvf myNewFile.jar -C dir .`
+
+Table 1.4 lista las opciones que necesitas usar el comando jar para crear un archivo JAR. 
+
+![ch01_01_03.png](images/ch01/ch01_01_03.png)
+
+Ahora que has visto las partes más comunes de una clase, echemos un vistazo al orden correcto para escribirlas en un archivo. 
+Los comentarios pueden ir en cualquier lugar del código. Pero el orden de la siguiente tabla debe ser memorizado para el examen.
+
+| Elemento                              | Ejemplo               | Requerido | Donde debe ir                                                           |
+|---------------------------------------|-----------------------|-----------|-------------------------------------------------------------------------|
+| Declaración de paquete                | `package abc; `       | No        | Primera línea en el archivo (excluyendo comentarios o líneas en blanco) |
+| Declaraciones import                  | `import java.util.*;` | No        | Inmediatamente después del paquete (si está presente)                   |
+| Declaración de tipo de nivel superior | `public class C  `    | Sí        | Inmediatamente después del import (si hay alguno)                       |
+| Declaraciones de campos               | `int value;`          | No        | Cualquier elemento de nivel superior dentro de una clase                |
+| Declaraciones de métodos              | `void method()`       | No        | Cualquier elemento de nivel superior dentro de una clase                |
+
+
+Veamos algunos ejemplos para ayudarte a recordar esto. El primer ejemplo contiene uno de cada elemento:
+
+```java
+package structure;  // package must be first non-comment
+import java.util.*;  // import must come after package
+public class Meerkat { // then comes the class
+  double weight;  // fields and methods can go in either order
+  public double getWeight() {
+    return weight; 
+  }
+  double height;  // another field - they don't need to be together
+}
+```
+
+Hasta ahora, todo bien. Este es un patrón común con el que deberías estar familiarizado. ¿Qué tal este?
+
+
+
+
+
+
 
 
 ---------------------------------------------------------------------
