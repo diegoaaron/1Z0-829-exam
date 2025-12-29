@@ -860,6 +860,63 @@ Por ejemplo, la siguiente declaración asigna esta referencia a un nuevo objeto:
 6: int bad = len.length(); // DOES NOT COMPILE
 ```
 
+La línea 6 es un sinsentido. No existen métodos en `len` porque es un primitivo int. Los primitivos no tienen métodos. 
+
+* Finalmente, los reference types pueden ser asignados null, lo que significa que actualmente no se refieren a un objeto. 
+* Los tipos primitivos te darán un error de compilador si intentas asignarles null. 
+
+```java
+int value = null; // DOES NOT COMPILE
+String name = null;
+```
+
+### Creating Wrapper Classes
+
+* Cada tipo primitivo tiene una clase wrapper, que es un tipo objeto que corresponde al primitivo. 
+* Table 1.7 lista todas las clases wrapper junto con cómo crearlas.
+
+![ch01_01_05.png](images/ch01/ch01_01_05.png)
+
+También hay una variante valueOf() que convierte un String en la clase wrapper. Por ejemplo:
+
+```java
+int primitive = Integer.parseInt("123");
+Integer wrapper = Integer.valueOf("123");
+```
+
+La primera línea convierte un String a un primitivo int. La segunda convierte un String a una clase wrapper Integer.
+
+* Todas las clases numéricas en Table 1.7 extienden la clase Number, lo que significa que todas vienen con algunos métodos auxiliares útiles: byteValue(), shortValue(), intValue(), longValue(), floatValue(), y doubleValue(). Las clases wrapper Boolean y Character incluyen booleanValue() y charValue(), respectivamente.
+* Como probablemente adivinaste, estos métodos devuelven el valor primitivo de una instancia wrapper, en el tipo solicitado.
+
+```java
+Double apple = Double.valueOf("200.99");
+System.out.println(apple.byteValue()); // -56
+System.out.println(apple.intValue()); // 200
+System.out.println(apple.doubleValue()); // 200.99
+```
+
+Estos métodos auxiliares hacen su mejor esfuerzo para convertir valores, pero pueden resultar en una pérdida de precisión. 
+En el primer ejemplo, no hay 200 en byte, así que se envuelve alrededor a -56. 
+En el segundo ejemplo, el valor se trunca, lo que significa que todos los números después del decimal se eliminan. 
+
+### Defining Text Blocks
+
+* Anteriormente, vimos un String simple con el valor "hello". 
+* ¿Qué pasa si queremos tener un String con algo más complicado? Por ejemplo, averigüemos cómo crear un String con este valor:
+
+"Java Study Guide"
+ by Scott & Jeanne
+
+* La sintaxis `\"` te permite decir que quieres un `"` en lugar de terminar el String, y `\n` dice que quieres una nueva línea. 
+* Ambos se llaman escape characters porque la barra invertida proporciona un significado especial. Con estas dos nuevas habilidades, podemos escribir:
+
+`String eyeTest = "\"Java Study Guide\"\n by Scott & Jeanne";`
+
+* Aunque esto funciona, es difícil de leer. Afortunadamente, Java tiene text blocks, también conocidos como multiline strings. 
+* Ve Figure 1.3 para el equivalente de text block.
+
+![ch01_01_06.png](images/ch01/ch01_01_06.png)
 
 
 
