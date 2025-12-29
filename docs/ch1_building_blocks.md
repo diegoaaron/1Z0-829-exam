@@ -750,7 +750,30 @@ private String name = "Fluffy";
 
 ## Understanding Data Types
 
-Las aplicaciones Java contienen dos tipos de datos: primitive types y reference
+Las aplicaciones Java contienen dos tipos de datos: **primitive types** y **reference types**. 
+En esta sección, discutimos las diferencias entre un primitive type y un reference type.
+
+### Using Primitive Types
+
+* Java tiene ocho tipos de datos incorporados, referidos como los **primitive types** de Java. 
+* Estos ocho tipos de datos representan los bloques de construcción para objetos Java, porque todos los objetos Java son simplemente una colección compleja de estos tipos de datos primitivos. 
+* Dicho esto, un primitivo no es un objeto en Java, ni representa un objeto. 
+* Un primitivo es simplemente un único valor en memoria, tal como un número o carácter.
+
+### The Primitive Types
+
+* El examen asume que estás bien versado en los ocho tipos de datos primitivos, sus tamaños relativos, y qué puede almacenarse en ellos. 
+* Table 1.6 muestra los tipos primitivos Java junto con su tamaño en bits y el rango de valores que cada uno almacena.
+
+![ch01_01_04.png](images/ch01/ch01_01_04.png)
+
+
+
+
+
+
+
+
 
 
 
