@@ -709,8 +709,8 @@ Las líneas 2 y 3 ambas escriben un campo. La línea 4 tanto lee como escribe da
 Cuando escribes código que inicializa campos en múltiples lugares, tienes que llevar el registro del orden de inicialización. 
 Este es simplemente el orden en el cual diferentes métodos, constructores, o bloques son llamados cuando una instancia de la clase es creada. 
 
-Los campos y bloques instance initializer blocks se ejecutan en el orden en el cual aparecen en el archivo.
-El constructor se ejecuta después de que todos los fields e instance initializer blocks hayan sido ejecutados.
+Los campos y bloques instance initializer se ejecutan en el orden en el cual aparecen en el archivo.
+El constructor se ejecuta después de que todos los fields y bloques instance initializer hayan sido ejecutados.
 
 ```java
 1: public class Chick {
@@ -721,8 +721,36 @@ El constructor se ejecuta después de que todos los fields e instance initialize
 6:     System.out.println("setting constructor");
 7:   }
 8:   public static void main(String[] args) {
+9:     Chick chick = new Chick();
+10:    System.out.println(chick.name);} }
 ```
 
+Ejecutar este ejemplo imprime esto:
+
+```java
+setting field
+setting constructor
+Tiny
+```
+
+* Veamos qué está sucediendo aquí. Comenzamos con el método main() porque ahí es donde Java inicia la ejecución. 
+* En la línea 9, llamamos al constructor de Chick. Java crea un nuevo objeto. 
+* Primero inicializa name a "Fluffy" en la línea 2. 
+* Luego ejecuta la declaración println() en el instance initializer en la línea 3. 
+* Una vez que todos los fields e instance initializers han sido ejecutados, Java retorna al constructor. 
+* La línea 5 cambia el valor de `name` a "Tiny", y la línea 6 imprime otra declaración. 
+* En este punto, el constructor está terminado, y luego la ejecución regresa a la declaración println() en la línea 10.
+
+El orden importa para los fields y bloques de código. No puedes referirte a una variable antes de que haya sido definida:
+
+```java
+{ System.out.println(name); } // DOES NOT COMPILE
+private String name = "Fluffy";
+```
+
+## Understanding Data Types
+
+Las aplicaciones Java contienen dos tipos de datos: primitive types y reference
 
 
 
