@@ -1041,7 +1041,73 @@ double public; // public is a reserved word
 short _; // a single underscore is not allowed
 ```
 
+---------------------------------------------------------------------
+**camelCase and snake_case**
 
+Java tiene convenciones para que el código sea legible y consistente. 
+
+* Por ejemplo, camelCase tiene la primera letra de cada palabra capitalizada. 
+  * Los nombres de métodos y variables se escriben típicamente en camelCase con la primera letra en minúscula, como toUpper(). 
+  * Los nombres de clase e interfaz también se escriben en camelCase, con la primera letra en mayúscula, como ArrayList.
+
+* Otro estilo se llama snake_case. Simplemente, usa un guion bajo (_) para separar palabras. 
+  * Java generalmente usa snake_case en mayúsculas para constantes y valores enum, como NUMBER_FLAGS.
+---------------------------------------------------------------------
+
+### Declaring Multiple Variables
+
+* También puedes declarar e inicializar múltiples variables en la misma declaración. 
+* Cuántas variables crees que se declaran e inicializan en el siguiente ejemplo:
+
+```java
+void sandFence() {
+  String s1, s2;
+  String s3 = "yes", s4 = "no";
+}
+```
+
+* Cuatro variables String fueron declaradas: s1, s2, s3, y s4. 
+* Puedes declarar muchas variables en la misma declaración siempre y cuando todas sean del mismo tipo. 
+* También puedes inicializar cualquiera o todas esas variables en línea. En el ejemplo anterior, tenemos dos variables inicializadas: s3 y s4. 
+* Las otras dos variables permanecen declaradas pero aún no inicializadas.
+
+¿Cuántas variables crees que se declaran e inicializan en el siguiente código?
+
+```java
+void paintFence() {
+  int i1, i2, i3 = 0;
+}
+```
+
+* Como deberías esperar, tres variables fueron declaradas: i1, i2, e i3. Sin embargo, solo uno de esos valores fue inicializado: i3. 
+* Los otros dos permanecen declarados pero aún no inicializados. Ese es el truco. Cada fragmento separado por una coma es una pequeña declaración propia. 
+* La inicialización de i3 solo se aplica a i3. No tiene nada que ver con i1 o i2 a pesar de estar en la misma declaración. 
+
+Otra manera en que el examen podría intentar engañarte es mostrarte código como esta línea:
+
+`int num, String value; // DOES NOT COMPILE`
+
+* Este código no compila porque intenta declarar múltiples variables de tipos diferentes en la misma declaración. 
+* El atajo para declarar múltiples variables en la misma declaración es legal solo cuando comparten un tipo.
+
+## Initializing Variables
+
+* Antes de que puedas usar una variable, necesita un valor. 
+* Algunos tipos de variables obtienen este valor establecido automáticamente, y otros requieren que el programador lo especifique. 
+* En las siguientes secciones, examinamos las diferencias entre los valores por defecto para variables locales, de instancia, y de clase.
+
+### Creating Local Variables
+
+Una local variable es una variable definida dentro de un constructor, método, o bloque inicializador. 
+Por simplicidad, nos enfocamos principalmente en variables locales dentro de métodos en esta sección, aunque las reglas para los otros son las mismas.
+
+### Final Local Variables
+
+La palabra clave `final` puede ser aplicada a variables locales y es equivalente a declarar constantes en otros lenguajes. Considera este ejemplo:
+
+```java
+
+```
 
 
 
@@ -1059,6 +1125,5 @@ short _; // a single underscore is not allowed
 
 ```
 
-Initializing Variables
 Managing Variable Scope
 Destroying Objects
