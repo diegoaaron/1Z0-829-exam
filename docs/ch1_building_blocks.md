@@ -792,6 +792,41 @@ Alternativamente, char es unsigned, lo que significa que su rango es estrictamen
 
 `long max = 3123456789; // DOES NOT COMPILE`
 
+Java se queja de que el número está fuera de rango. Y lo está para un int. Sin embargo, no tenemos un int. La solución es agregar el carácter `L` al número:
+
+`long max = 3123456789L; // Now Java knows it is a long`
+
+Alternativamente, podrías agregar una l minúscula al número. Pero please usa la L mayúscula. La l minúscula se ve como el número 1.
+
+### Literals and the Underscore Character
+
+Lo último que necesitas saber sobre literales numéricos es que puedes tener guiones bajos en números para hacerlos más fáciles de leer:
+
+```java
+int million1 = 1000000;
+int million2 = 1_000_000;
+```
+
+* Preferiríamos estar leyendo el último porque los ceros no se juntan. 
+* Puedes agregar guiones bajos en cualquier lugar excepto al inicio de un literal, el final de un literal, justo antes de un punto decimal, o justo después de un punto decimal. 
+* Incluso puedes colocar múltiples caracteres de guion bajo uno al lado del otro, aunque no se recomienda.
+
+```java
+double notAtStart = _1000.00;      // DOES NOT COMPILE
+double notAtEnd = 1000.00_;        // DOES NOT COMPILE
+double notByDecimal = 1000_.00;    // DOES NOT COMPILE
+double annoyingButLegal = 1_00_0.0_0; // Ugly, but compiles
+double reallyUgly = 1__________2;  // Also compiles
+```
+
+
+
+
+
+
+
+
+
 
 
 
