@@ -371,6 +371,45 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 ```
 
+Ahora consideremos algunos imports que no funcionan.
+
+```java
+import java.nio.*;     // NO GOOD - a wildcard only matches class names, not "file.Files"
+
+import java.nio.*.*;   // NO GOOD - you can only have one wildcar and it must be at the end
+
+import java.nio.file.Paths.*; // NO GOOD - you cannot import methods only class names
+```
+
+### Naming Conflicts
+
+* Una de las razones para usar paquetes es para que los nombres de clase no tengan que ser únicos en todo Java. 
+* Esto significa que a veces querrás importar una clase que puede encontrarse en múltiples lugares. 
+
+* Un ejemplo común de esto es la clase Date. Java proporciona implementaciones de `java.util.Date` y `java.sql.Date`. 
+* ¿Qué declaración import podemos usar si queremos la versión `java.util.Date`?
+
+* La respuesta debería ser fácil ahora. Puedes escribir ya sea `import java.util.*;` o `import java.util.Date;`. 
+* Los casos difíciles surgen cuando otros imports están presentes.
+
+```java
+import java.util.*;
+import java.sql.*; // causes Date declaration to not compile
+```
+
+* Cuando el nombre de clase se encuentra en múltiples paquetes, Java te da un error de compilador. 
+* En nuestro ejemplo, la solución fácil es eliminar el import `java.sql.*` que no necesitamos. 
+* ¿Pero qué hacemos si necesitamos un montón entero de otras clases en el paquete java.sql?
+
+```java
+import java.util.Date;
+import java.sql.*;
+```
+
+* Si importas explícitamente un nombre de clase, toma precedencia sobre cualquier wildcard presente. 
+* Java piensa, "El programador realmente quiere que asuma el uso de la clase `java.util.Date`"
+
+Un ejemplo más. ¿Qué hace Java con "ties" para precedencia?
 
 
 
