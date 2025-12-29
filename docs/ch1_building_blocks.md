@@ -819,10 +819,46 @@ double annoyingButLegal = 1_00_0.0_0; // Ugly, but compiles
 double reallyUgly = 1__________2;  // Also compiles
 ```
 
+### Using Reference Types
 
+* Un reference type se refiere a un objeto (una instancia de una clase). 
+* A diferencia de los tipos primitivos que mantienen sus valores en la memoria donde la variable está asignada, las referencias no mantienen el valor del objeto al que se refieren. 
+* En su lugar, una referencia "apunta" a un objeto almacenando la dirección de memoria donde el objeto está ubicado, un concepto referido como un puntero. 
+* A diferencia de otros lenguajes, Java no te permite aprender cuál es la dirección de memoria física. Solo puedes usar la referencia para referirte al objeto.
 
+Echemos un vistazo a algunos ejemplos que declaran e inicializan reference types. Supón que declaramos una referencia de tipo String:
 
+`String greeting;`
 
+La variable greeting es una referencia que solo puede apuntar a un objeto String. Un valor se asigna a una referencia en una de dos maneras:
+
+* Una referencia puede ser asignada a otro objeto del mismo tipo o compatible.
+* Una referencia puede ser asignada a un nuevo objeto usando la palabra clave new.
+
+Por ejemplo, la siguiente declaración asigna esta referencia a un nuevo objeto:
+
+`greeting = new String("How are you");`
+
+* La referencia greeting apunta a un nuevo objeto String, "How are you". 
+* El objeto String no tiene un nombre y solo puede ser accedido vía una referencia correspondiente.
+
+### Distinguishing between Primitives and Reference Types
+
+* Hay algunas diferencias importantes que deberías conocer entre primitivos y reference types. 
+* Primero, nota que todos los tipos primitivos tienen nombres de tipo en minúsculas. 
+* Todas las clases que vienen con Java comienzan con mayúscula. 
+* Aunque no es requerido, es una práctica estándar, y deberías seguir esta convención para las clases que crees también.
+
+* Luego, los reference types pueden ser usados para llamar métodos, asumiendo que la referencia no es null. 
+* Los primitivos no tienen métodos declarados en ellos. 
+* En este ejemplo, podemos llamar un método en reference, ya que es de un reference type. 
+* Puedes decir que length es un método porque tiene () después de él. Ve si puedes entender por qué el siguiente fragmento no compila: 
+
+```java
+4: String reference = "hello";
+5: int len = reference.length();
+6: int bad = len.length(); // DOES NOT COMPILE
+```
 
 
 
