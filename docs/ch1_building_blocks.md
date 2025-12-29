@@ -275,11 +275,60 @@ public class NumberPicker {
 
 El compilador Java útilmente te da un error que se ve así: `error: cannot find symbol`
 
-La causa de este error es omitir una declaración (statement) `import` necesaria. La cual le dice a Java donde buscar la clase `Random`.
+La causa de este error es omitir una declaración (statement) `import`, la cual le dice a Java donde buscar la clase `Random`.
 
 ```java
-
+import java.util.Random; // import tells us where to find Random
+public class NumberPicker {
+  public static void main(String[] args) {
+    Random r = new Random();
+    System.out.println(r.nextInt(10)); // a number 0-9
+  }
+}
 ```
+
+Ahora el código se ejecuta; imprime un número aleatorio entre 0 y 9. Igual que los arrays, a Java le gusta comenzar a contar con 0.
+
+### Packages
+
+* Los paquetes al agrupar clases tienen la característica de ser jerárquicos, por ejemplo si empieza con java. 
+* Esto significa que vino del JDK si usa otro nombre por lo general denota de qué aplicación viene por ejemplo com.wiley.java.book
+
+### Wildcards
+
+Las clases en el mismo paquete son frecuentemente importadas juntas. Puedes importar todas las clases de un paquete usando *
+
+```java
+import java.util.*; // imports java.util.Random among other things
+public class NumberPicker {
+  public static void main(String[] args) {
+    Random r = new Random();
+    System.out.println(r.nextInt(10));
+  }
+}
+```
+
+* Cada clase en el paquete java.util está disponible para este programa cuando Java lo compila. 
+* La declaración import no trae paquetes hijos, campos, o métodos; importa solo clases directamente bajo el paquete definido con el wildcard. 
+
+Digamos que querías usar la clase `AtomicInteger` del paquete `java.util.concurrent.atomic`. ¿Qué import o imports soportan esto?
+
+```java
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
+```
+
+Solo el último import permite que la clase sea reconocida porque los paquetes hijos no están incluidos con los primeros dos.
+
+* Podrías pensar que incluir tantas clases ralentiza la ejecución de tu programa, pero no es así. El compilador determina qué se necesita realmente.
+* Listar las clases usadas hace el código más fácil de leer, especialmente para nuevos programadores. 
+* Usar el wildcard puede acortar la lista de import. Verás ambos enfoques en el examen.
+
+### Redundant Imports
+
+Espera un minuto! Hemos estado refiriéndonos a System sin un import cada vez
+
 
 
 
