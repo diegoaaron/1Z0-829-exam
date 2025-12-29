@@ -327,7 +327,49 @@ Solo el último import permite que la clase sea reconocida porque los paquetes h
 
 ### Redundant Imports
 
-Espera un minuto! Hemos estado refiriéndonos a System sin un import cada vez
+* Hay un paquete especial en el mundo Java llamado `java.lang`. Este paquete es especial, ya que se importa automáticamente. 
+* Puedes escribir este paquete en una declaración import, pero no tienes que hacerlo. 
+* En el siguiente código, ¿cuántos de los imports crees que son redundantes?
+
+```java
+1: import java.lang.System;
+2: import java.lang.*;
+3: import java.util.Random;
+4: import java.util.*;
+5: public class NumberPicker {
+6:   public static void main(String[] args) {
+7:     Random r = new Random();
+8:     System.out.println(r.nextInt(10));
+9:   }
+10: }
+```
+
+* La respuesta es que tres de los imports son redundantes. Las líneas 1 y 2 son redundantes porque todo en `java.lang` se importa automáticamente. 
+* La línea 4 también es redundante en este ejemplo porque Random ya se importó desde `java.util.Random`. 
+* Si la línea 3 no estuviera presente, `java.util.*` no sería redundante.
+
+* Echemos un vistazo a un ejemplo más para asegurarnos de que entiendes los casos límite para imports. 
+* Para este ejemplo, Files y Paths están ambos en el paquete `java.nio.file`. 
+* ¿Qué declaraciones import crees que funcionarían para compilar este código?
+
+```java
+public class InputImports {
+  public void read(Files files) {
+    Paths.get("name");
+  }
+}
+```
+
+Hay dos respuestas posibles. La más corta es usar un wildcard para importar ambas al mismo tiempo.
+
+`import java.nio.file.*;`
+
+La otra respuesta es importar ambas clases explícitamente.
+
+```java
+import java.nio.file.Files;
+import java.nio.file.Paths;
+```
 
 
 
