@@ -665,8 +665,63 @@ public class Swan {
 El "caller" en este caso es el método main(), el cual podría estar en la misma clase o en otra clase. 
 Esta clase establece numberEggs a 1 y luego lee numberEggs directamente para imprimirlo. 
 
-Incluso puedes leer valores de campos ya inicializados en una línea inicializando un nuevo field:
+Incluso puedes leer valores de campos ya inicializados en una línea, inicializando un nuevo campo:
 
+```java
+1: public class Name {
+2:   String first = "Theodore";
+3:   String last = "Moose";
+4:   String full = first + last;
+5: }
+```
+
+Las líneas 2 y 3 ambas escriben un campo. La línea 4 tanto lee como escribe datos. Lee los campos first y last. Luego escribe el campo full.
+
+### Executing Instance Initializer Blocks
+
+* Cuando aprendiste sobre métodos, viste llaves ({}). El código entre las llaves se le denomina un bloque de código (code block). 
+* A veces los bloques de código están dentro de un método. Estos se ejecutan cuando el método es llamado. 
+* Otras veces, los bloques de código aparecen fuera de un método. Estos se llaman inicializadores de instancia (instance initializers). 
+  * Su propósito principal es ejecutar código de inicialización cada vez que se crea una nueva instancia (objeto) de la clase.
+
+¿Cuántos bloques ves en el siguiente ejemplo? ¿Cuántos instance initializers ves?
+
+```java
+1: public class Bird {
+2:   public static void main(String[] args) {
+3:     { System.out.println("Feathers"); }
+4:   }
+5:   { System.out.println("Snowy"); }
+6: }
+```
+
+* Hay cuatro bloques de código en este ejemplo: una definición de clase, una declaración de método, un bloque interno, y un instance initializer.
+* Contar bloques de código es fácil: solo cuentas el número de pares de llaves. 
+* Si no hay el mismo número de llaves abiertas `({)` y cerradas `(})` o no están definidas en el orden apropiado, el código no compila.
+
+* Cuando estás contando instance initializers, ten en mente que no pueden existir dentro de un método. 
+* La línea 5 es un instance initializer, con sus llaves fuera de un método. 
+* Por otro lado, la línea 3 no es un instance initializer, ya que solo se llama cuando el método main() es ejecutado.
+* Hay un conjunto adicional de llaves en las líneas 1 y 6 que constituyen la declaración de clase.
+
+### Following the Order of Initialization
+
+Cuando escribes código que inicializa campos en múltiples lugares, tienes que llevar el registro del orden de inicialización. 
+Este es simplemente el orden en el cual diferentes métodos, constructores, o bloques son llamados cuando una instancia de la clase es creada. 
+
+Los campos y bloques instance initializer blocks se ejecutan en el orden en el cual aparecen en el archivo.
+El constructor se ejecuta después de que todos los fields e instance initializer blocks hayan sido ejecutados.
+
+```java
+1: public class Chick {
+2:   private String name = "Fluffy";
+3:   { System.out.println("setting field"); }
+4:   public Chick() {
+5:     name = "Tiny";
+6:     System.out.println("setting constructor");
+7:   }
+8:   public static void main(String[] args) {
+```
 
 
 
