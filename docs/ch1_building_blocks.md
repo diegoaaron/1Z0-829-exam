@@ -918,6 +918,130 @@ En el segundo ejemplo, el valor se trunca, lo que significa que todos los númer
 
 ![ch01_01_06.png](images/ch01/ch01_01_06.png)
 
+Un text block comienza y termina con tres comillas dobles `(""")`, y el contenido no necesita ser escapado. 
+Esto es mucho más fácil de leer. 
+
+* Podrías haber notado las palabras **incidental** y **essential whitespace** en la figura. 
+* ¿Qué es eso? essential whitespace es parte de tu String y es importante para ti. 
+* Los incidental whitespace simplemente sucede estar ahí para hacer el código más fácil de leer. 
+* Puedes reformatear tu código y cambiar la cantidad de incidental whitespace sin ningún impacto en tu valor String.
+
+Intentemos un ejemplo. Cuántas líneas produce este output, y cuántos caracteres incidental y essential whitespace comienzan cada línea.
+
+```java
+14: String pyramid = """
+15:   *
+16:  **
+17: ***
+18: """;
+19: System.out.print(pyramid);
+```
+
+* Hay cuatro líneas de output. Las líneas 15–17 tienen estrellas. La línea 18 es una línea sin ningún carácter. 
+* El triple `"""` de cierre habría necesitado estar en la línea 17 si no quisiéramos esa línea en blanco. No hay caracteres incidental whitespace.  
+* El `"""` de cierre en la línea 18 son los caracteres más a la izquierda, entonces la línea se dibuja en la posición más a la izquierda. 
+* La línea 15 tiene dos essential whitespace caracteres para comenzar la línea, y la línea 16 tiene uno. 
+
+La Table 1.8 muestra algunas secuencias de formateo especiales y compara cómo funcionan en un String regular y un text block.
+
+![ch01_01_07.png](images/ch01/ch01_01_07.png)
+
+Intentemos algunos ejemplos. ¿Primero, ves por qué este no compila?
+
+`String block = """doe"""; // DOES NOT COMPILE`
+
+Los text blocks requieren un salto de línea después del """ de apertura, haciendo este inválido. 
+
+Ahora intentemos uno válido. ¿Cuántas líneas crees que hay en este text block?
+
+```java
+String block = """
+  doe \
+  deer""";
+```
+
+Solo una. El output es `doe deer` ya que el `\` le dice a Java que no agregue una nueva línea antes de deer. 
+
+Intentemos determinar el número de líneas en otro text block:
+
+```java
+String block = """
+  doe \n
+  deer
+  """;
+```
+
+* Esta vez tenemos cuatro líneas. Ya que el text block tiene el `"""` de cierre en una línea separada. 
+* Tenemos tres líneas para las líneas en el text block más el `\n` explícito. 
+
+Intentemos uno más. ¿Qué crees que esto produce?
+
+```java
+String block = """
+  "doe\"\"\"
+  \"deer\"""
+        """;
+System.out.print("*"+ block + "*");
+```
+
+La respuesta es: 
+
+```java
+*"doe"""
+"deer"""
+*
+```
+
+* Todos los `\"` escapan el `"`. Hay un espacio de essential whitespace en el doe y las líneas deer. 
+* Todo el otro leading whitespace es incidental whitespace.
+
+## Declaring Variables
+
+* Una variable es un nombre para una pieza de memoria que almacena datos. 
+* Cuando declaras una variable, necesitas establecer el tipo de variable junto con darle un nombre. 
+* Dar a una variable un valor se llama initializing una variable. 
+
+`String zooName = "The Best Zoo";`
+
+En las siguientes secciones, examinamos cómo definir variables apropiadamente en una o múltiples líneas.
+
+### Identifying Identifiers
+
+* Probablemente, no te sorprende que Java tenga reglas precisas sobre nombres de identificadores. 
+* Un **identifier** es el nombre de una variable, método, clase, interfaz, o paquete. 
+* Afortunadamente, las reglas para identificadores para variables se aplican a todos los otros tipos que eres libre de nombrar.
+
+Solo hay cuatro reglas para recordar para identificadores legales:
+
+* Los identificadores deben comenzar con una letra, un símbolo de moneda, o un símbolo _. 
+  * Los símbolos de moneda incluyen dólar ($), yuan (¥), euro (€), y así sucesivamente.
+* Los identificadores pueden incluir números pero no comenzar con ellos.
+* Un único guion bajo _ no está permitido como identificador.
+* No puedes usar el mismo nombre que una palabra reservada de Java. Una palabra reservada (reserved word) es una palabra especial que Java ha apartado para que no estés permitido usarla. 
+  * Recuerda que Java distingue mayúsculas de minúsculas, entonces puedes usar versiones de las palabras clave que solo difieren en mayúsculas. 
+
+Hay otros nombres que no puedes usar. Por ejemplo, true, false, y null son valores literales, entonces no pueden ser nombres de variables. 
+
+Ejemplo correctos: 
+
+```java
+long okidentifier;
+float $OK2Identifier;
+boolean _alsoOK1d3ntifi3r;
+char __$StillOkbutKnotsonice$;
+```
+
+Ejemplos incorrectos:
+
+```java
+int 3DPointClass; // identifiers cannot begin with a number
+byte hollywood@vine; // @ is not a letter, digit, $ or _
+String *$coffee; // * is not a letter, digit, $ or __
+double public; // public is a reserved word
+short _; // a single underscore is not allowed
+```
+
+
 
 
 
@@ -935,8 +1059,6 @@ En el segundo ejemplo, el valor se trunca, lo que significa que todos los númer
 
 ```
 
-Understanding Data Types
-Declaring Variables
 Initializing Variables
 Managing Variable Scope
 Destroying Objects
