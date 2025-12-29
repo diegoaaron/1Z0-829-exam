@@ -570,10 +570,36 @@ public class Meerkat { // then comes the class
 
 Hasta ahora, todo bien. Este es un patrón común con el que deberías estar familiarizado. ¿Qué tal este?
 
+```java
+/* header */
 
+package structure;
 
+// class Meerkat
+public class Meerkat { }
+```
 
+* Todavía bien. Podemos poner comentarios en cualquier lugar, las líneas en blanco son ignoradas, y los imports son opcionales. 
+* En el siguiente ejemplo, tenemos un problema:
 
+```java
+import java.util.*;
+package structure;  // DOES NOT COMPILE
+String name;      // DOES NOT COMPILE
+public class Meerkat { } // DOES NOT COMPILE
+```
+
+* Hay dos problemas aquí. Uno es que las declaraciones package e import están invertidas. 
+* Aunque ambas son opcionales, package debe venir antes de import si está presente. 
+* El otro problema es que un field intenta una declaración fuera de una clase. 
+* Esto no está permitido. Los fields y métodos deben estar dentro de una clase.
+
+## Creating Objects
+
+* Recuerda que un objeto es una instancia de una clase. 
+* En las siguientes secciones, examinamos constructores, object fields, instance initializers, y el orden en el cual los valores son inicializados.
+
+continuar en la 23
 
 
 
@@ -588,7 +614,6 @@ Hasta ahora, todo bien. Este es un patrón común con el que deberías estar fam
 
 ```
 
-Creating Objects
 Understanding Data Types
 Declaring Variables
 Initializing Variables
