@@ -767,12 +767,30 @@ En esta sección, discutimos las diferencias entre un primitive type y un refere
 
 ![ch01_01_04.png](images/ch01/ch01_01_04.png)
 
+* Los tipos byte, short, int, y long se usan para valores enteros sin puntos decimales.
+* Cada tipo numérico usa el doble de bits que el tipo similar más pequeño. Por ejemplo, short usa el doble de bits que byte.
+* Todos los tipos numéricos están firmados y reservan uno de sus bits para cubrir un rango negativo. 
+  * Por ejemplo, en lugar de que byte cubra 0 a 255 (o incluso 1 a 256) en realidad cubre -128 a 127.
+* Un float requiere la letra f o F después del número para que Java sepa que es un float. 
+  * Sin una f o F, Java interpreta un valor decimal como un double.
+* Un long requiere la letra l o L después del número para que Java sepa que es un long. 
+  * Sin una l o L, Java interpreta un número sin punto decimal como un int en la mayoría de escenarios.
 
+---------------------------------------------------------------------
+**Signed and Unsigned: short and char**
 
+Para el examen, deberías estar consciente de que short y char están estrechamente relacionados, ya que ambos se almacenan como tipos integrales con la misma longitud de 16 bits. 
+La diferencia primaria es que short está signed, lo que significa que divide su rango entre los enteros positivos y negativos. 
+Alternativamente, char es unsigned, lo que significa que su rango es estrictamente positivo, incluyendo 0.
+---------------------------------------------------------------------
 
+### Writing Literals
 
+* Hay algunas cosas más que deberías saber sobre primitivos numéricos. Cuando un número está presente en el código, se llama un literal. 
+* Por defecto, Java asume que estás definiendo un valor int con un literal numérico. 
+* En el siguiente ejemplo, el número listado es más grande de lo que cabe en un int.
 
-
+`long max = 3123456789; // DOES NOT COMPILE`
 
 
 
