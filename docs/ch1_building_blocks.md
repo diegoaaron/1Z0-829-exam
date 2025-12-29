@@ -409,8 +409,80 @@ import java.sql.*;
 * Si importas explícitamente un nombre de clase, toma precedencia sobre cualquier wildcard presente. 
 * Java piensa, "El programador realmente quiere que asuma el uso de la clase `java.util.Date`"
 
-Un ejemplo más. ¿Qué hace Java con "ties" para precedencia?
+---------------------------------------------------------------------
+**If You Really Need to Use Two Classes with the Same Name**
 
+A veces realmente quieres usar Date de dos paquetes diferentes. 
+Cuando esto sucede, puedes elegir uno para usar en la declaración import y usar el nombre de clase completamente calificado (fully qualified class name) del otro. 
+O puedes eliminar ambas declaraciones import y siempre usar el nombre de clase completamente calificado.
+
+```java
+public class Conflicts {
+  java.util.Date date;
+  java.sql.Date sqlDate;
+}
+```
+---------------------------------------------------------------------
+
+### Creating a New Package
+
+* Hasta ahora, todo el código que hemos escrito en este capítulo ha estado en el **default package**. 
+* Este es un paquete especial sin nombre que solo deberías usar para código desechable. 
+* Puedes decir que el código está en el paquete por defecto porque no hay nombre de paquete. 
+* En el examen, verás el paquete por defecto usado mucho para ahorrar espacio en los listados de código. 
+* En la vida real, siempre nombra tus paquetes para evitar conflictos de nombres y para permitir que otros reutilicen tu código.
+
+* Ahora es momento de crear un nuevo paquete. La estructura de directorios en tu computadora está relacionada con el nombre del paquete. 
+* Supón que tenemos estas dos clases:
+
+```java
+package packagea;
+public class ClassA {}
+
+package packageb;
+import packagea.ClassA;
+public class ClassB {
+    public static void main(String[] args) {
+        ClassA a;
+        System.out.println("Got it");
+    }
+}
+```
+
+* Cuando ejecutas un programa, Java sabe dónde buscar esos nombres de paquete. 
+* En este caso, ejecutar desde `C:\temp` funciona porque tanto `packagea` como `packageb` están debajo de él.
+
+### Compiling and Running Code with Packages
+
+* El primer paso es crear los dos archivos de la sección anterior, la tabla 1.1 muestra los nombres de archivo. 
+
+![ch01_01_01.png](images/ch01/ch01_01_01.png)
+
+* Ahora es momento de compilar el código. Afortunadamente, esto es lo mismo sin importar el sistema operativo. 
+* Para compilar, escribe el siguiente comando:
+
+`javac packagea/ClassA.java packageb/ClassB.java`
+
+Si el comando funciona, dos nuevos archivos serán creados: **packagea/ClassA.class** y **packageb/ClassB.class**
+
+Ahora que tu código ha compilado, puedes ejecutarlo escribiendo el siguiente comando:
+
+`java packageb.ClassB`
+
+* Si funciona, verás **Got it** impreso. 
+* Podrías haber notado que escribimos `ClassB` en lugar de `ClassB.class`.  
+* Como se discutió anteriormente, no pasas la extensión cuando ejecutas un programa. 
+
+### Compiling to Another Directory
+
+* Por defecto, el comando javac coloca las clases compiladas en el mismo directorio que el código fuente. 
+* También proporciona una opción para colocar los archivos de clase en un directorio diferente. 
+* La opción `-d` especifica este directorio objetivo.
+
+* Si estás siguiendo el ejemplo, elimina los archivos ClassA.class y ClassB.class que fueron creados en la sección anterior. 
+* ¿Dónde crees que este comando creará el archivo ClassA.class?
+
+`javac -d classes packagea/ClassA.java packageb/ClassB.java`
 
 
 ---------------------------------------------------------------------
