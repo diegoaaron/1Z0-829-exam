@@ -1106,8 +1106,75 @@ Por simplicidad, nos enfocamos principalmente en variables locales dentro de mé
 La palabra clave `final` puede ser aplicada a variables locales y es equivalente a declarar constantes en otros lenguajes. Considera este ejemplo:
 
 ```java
-
+5: final int y = 10;
+6: int x = 20;
+7: y = x + 10; // DOES NOT COMPILE
 ```
+
+* Ambas variables están establecidas, pero `y` usa la palabra clave `final`. 
+* Por esta razón, la línea 7 dispara un error de compilador, ya que el valor no puede ser modificado.
+
+El modificador `final` también puede ser aplicado a referencias de variables locales. 
+El siguiente ejemplo usa un objeto array `int[]`, el cual aprendes en Chapter 4.
+
+```java
+5: final int[] favoriteNumbers = new int[10];
+6: favoriteNumbers[0] = 10;
+7: favoriteNumbers[1] = 20;
+8: favoriteNumbers = null; // DOES NOT COMPILE
+```
+
+* Nota que podemos modificar el contenido, o datos, en el array. 
+* El error del compilador no es hasta la línea 8, cuando intentamos cambiar el valor de la referencia favoriteNumbers.
+
+### Uninitialized Local Variables
+
+* Las variables locales no tienen un valor por defecto y deben ser inicializadas antes de usarse. 
+* Además, el compilador reportará un error si intentas leer un valor no inicializado. 
+* Por ejemplo, el siguiente código genera un error de compilador:
+
+```java
+4: public int notValid() {
+5:   int y = 10;
+6:   int x;
+7:   int reply = x + y; // DOES NOT COMPILE
+8:   return reply;
+9: }
+```
+
+La variable `y` se inicializa a 10. Por contraste, `x` no se inicializa antes de usarse en la expresión en la línea 7, y el compilador genera un error. 
+El compilador es lo suficientemente inteligente para reconocer variables que han sido inicializadas después de su declaración, pero antes de que sean usadas. 
+
+### Passing Constructor and Method Parameters
+
+* Las variables pasadas a un constructor o método se llaman constructor parameters o method parameters, respectivamente. 
+* Estos parámetros deben ser variables locales que han sido pre-inicializadas. 
+* Las reglas para inicializar parámetros de constructor y método son las mismas, entonces nos enfocamos principalmente en parámetros de método.
+
+Echa un vistazo al siguiente método checkAnswer() en la misma clase:
+
+```java
+public void checkAnswer() {
+  boolean value;
+  findAnswer(value); // DOES NOT COMPILE
+}
+```
+
+* La llamada a findAnswer() no compila porque intenta usar una variable que no está inicializada. 
+* Mientras que el llamador de un método checkAnswer() necesita estar preocupado sobre la variable siendo inicializada, una vez dentro del método findAnswer(), podemos asumir que la variable local ha sido inicializada a algún valor.
+
+### Defining Instance and Class Variables
+
+* Las variables que no son variables locales se definen ya sea como instance variables o como class variables. 
+* Una instance variable, frecuentemente llamada un campo (field), es un valor definido dentro de una instancia específica de un objeto. 
+* Digamos que tenemos una clase Person con una variable de instancia `name` de tipo String. 
+* Cada instancia de la clase tendría su propio valor para `name`, como Elysia o Sarah. 
+* Dos instancias podrían tener el mismo valor para `name`, pero cambiar el valor para uno no modifica el otro.
+
+* Por otro lado, una class variable es una que se define en el nivel de clase y se comparte entre todas las instancias de la clase. 
+* Incluso puede ser públicamente accesible a clases fuera de la clase y no requiere una instancia para usar. 
+* En nuestro ejemplo anterior de Person, una variable de clase compartida podría usarse para representar la lista de personas en el zoológico hoy. 
+* Puedes decir que una variable es una variable de clase porque tiene la palabra clave `static` antes de ella. 
 
 
 
