@@ -1459,12 +1459,66 @@ El examen intentará engañarte con varias preguntas sobre scope. En qué línea
 
 ### Understanding Garbage Collection
 
-Garbage collection se refiere al proceso de liberar automáticamente memoria en el heap eliminando objetos que ya no son alcanzables en tu programa. 
+* Garbage collection se refiere al proceso de liberar automáticamente memoria en el heap eliminando objetos que ya no son alcanzables en tu programa. 
+* Como desarrollador, la parte más interesante de garbage collection es determinar cuándo la memoria que pertenece a un objeto puede ser reclamada. En Java y otros lenguajes, eligible for garbage collection se refiere al estado de un objeto de ya no ser accesible en un programa y, por lo tanto, capaz de ser recolectado como basura.
+* ¿Significa esto que un objeto que es elegible para garbage collection será inmediatamente recolectado como basura? 
+* Definitivamente no. Cuando el objeto realmente se descarta no está bajo tu control, pero para el examen, necesitarás saber en cualquier momento dado qué objetos son elegibles para garbage collection.
 
+Java incluye un método incorporado para ayudar a soportar garbage collection donde puedes sugerir que garbage collection se ejecute.
 
+`System.gc();`
 
+Igual que la oficina postal, Java es libre de ignorarte. Este método no garantiza para hacer nada.
 
+### Tracing Eligibility
 
+¿Cómo sabe la JVM cuándo un objeto es elegible para garbage collection? 
+La JVM espera pacientemente y monitorea cada objeto hasta que determina que el código ya no necesita esa memoria. 
+Un objeto permanecerá en el heap hasta que ya no sea alcanzable. Un objeto ya no es alcanzable cuando ocurre una de dos situaciones:
+
+* El objeto ya no tiene ninguna referencia apuntando a él.
+* Todas las referencias al objeto han salido de scope.
+
+---------------------------------------------------------------------
+**Objects vs. References**
+
+* No confundas una referencia con el objeto al que se refiere; son dos entidades diferentes. 
+* La referencia es una variable que tiene un nombre y puede ser usada para acceder al contenido de un objeto. 
+* Una referencia puede ser asignada a otra referencia, pasada a un método, o devuelta desde un método. 
+* Todas las referencias son del mismo tamaño, sin importar cuál sea su tipo.
+
+* Un objeto se encuentra en el heap y no tiene un nombre. 
+* Por lo tanto, no tienes manera de acceder a un objeto excepto a través de una referencia. 
+* Los objetos vienen en todas las formas y tamaños diferentes y consumen cantidades variables de memoria. 
+* Un objeto no puede ser asignado a otro objeto, y un objeto no puede ser pasado a un método o devuelto desde un método. 
+* Es el objeto el que es recolectado como basura, no su referencia.
+---------------------------------------------------------------------
+
+Mira este código y ve si puedes descifrar cuándo cada objeto primero se vuelve elegible para garbage collection:
+
+```java
+1: public class Scope {
+2:   public static void main(String[] args) {
+3:     String one, two;
+4:     one = new String("a");
+5:     two = new String("b");
+6:     one = two;
+7:     String three = one;
+8:     one = null;
+9:   } }
+```
+
+* En la línea 3, escribe one y two (solo las palabras—no necesitas cajas o flechas, ya que aún no han ido objetos al heap). 
+* En la línea 4, tenemos nuestro primer objeto. Dibuja una caja con el string "a" en ella, y dibuja una flecha desde la palabra one a esa caja. 
+* La línea 5 es similar. Dibuja otra caja con el string "b" en ella esta vez y una flecha desde la palabra two. 
+
+En la línea 6, la variable one cambia para apuntar a "b". Ya sea borra o tacha la flecha desde one y dibuja una nueva flecha desde one hacia la caja "b". 
+En la línea 7, tenemos una nueva variable, entonces escribe la palabra three y dibuja una flecha desde three a "b". 
+Nota que three apunta a lo que one está apuntando ahora mismo y no a lo que estaba apuntando al principio. 
+
+Finalmente, tacha la línea entre one y "b", ya que la línea 8 establece esta variable a null. 
+Ahora, estábamos tratando de descubrir cuándo los objetos fueron primero elegibles para garbage collection. 
+En la línea 6, nos deshicimos de la única flecha apuntando a "a",
 
 
 
