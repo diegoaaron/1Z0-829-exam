@@ -1433,8 +1433,38 @@ El examen intentará engañarte con varias preguntas sobre scope. En qué línea
 10: }
 ```
 
-En esta clase, tenemos una variable de clase, MAX_LENGTH; una variable de instancia, length; y dos variables locales, inches y newSize. 
-La variable MAX_LENGTH es una class variable porque tiene la palabra clave static en
+* En esta clase, tenemos una variable de clase, MAX_LENGTH; una variable de instancia, length; y dos variables locales, inches y newSize. 
+* La variable MAX_LENGTH es una class variable porque tiene la palabra clave static en su declaración. 
+* En este caso, MAX_LENGTH entra en scope en la línea 2 donde está declarada. Permanece en scope hasta que el programa termina.
+
+* Luego, length entra en scope en la línea 3 donde está declarada. Permanece en scope mientras este objeto Mouse exista. 
+* A su vez inches entra en scope donde está declarada en la línea 4. Sale de scope al final del método en la línea 9. 
+* Para newSize entra en scope donde está declarada en la línea 6. Ya que está definida dentro del bloque de la declaración if, sale de scope cuando ese bloque termina en la línea 8.
+
+
+* Local variable: En scope desde la declaración hasta el final del bloque
+* Method parameters: En scope por la duración del método
+* Instance variables: En scope desde la declaración hasta que el objeto es elegible para garbage collection
+* Class variables: En scope desde la declaración hasta que el programa termina
+
+## Destroying Objects
+
+* Recuerda, tu código no es el único proceso ejecutándose en tu programa Java. 
+* El código Java existe dentro de una JVM, que incluye numerosos procesos independientes de tu código de aplicación. 
+* Uno de los más importantes de estos es un garbage collector incorporado.
+
+* Todos los objetos Java se almacenan en la memoria heap de tu programa. 
+* El **heap**, que también se refiere como el free store, representa un gran grupo de memoria no usada asignada a tu aplicación Java. 
+* Si tu programa sigue instanciando objetos y dejándolos en el heap, eventualmente se quedará sin memoria y se bloqueará. 
+
+### Understanding Garbage Collection
+
+Garbage collection se refiere al proceso de liberar automáticamente memoria en el heap eliminando objetos que ya no son alcanzables en tu programa. 
+
+
+
+
+
 
 
 
@@ -1454,4 +1484,3 @@ La variable MAX_LENGTH es una class variable porque tiene la palabra clave stati
 
 ```
 
-Destroying Objects
