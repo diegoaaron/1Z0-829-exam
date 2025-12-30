@@ -1414,12 +1414,27 @@ El examen intentará engañarte con varias preguntas sobre scope. En qué línea
 * La variable `timeToEat` entra en scope en la línea 14 donde está declarada. Sale de scope en la línea 20 donde termina el bloque if. 
 * Finalmente, la variable `amountEaten` entra en scope en la línea 16 donde está declarada. Sale de scope en la línea 19 donde termina el bloque while.
 
+### Applying Scope to Classes
 
+* La regla para variables de instancia es sencilla; están disponibles tan pronto como se definen y duran por todo el tiempo de vida del objeto mismo. 
+* La regla para variables de clase, también conocidas como static, es incluso más fácil: entran en scope cuando se declaran como los otros tipos de variables. 
+  * Sin embargo, permanecen en scope por toda la vida del programa.
 
+```java
+1: public class Mouse {
+2:   final static int MAX_LENGTH = 5;
+3:   int length;
+4:   public void grow(int inches) {
+5:     if (length < MAX_LENGTH) {
+6:       int newSize = length + inches;
+7:       length = newSize;
+8:     }
+9:   }
+10: }
+```
 
-
-
-
+En esta clase, tenemos una variable de clase, MAX_LENGTH; una variable de instancia, length; y dos variables locales, inches y newSize. 
+La variable MAX_LENGTH es una class variable porque tiene la palabra clave static en
 
 
 
