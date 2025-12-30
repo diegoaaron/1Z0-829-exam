@@ -1383,7 +1383,47 @@ La variable `piecesOfCheese` es un parámetro de método. Ninguna variable puede
 * Usarla en el bloque más pequeño desde las líneas 19 a 22 está bien. La variable definida en la línea 20 sale de scope en la línea 22. 
 * Usarla en la línea 24 no está permitido.
 
-continuar en la 47
+### Tracing Scope
+
+El examen intentará engañarte con varias preguntas sobre scope. En qué línea cada una de las cinco variables locales entra y sale de scope:
+
+```java
+11: public void eatMore(boolean hungry, int amountOfFood) {
+12:   int roomInBelly = 5;
+13:   if (hungry) {
+14:     var timeToEat = true;
+15:     while (amountOfFood > 0) {
+16:       int amountEaten = 2;
+17:       roomInBelly = roomInBelly - amountEaten;
+18:       amountOfFood = amountOfFood - amountEaten;
+19:     }
+20:   }
+21:   System.out.println(amountOfFood);
+22: }
+```
+
+* Este método compila. El primer paso para descifrar el scope es identificar los bloques de código. En este caso, hay tres bloques. 
+* Puedes decir esto porque hay tres conjuntos de llaves. 
+* Comenzando desde el conjunto más interno, podemos ver dónde comienza y termina el bloque del bucle while. 
+* Repite este proceso a medida que continúas para el bloque de la declaración if y el bloque del método. 
+
+* Ahora que sabemos dónde están los bloques, podemos ver el scope de cada variable. 
+* Para `hungry` y `amountOfFood` son parámetros de método, entonces están disponibles para todo el método. 
+* Esto significa que su scope es las líneas 11 a 22. 
+* La variable `roomInBelly` entra en scope en la línea 12 porque ahí es donde está declarada. Permanece en scope por el resto del método y sale de scope en la línea 22. 
+* La variable `timeToEat` entra en scope en la línea 14 donde está declarada. Sale de scope en la línea 20 donde termina el bloque if. 
+* Finalmente, la variable `amountEaten` entra en scope en la línea 16 donde está declarada. Sale de scope en la línea 19 donde termina el bloque while.
+
+
+
+
+
+
+
+
+
+
+
 
 
 
