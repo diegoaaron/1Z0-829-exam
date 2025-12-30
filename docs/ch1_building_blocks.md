@@ -1512,29 +1512,12 @@ Mira este código y ve si puedes descifrar cuándo cada objeto primero se vuelve
 * En la línea 4, tenemos nuestro primer objeto. Dibuja una caja con el string "a" en ella, y dibuja una flecha desde la palabra one a esa caja. 
 * La línea 5 es similar. Dibuja otra caja con el string "b" en ella esta vez y una flecha desde la palabra two. 
 
-En la línea 6, la variable one cambia para apuntar a "b". Ya sea borra o tacha la flecha desde one y dibuja una nueva flecha desde one hacia la caja "b". 
-En la línea 7, tenemos una nueva variable, entonces escribe la palabra three y dibuja una flecha desde three a "b". 
-Nota que three apunta a lo que one está apuntando ahora mismo y no a lo que estaba apuntando al principio. 
+* En la línea 6, la variable one cambia para apuntar a "b". Ya sea borra o tacha la flecha desde one y dibuja una nueva flecha desde one hacia la caja "b". 
+* En la línea 7, tenemos una nueva variable, entonces escribe la palabra three y dibuja una flecha desde three a "b". 
+* Nota que three apunta a lo que one está apuntando ahora mismo y no a lo que estaba apuntando al principio. 
 
-Finalmente, tacha la línea entre one y "b", ya que la línea 8 establece esta variable a null. 
-Ahora, estábamos tratando de descubrir cuándo los objetos fueron primero elegibles para garbage collection. 
-En la línea 6, nos deshicimos de la única flecha apuntando a "a",
-
-
-
-
-
-
-
-
----------------------------------------------------------------------
-**Palabra** cuando es una palabra en inglés importante que tiene sentido traducirla, pero no es una palabra reservada 
-
-() version en ingles de la palabra anterior
-
-`   `  solo cúando es una línea de código o una palabra reservada que va a ser explicada
-
-```java
-
-```
+* Finalmente, tacha la línea entre one y "b", ya que la línea 8 establece esta variable a null. 
+* Ahora, estábamos tratando de descubrir cuándo los objetos fueron primero elegibles para garbage collection. 
+* En la línea 6, nos deshicimos de la única flecha apuntando a "a", haciendo ese objeto elegible para garbage collection. 
+* Pero "b" tiene flechas apuntando a él hasta que sale de scope. Esto significa que "b" no sale de scope hasta el final del método en la línea 9.
 
