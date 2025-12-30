@@ -1176,7 +1176,214 @@ public void checkAnswer() {
 * En nuestro ejemplo anterior de Person, una variable de clase compartida podría usarse para representar la lista de personas en el zoológico hoy. 
 * Puedes decir que una variable es una variable de clase porque tiene la palabra clave `static` antes de ella. 
 
+* Las variables de instancia y clase no requieren que las inicialices. 
+* Tan pronto como declaras estas variables, se les da un valor por defecto.
+* El compilador no sabe qué valor usar y entonces quiere el valor más simple que puede dar al tipo: null para un objeto, cero para los tipos numéricos, y false para un boolean. 
+* No necesitas conocer el valor por defecto para char, pero en caso de que tengas curiosidad, es '\u0000' (NUL).
 
+### Inferring the Type with var
+
+Tienes la opción de usar la palabra clave `var` en lugar del tipo cuando declaras variables locales bajo ciertas condiciones. 
+Para usar esta característica, simplemente escribes var en lugar del tipo primitivo o de referencia. Aquí hay un ejemplo:
+
+```java
+public class Zoo {
+    public void whatTypeAmI() {
+        var name = "Hello";
+        var size = 7;
+    }
+}
+```
+
+* El nombre formal de esta característica es local variable type inference. 
+* Separémoslo. Primero viene local variable. Esto significa justo lo que suena. 
+* Solo puedes usar esta característica para variables locales. 
+* El examen puede intentar engañarte con código como este:
+
+```java
+public class VarKeyword {
+  var tricky = "Hello"; // DOES NOT COMPILE
+}
+```
+
+La variable tricky es una instance variable. La inferencia de tipo de variable local funciona con variables locales y no con instance variables.
+
+### Type Inference of var
+
+Ahora que entiendes la parte de local variable, es momento de pasar a qué significa type inference. 
+La buena noticia es que esto también significa lo que suena. 
+Cuando escribes var, le estás instruyendo al compilador a determinar el tipo por ti. 
+El compilador mira el código en la línea de la declaración y lo usa para inferir el tipo. Echa un vistazo a este ejemplo:
+
+```java
+7: public void reassignment() {
+8:   var number = 7;
+9:   number = 4;
+10:  number = "five"; // DOES NOT COMPILE
+11: }
+```
+
+* En la línea 8, el compilador determina que queremos una variable int. 
+* En la línea 9, no tenemos problema asignando un int diferente a ella. 
+* En la línea 10, Java tiene un problema. Hemos pedido que asigne un String a una variable int. Esto no está permitido. 
+
+* Por simplicidad cuando discutimos var, vamos a asumir que una declaración de variable se completa en una sola línea. 
+* Podrías insertar un salto de línea entre el nombre de la variable y su valor de inicialización, como en el siguiente ejemplo:
+
+```java
+7: public void breakingDeclaration() {
+8:   var silly
+9:     = 1;
+10: }
+```
+
+Este ejemplo es válido y compila, pero consideramos que la declaración e inicialización de silly están ocurriendo en la misma línea.
+
+Pasemos por algunos escenarios más para que el examen no te engañe en este tema. ¿Crees que lo siguiente compila?
+
+```java
+3: public void doesThisCompile(boolean check) {
+4:   var question;
+5:   question = 1;
+6:   var answer;
+7:   if (check) {
+8:     answer = 2;
+9:   } else {
+10:    answer = 3;
+11:  }
+12:  System.out.println(answer);
+13: }
+```
+
+* El código no compila. Recuerda que para inferencia de tipo de variable local, el compilador solo mira la línea con la declaración. 
+* Ya que `question` y `answer` no tienen valores asignados en las líneas donde están definidos, el compilador no sabe qué hacer con ellos. 
+* Por esta razón, ambas líneas 4 y 6 no compilan.
+
+* Ahora sabemos que el valor inicial usado para determinar el tipo necesita ser parte de la misma declaración. 
+* ¿Puedes descifrar por qué estas dos declaraciones no compilan?
+
+```java
+4: public void twoTypes() {
+5:   int a, var b = 3; // DOES NOT COMPILE
+6:   var n = null;  // DOES NOT COMPILE
+7: }
+```
+
+* La línea 5 no funcionaría incluso si reemplazaras var con un tipo real. 
+  * Todos los tipos declarados en una sola línea deben ser del mismo tipo y compartir la misma declaración. 
+  * No podríamos escribir int a, int v = 3; tampoco.
+
+* La línea 6 es una sola línea. Se le está pidiendo al compilador que infiera el tipo de null. 
+  * Esto podría ser cualquier tipo de referencia. La única elección que el compilador podría hacer es Object. 
+  * Sin embargo, eso es casi con certeza no lo que el autor del código pretendía. 
+  * Los diseñadores de Java decidieron que sería mejor no permitir `var` para `null` que tener que adivinar la intención.
+
+Intentemos otro ejemplo. ¿Ves por qué esto no compila?
+
+```java
+public int addition(var a, var b) { // DOES NOT COMPILE
+  return a + b;
+}
+```
+
+* En este ejemplo, a y b son parámetros de método. Estos no son variables locales. 
+* Estate atento a var usado con constructores, parámetros de método, o variables de instancia. 
+* Recuerda que var solo se usa para inferencia de tipo de variable local
+
+* Hay una última regla que deberías conocer: var no es una palabra reservada y está permitido usarse como identificador. 
+* Se considera un nombre de tipo reservado (reserved type name) que significa que no puede usarse para definir un tipo, como una clase, interfaz, o enum. 
+
+¿Crees que esto es legal?
+
+```java
+package var;
+
+public class Var {
+public void var() {
+var var = "var";
+}
+public void Var() {
+Var var = new Var();
+}
+}
+```
+
+* Lo creas o no, este código compila. Java distingue mayúsculas de minúsculas, entonces Var no introduce ningún conflicto como nombre de clase. 
+* Nombrar una variable local var es legal.
+
+---------------------------------------------------------------------
+**var in the Real World**
+
+La palabra clave var es genial para autores de exámenes porque hace más fácil escribir código engañoso. Cuando trabajas en un proyecto real, quieres que el código sea fácil de leer.
+
+Una vez que comienzas a tener código que se ve como el siguiente, es momento de considerar usar var:
+
+`PileOfPapersToFileInFilingCabinet pileOfPapersToFile = new PileOfPapersToFileInFilingCabinet();`
+
+Puedes ver cómo acortar esto sería una mejora sin perder ninguna información:
+
+`var pileOfPapersToFile = new PileOfPapersToFileInFilingCabinet();`
+---------------------------------------------------------------------
+
+## Managing Variable Scope
+
+* Has aprendido que las variables locales se declaran dentro de un bloque de código. 
+* ¿Cuántas variables ves que tienen scope en este método?
+
+```java
+public void eat(int piecesOfCheese) {
+  int bitesOfCheese = 1;
+}
+```
+
+Hay dos variables con scope local. La variable `bitesOfCheese` está declarada dentro del método. 
+La variable `piecesOfCheese` es un parámetro de método. Ninguna variable puede ser usada fuera de donde está definida.
+
+### Limiting Scope
+
+* Las variables locales nunca pueden tener un scope más grande que el método en el que están definidas. 
+* Sin embargo, pueden tener un scope más pequeño. Considera este ejemplo:
+
+```java
+3: public void eatIfHungry(boolean hungry) {
+4:   if (hungry) {
+5:     int bitesOfCheese = 1;
+6:   } // bitesOfCheese goes out of scope here
+7:   System.out.println(bitesOfCheese); // DOES NOT COMPILE
+8: }
+```
+
+* La variable `hungry` tiene un scope de todo el método, mientras que la variable `bitesOfCheese` tiene un scope más pequeño. 
+* Solo está disponible para uso en la declaración if porque está declarada dentro de ella. 
+* Cuando ves un conjunto de llaves ({}) en el código, significa que has entrado a un nuevo bloque de código. 
+* Cada bloque de código tiene su propio scope. Cuando hay múltiples bloques, los emparejas desde adentro hacia afuera. 
+* En nuestro caso, el bloque de la declaración if comienza en la línea 4 y termina en la línea 6. 
+* El bloque del método comienza en la línea 3 y termina en la línea 8. 
+* Ya que `bitesOfCheese` está declarada en un bloque de declaración if, el scope está limitado a ese bloque. 
+* Cuando el compilador llega a la línea 7, se queja de que no sabe nada sobre esta cosa bitesOfCheese y da un error.
+
+* Recuerda que los bloques pueden contener otros bloques. 
+* Estos bloques contenidos más pequeños pueden referenciar variables definidas en los bloques de scope más grandes, pero no viceversa. 
+* Aquí hay un ejemplo:
+
+```java
+16: public void eatIfHungry(boolean hungry) {
+17:   if (hungry) {
+18:     int bitesOfCheese = 1;
+19:     {
+20:       var teenyBit = true;
+21:       System.out.println(bitesOfCheese);
+22:     }
+23:   }
+24:   System.out.println(teenyBit); // DOES NOT COMPILE
+25: }
+```
+
+* La variable definida en la línea 18 está en scope hasta que el bloque termina en la línea 23. 
+* Usarla en el bloque más pequeño desde las líneas 19 a 22 está bien. La variable definida en la línea 20 sale de scope en la línea 22. 
+* Usarla en la línea 24 no está permitido.
+
+continuar en la 47
 
 
 
@@ -1192,5 +1399,4 @@ public void checkAnswer() {
 
 ```
 
-Managing Variable Scope
 Destroying Objects
