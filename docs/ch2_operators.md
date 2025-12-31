@@ -120,7 +120,29 @@ System.out.println(parkAttendance);  // 0
 
 ## Working with Binary Arithmetic Operators
 
-Siguiente, nos movemos a operadores que toman dos operands, llamados binary operators. Los operadores Binary son por mucho los operadores más comunes en el lenguaje Java. Pueden ser usados para realizar operaciones matemáticas en variables, crear expresiones lógicas, y realizar asignaciones básicas de variables. Los operadores Binary son a menudo combinados en expresiones complejas con otros operadores binarios; por lo tanto, la precedencia de operadores es muy importante al evaluar expresiones que contienen operadores binarios. En esta sección, comenzamos con operadores aritméticos binarios; expandimos a otros operadores binarios en secciones posteriores.
+### Arithmetic Operators
+
+Los Arithmetic operators son aquellos que operan en valores numéricos. Son mostrados en Table 2.4.
+
+![ch02_01_04.png](images/ch02/ch02_01_04.png)
+
+`int price = 2 * 5 + 3 * 4 - 8;`
+
+Primero, evalúas el 2 * 5 y 3 * 4, lo cual reduce la expresión a esto:
+
+`int price = 10 + 12 - 8;`
+
+Luego, evalúas los términos restantes en orden de izquierda a derecha, resultando en un valor de price de 14. 
+
+El siguiente fragmento de código contiene los mismos valores y operadores, en el mismo orden, pero con dos sets de paréntesis agregados:
+
+`int price = 2 * ((5 + 3) * 4 - 8);`
+
+Esta vez evaluarías el operador addition 5 + 3, lo cual reduce la expresión a lo siguiente:
+
+`int price = 2 * (8 * 4 - 8);`
+
+
 
 
 
