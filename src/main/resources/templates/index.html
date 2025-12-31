@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Inicio</title>
+    <link rel="stylesheet" href="../static/css/github-markdown.css">
+</head>
+<body>
+<div class="markdown-body" style="max-width: 900px; margin: 2rem auto; padding: 1rem;">
+    <h1>Documentación del Curso</h1>
+    <ul>
+        <li th:each="doc : ${documents}">
+            <a th:href="${doc.url}" th:text="${doc.displayName}"></a>
+            <small>(<a th:href="${doc.url + '/pdf'}">PDF</a>)</small>
+        </li>
+    </ul>
+</div>
+</body>
+</html>
