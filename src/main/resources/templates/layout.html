@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title ?: 'Documentación'}">Documentación</title>
+    <link rel="stylesheet" th:href="@{/css/github-markdown.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body data-theme="light">
+<th:block th:fragment="content"></th:block>
+</body>
+</html>

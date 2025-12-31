@@ -87,8 +87,44 @@ System.out.println(zooTemperature); // -1.21
 
 Por ejemplo, ninguna de las siguientes líneas de código compilará:
 
+```java
+int pelican = !5;    // DOES NOT COMPILE
+boolean penguin = -true; // DOES NOT COMPILE
+boolean peacock = !0;  // DOES NOT COMPILE
+```
 
-continuar en la 5
+* La primera sentencia no compilará porque en Java no puedes negar un valor numérico y asignarlo a un entero. 
+* La segunda sentencia no compila porque no puedes negar numéricamente un valor boolean; necesitas usar el operador logical inverse. 
+* Finalmente, la última sentencia no compila porque no puedes tomar el complemento lógico de un valor numérico, ni puedes asignar un entero a una variable boolean.
+
+### Increment and Decrement Operators
+
+* Los operadores incremento y decremento, **++** y **--**, respectivamente, pueden ser aplicados a variables numéricas y tienen un alto orden de precedencia comparados con operadores binarios.
+* Se debe tener un cuidado especial porque el orden en el cual están adjuntos a su variable asociada puede hacer una diferencia en cómo una expresión es procesada.
+
+![ch02_01_03.png](images/ch02/ch02_01_03.png)
+
+El siguiente fragmento de código ilustra esta distinción:
+
+```java
+int parkAttendance = 0;
+System.out.println(parkAttendance);  // 0
+System.out.println(++parkAttendance); // 1
+System.out.println(parkAttendance);  // 1
+System.out.println(parkAttendance--); // 1
+System.out.println(parkAttendance);  // 0
+```
+
+* El primer operador pre-increment actualiza el valor para parkAttendance y muestra el nuevo valor de 1. 
+* El siguiente operador post-decrement también actualiza el valor de parkAttendance, pero muestra el valor antes de que ocurra el decremento.
+
+## Working with Binary Arithmetic Operators
+
+Siguiente, nos movemos a operadores que toman dos operands, llamados binary operators. Los operadores Binary son por mucho los operadores más comunes en el lenguaje Java. Pueden ser usados para realizar operaciones matemáticas en variables, crear expresiones lógicas, y realizar asignaciones básicas de variables. Los operadores Binary son a menudo combinados en expresiones complejas con otros operadores binarios; por lo tanto, la precedencia de operadores es muy importante al evaluar expresiones que contienen operadores binarios. En esta sección, comenzamos con operadores aritméticos binarios; expandimos a otros operadores binarios en secciones posteriores.
+
+
+
+
 
 
 ---------------------------------------------------------------------
@@ -103,7 +139,6 @@ continuar en la 5
 ```
 
 
-Working with Binary Arithmetic Operators
 Applying Binary Arithmetic Operators
 Assigning Values
 Comparing Values

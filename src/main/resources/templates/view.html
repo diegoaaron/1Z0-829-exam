@@ -1,3 +1,13 @@
-<div class="markdown-body" th:utext="${content}">
-    <!-- El contenido HTML generado va aquí -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}">
+    <title>Vista de documento</title>
+</head>
+<body>
+<div class="container">
+    <div class="markdown-body" th:utext="${content}">
+        <!-- El contenido HTML generado va aquí -->
+    </div>
 </div>
+</body>
+</html>
