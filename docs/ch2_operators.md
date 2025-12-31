@@ -142,6 +142,35 @@ Esta vez evaluarías el operador addition 5 + 3, lo cual reduce la expresión a 
 
 `int price = 2 * (8 * 4 - 8);`
 
+`short robin = 3 + [(4 * 2) + 4];   // DOES NOT COMPILE`
+
+Este ejemplo no compila porque Java, a diferencia de algunos otros lenguajes de programación, no permite corchetes, [], para ser usados en lugar de paréntesis.
+
+### Division and Modulus Operators
+
+* El operador modulus, algunas veces llamado el remainder operator, es simplemente el residuo cuando dos números son divididos. 
+* Por ejemplo, 9 dividido por 3 divide equitativamente y no tiene residuo; por lo tanto, el resultado de 9 % 3 es 0. 
+* Por otro lado, 11 dividido por 3 no divide equitativamente; por lo tanto, el resultado de 11 % 3 es 2.
+
+```java
+System.out.println(10 / 3); // 3
+System.out.println(10 % 3); // 1
+```
+
+* Para valores enteros, la división resulta en el floor value del entero más cercano que cumple la operación, mientras que modulus es el valor residuo. 
+* Si escuchas la frase **floor value**, solo significa el valor sin nada después del punto decimal. 
+* Por ejemplo, el floor value es 4 para cada uno de los valores 4.0, 4.5, y 4.9999999.
+
+### Numeric Promotion Rules
+
+
+
+
+
+
+
+
+
 
 
 
