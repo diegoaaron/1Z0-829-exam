@@ -163,11 +163,21 @@ System.out.println(10 % 3); // 1
 
 ### Numeric Promotion Rules
 
+1. Si dos valores tienen diferentes tipos de datos, Java promoverá automáticamente uno de los valores al mayor de los dos tipos de datos.
+2. Si uno de los valores es entero y el otro es punto flotante, Java automáticamente promoverá el valor entero a punto flotante.
+3. Los tipos de datos más pequeños, específicamente, byte, short, y char, son primero promovidos a int en cualquier momento que son usados con un operador aritmético binario de Java con una variable (en oposición a un valor), incluso si ninguno de los operandos es int.
+4. Después de que toda la promoción ha ocurrido y los operandos tienen el mismo tipo de dato, el valor resultante tendrá el mismo tipo de dato que sus operandos promovidos.
 
+Para la tercera regla, nota que los operadores unarios están excluidos de esta regla. Por ejemplo, aplicar ++ a un valor short resulta en un valor short.
 
+```java
+int x = 1;
+long y = 33;
+var z = x * y;
+```
 
-
-
+* En este caso, seguimos la primera regla. Ya que uno de los valores es int y el otro es long, y long es mayor que int, el valor int `x` es primero promovido a un long. 
+* El resultado `z` es entonces un valor long.
 
 
 
