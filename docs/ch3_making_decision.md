@@ -71,9 +71,36 @@ void compareIntegers(Number number) {
 }
 ```
 
-La variable **data** en este ejemplo es referida como la **pattern variable**. 
-Nota que este código también evita cualquier ClassCastException potencial porque la operación de cast es ejecutada solo si el operador instanceof implícito retorna true.
+* La variable **data** en este ejemplo es referida como la **pattern variable**. 
+* Nota que este código también evita cualquier ClassCastException potencial porque la operación de cast es ejecutada solo si el operador instanceof implícito retorna true.
 
+### Pattern Variables and Expressions
+
+Pattern matching incluye expresiones que pueden ser usadas para filtrar datos, como en el siguiente ejemplo:
+
+```java
+void printIntegersGreaterThan5(Number number) {
+    if(number instanceof Integer data && data.compareTo(5)>0)
+        System.out.print(data);
+}
+```
+
+* Podemos aplicar un número de filtros, o patrones, para que la sentencia if sea ejecutada solo en circunstancias específicas. 
+* Nota que estamos usando la variable de patrón en una expresión en la misma línea en la cual es declarada.
+
+### Subtypes
+
+El tipo de la variable de patrón debe ser un subtipo de la variable en el lado izquierdo de la expresión. Tampoco puede ser el mismo tipo.
+
+```java
+Integer value = 123;
+if(value instanceof Integer) {}
+if(value instanceof Integer data) {} // DOES NOT COMPILE
+```
+
+Mientras que la segunda línea compila, la última línea no compila porque pattern matching requiere que el tipo de dato de la variable sea un subtipo estricto de Integer.
+
+### Flow Scoping
 
 
 
