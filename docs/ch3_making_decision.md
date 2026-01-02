@@ -47,9 +47,32 @@ if(hourOfDay < 11) {
 * Pattern matching es una técnica de controlar el flujo del programa que solo ejecuta una sección de código que cumple ciertos criterios. 
 * Es usado en conjunto con sentencias if para mayor control del programa.
 
+* Pattern matching es una nueva herramienta a tu disposición para reducir boilerplate en tu código. 
+* Boilerplate code es código que tiende a ser duplicado a través de una sección de código una y otra vez de manera similar. 
 
+```java
+void compareIntegers(Number number) {
+    if(number instanceof Integer) {
+        Integer data = (Integer)number;
+        System.out.print(data.compareTo(5));
+    }
+}
+```
 
+* El cast es necesario, ya que el método compareTo() está definido en Integer, pero no en Number.
+* Código que primero verifica si una variable es de un tipo particular y luego inmediatamente la castea a Integer. 
+* Es tan común que los autores de Java decidieron implementar una sintaxis más corta para ello:
 
+```java
+void compareIntegers(Number number) {
+    if(number instanceof Integer data) {
+        System.out.print(data.compareTo(5));
+    }
+}
+```
+
+La variable **data** en este ejemplo es referida como la **pattern variable**. 
+Nota que este código también evita cualquier ClassCastException potencial porque la operación de cast es ejecutada solo si el operador instanceof implícito retorna true.
 
 
 
