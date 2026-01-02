@@ -258,14 +258,42 @@ Recuerda, hacer cast a primitivos hace que vayas de un tipo de dato numérico m�
 
 `long reptile = 192301398193810323L;`
 
+### Compound Assignment Operators
 
+Además de =, Java soporta varios operadores de asignación compuesta que combinan una operación aritmética con la asignación.
 
+![ch02_01_05.png](images/ch02/ch02_01_05.png)
 
+```java
+int camel = 2, giraffe = 3;
+camel = camel * giraffe;  // Simple assignment operator
+camel *= giraffe;   // Compound assignment operator
+```
 
+* El lado izquierdo del operador compuesto puede ser aplicado solo a una variable que ya está definida y no puede ser usado para declarar una nueva variable. 
+* En este ejemplo, si camel no estuviera ya definido, la expresión camel *= giraffe no compilaría.
 
+```java
+long goat = 10;
+int sheep = 5;
+sheep = sheep * goat;  // DOES NOT COMPILE
+```
 
+* Estamos tratando de asignar un valor long a una variable int. 
+* Esta última línea podría ser arreglada con un cast explícito a (int), pero hay una mejor manera usando el operador de asignación compuesto:
 
+```java
+long goat = 10;
+int sheep = 5;
+sheep *= goat;
+```
 
+El operador compuesto primero hará cast de sheep a un long, aplicará la multiplicación de dos valores long, y luego hará cast del resultado de vuelta a un int.
+
+### Return Value of Assignment Operators
+
+* Una última cosa que saber sobre operadores de asignación es que el resultado de una asignación es igual al valor de la asignación. 
+* Por ejemplo, el siguiente fragmento de código es perfectamente válido, si un poco extraño:
 
 
 
