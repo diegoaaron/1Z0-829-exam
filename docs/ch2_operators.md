@@ -399,7 +399,24 @@ System.out.println(asleep); // true
 System.out.println(awake); // false
 ```
 
-Deberías intentar estos por ti mismo, cambiando los valores de eyesClosed y breathingSlowly y estudiando los resultados.
+### Conditional Operators
+
+Los operadores condicionales, a menudo llamados operadores short-circuit, son casi idénticos a los operadores lógicos, & and |, excepto que el lado derecho de la expresión puede nunca ser evaluado si el resultado final puede ser determinado por el lado izquierdo de la expresión. 
+
+![ch02_01_09.png](images/ch02/ch02_01_09.png)
+
+```java
+int hour = 10;
+boolean zooOpen = true || (hour < 4);
+System.out.println(zooOpen); // true
+```
+
+* Refiriéndonos a las tablas de verdad, el valor zooOpen puede ser false solo si ambos lados de la expresión son false. 
+* Ya que sabemos que el lado izquierdo es true, no hay necesidad de evaluar el lado derecho, ya que ningún valor de hour hará que este código imprima false.
+
+### Making Decisions with the Ternary Operator
+
+
 
 
 
@@ -417,4 +434,3 @@ Deberías intentar estos por ti mismo, cambiando los valores de eyesClosed y bre
 ```
 
 
-Making Decisions with the Ternary Operator
