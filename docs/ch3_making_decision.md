@@ -128,6 +128,33 @@ Oh, entonces podrías estar pensando que la variable de patrón está entonces s
 
 ## Applying switch Statements
 
+### The switch Statement
+
+* Una sentencia switch, es una estructura compleja de toma de decisiones en la cual un valor único es evaluado y el flujo es redirigido a la primera rama coincidente, conocida como una sentencia case. 
+* Si no se encuentra tal sentencia case que coincida con el valor, una sentencia default opcional será llamada.
+* Si no está disponible tal opción default, la sentencia switch entera será omitida. 
+
+![ch03_03.png](images/ch03/ch03_03.png)
+
+```java
+int month = 5;
+
+switch month { // DOES NOT COMPILE
+    case 1: System.out.print("January");
+}
+
+switch(month) // DOES NOT COMPILE
+    case 1: System.out.print("January");
+
+switch(month) {
+    case 1: 2: System.out.print("January"); // DOES NOT COMPILE
+}
+```
+
+* La primera sentencia switch no compila porque le faltan paréntesis alrededor de la variable switch. 
+* La segunda sentencia no compila porque le faltan llaves alrededor del cuerpo del switch. 
+* La tercera sentencia no compila porque una coma `(,)` debería ser usada para separar sentencias case combinadas, no dos puntos (:).
+
 
 
 
