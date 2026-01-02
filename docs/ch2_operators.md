@@ -295,6 +295,56 @@ El operador compuesto primero hará cast de sheep a un long, aplicará la multip
 * Una última cosa que saber sobre operadores de asignación es que el resultado de una asignación es igual al valor de la asignación. 
 * Por ejemplo, el siguiente fragmento de código es perfectamente válido, si un poco extraño:
 
+```java
+long wolf = 5;
+long coyote = (wolf=3);
+System.out.println(wolf); // 3
+System.out.println(coyote); // 3
+```
+
+## Comparing Values
+
+### Equality Operators
+
+* Determinar igualdad en Java puede ser un esfuerzo no trivial, ya que hay una diferencia semántica entre "2 objetos son iguales" y "2 objetos son equivalentes"
+* Se complica aún más por el hecho de que para primitivos numéricos y boolean, no existe tal distinción.
+
+![ch02_01_06.png](images/ch02/ch02_01_06.png)
+
+* El operador igualdad puede ser aplicado a valores numéricos, valores boolean, y objetos (incluyendo String y null). 
+* Cuando se aplica el operador equality, no puedes mezclar estos tipos. Cada uno de los siguientes resulta en un error del compilador:
+
+```java
+boolean monkey = true == 3;   // DOES NOT COMPILE
+boolean ape = false != "Grape"; // DOES NOT COMPILE
+boolean gorilla = 10.2 == "Koko"; // DOES NOT COMPILE
+```
+
+* Para comparación de objetos, el operador igualdad es aplicado a las referencias de los objetos, no a los objetos a los que apuntan. 
+* Dos referencias son iguales si y solo si apuntan al mismo objeto o ambos apuntan a null. Echemos un vistazo a algunos ejemplos:
+
+```java
+var monday = new File("schedule.txt");
+var tuesday = new File("schedule.txt");
+var wednesday = tuesday;
+System.out.println(monday == tuesday);  // false
+System.out.println(tuesday == wednesday); // true
+```
+
+Aunque todas las variables apuntan a la misma información de archivo, solo dos referencias, `tuesday` y `wednesday`, son iguales en términos de ==, ya que apuntan al mismo objeto.
+
+### Relational Operators
+
+Ahora pasamos a relational operators, que comparan dos expresiones y retornan un valor boolean.
+
+![ch02_01_07.png](images/ch02/ch02_01_07.png)
+
+
+
+
+
+
+
 
 
 
@@ -310,5 +360,5 @@ El operador compuesto primero hará cast de sheep a un long, aplicará la multip
 
 ```
 
-Comparing Values
+
 Making Decisions with the Ternary Operator
