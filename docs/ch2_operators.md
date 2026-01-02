@@ -416,21 +416,31 @@ System.out.println(zooOpen); // true
 
 ### Making Decisions with the Ternary Operator
 
+El operador final con el que deberías estar familiarizado para el examen es el operador condicional, `? :`, de otra manera conocido como el ternary operator. 
+Es notable en que es el único operador que toma tres operands. El operador ternary tiene la siguiente forma:
 
+`booleanExpression ? expression1 : expression2`
 
-
-
-
-
----------------------------------------------------------------------
-**Palabra** cuando es una palabra en inglés importante que tiene sentido traducirla, pero no es una palabra reservada
-
-() version en ingles de la palabra anterior
-
-`   `  solo cúando es una línea de código o una palabra reservada que va a ser explicada
+El primer operand debe ser una expresión boolean, y los operands segundo y tercero pueden ser cualquier expresión que retorne un valor. 
 
 ```java
-
+int food1 = owl < 4 ? owl > 2 ? 3 : 4 : 5;
+int food2 = (owl < 4 ? ((owl > 2) ? 3 : 4) : 5);
 ```
+
+Aunque son equivalentes, encontramos el segundo statement mucho más legible. 
+
+* Para el examen, deberías saber que no hay requisito de que las expresiones segunda y tercera en operaciones ternary tengan los mismos tipos de datos, aunque sí entra en juego cuando se combina con el operador assignment. 
+* Compara los dos statements siguientes después de la declaración de variable:
+
+```java
+int stripes = 7;
+System.out.print((stripes > 5) ? 21 : "Zebra");
+int animal = (stripes < 9) ? 3 : "Horse"; // DOES NOT COMPILE
+```
+
+* Ambas expresiones evalúan valores boolean similares y retornan un int y un String, aunque solo la primera compilará. 
+* System.out.print() no le importa que las expresiones sean tipos completamente diferentes, porque puede convertir ambas a valores Object y llamar toString() en ellas. 
+* Por otro lado, el compilador sí sabe que "Horse" no puede ser asignada a un int; por lo tanto, no permite que el código sea compilado.
 
 
