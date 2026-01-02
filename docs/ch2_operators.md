@@ -339,11 +339,67 @@ Ahora pasamos a relational operators, que comparan dos expresiones y retornan un
 
 ![ch02_01_07.png](images/ch02/ch02_01_07.png)
 
+* Los primeros cuatro operadores relacionales en Table 2.8 se aplican solo a valores numéricos. 
+* Si los dos operands numéricos no son del mismo tipo de dato, el más pequeño es promovido, como se discutió previamente.
 
+```java
+int gibbonNumFeet = 2, wolfNumFeet = 4, ostrichNumFeet = 2;
+System.out.println(gibbonNumFeet < wolfNumFeet); // true
+System.out.println(gibbonNumFeet <= wolfNumFeet); // true
+System.out.println(gibbonNumFeet >= ostrichNumFeet); // true
+System.out.println(gibbonNumFeet > ostrichNumFeet); // false
+```
 
+* ¿Por qué no sabrías qué clase o interface es un objeto? 
+* Como entraremos en Chapter 6, "Class Design," Java soporta polimorfismo. 
+* Por ahora, todo lo que necesitas saber es que los objetos pueden ser pasados alrededor usando una variedad de referencias. 
+* Por ejemplo, todas las clases heredan de `java.lang.Object`. Esto significa que cualquier instancia puede ser asignada a una referencia Object. 
+* Por ejemplo, ¿cuántos objetos son creados y usados en el siguiente fragmento de código?
 
+```java
+Integer zooTime = Integer.valueOf(9);
+Number num = zooTime;
+Object obj = zooTime;
+```
 
+* En este ejemplo, solo un objeto es creado en memoria, pero hay tres referencias diferentes a él porque Integer hereda tanto Number como Object. 
+* Esto significa que puedes llamar instanceof en cualquiera de estas referencias con tres tipos de datos diferentes, y retornará true para cada uno de ellos.
 
+¿Qué pasa si llamas instanceof en una variable null? Para el examen, deberías saber que llamar instanceof en el literal null o una referencia null siempre retorna false.
+
+```java
+System.out.print(null instanceof Object); // false
+
+Object noObjectHere = null;
+System.out.print(noObjectHere instanceof String); // false
+```
+
+* Los ejemplos precedentes ambos imprimen false. Casi no importa cuál es el lado derecho de la expresión. 
+* Decimos "casi" porque hay excepciones. Este ejemplo no compila, ya que null es usado en el lado derecho del operador instanceof:
+
+`System.out.print(null instanceof null); // DOES NOT COMPILE`
+
+### Logical Operators
+
+* Los operadores lógicos, (&), (|), y (^), pueden ser aplicados tanto a tipos de datos numéricos como boolean; están listados en Table 2.9. 
+* Cuando son aplicados a tipos de datos boolean, se les refiere como logical operators. 
+* Alternativamente, cuando son aplicados a tipos de datos numéricos, se les refiere como bitwise operators, ya que realizan comparaciones bitwise de los bits que componen el número.
+
+![ch02_01_08.png](images/ch02/ch02_01_08.png)
+
+```java
+boolean eyesClosed = true;
+boolean breathingSlowly = true;
+
+boolean resting = eyesClosed | breathingSlowly;
+boolean asleep = eyesClosed & breathingSlowly;
+boolean awake = eyesClosed ^ breathingSlowly;
+System.out.println(resting); // true
+System.out.println(asleep); // true
+System.out.println(awake); // false
+```
+
+Deberías intentar estos por ti mismo, cambiando los valores de eyesClosed y breathingSlowly y estudiando los resultados.
 
 
 
