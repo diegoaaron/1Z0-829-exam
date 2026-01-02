@@ -189,9 +189,56 @@ Imprime todo: WinterSpringUnknownSummerFall
 Como se muestra en Figure 3.3, una sentencia switch tiene una variable objetiva que no es evaluada hasta tiempo de ejecución. 
 La siguiente es una lista de todos los tipos de datos soportados por sentencias switch:
 
-■ int and Integer
-■ byte and Byte
+* int and Integer
+* byte and Byte
+* short and Short
+* char and Character
+* String
+* enum values
+* var (si el tipo es resuelto en pasos previos)
 
+Para este capítulo, solo necesitas saber que una enumeración, o enum, representa un conjunto fijo de constantes, como días de la semana, meses del año, y así sucesivamente. 
+
+### Determining Acceptable Case Values
+
+* Primero, los valores en cada sentencia `case` deben ser valores constantes en tiempo de compilación del mismo tipo de datos que el valor switch. 
+* Por ejemplo, no puedes tener un valor de sentencia case que requiera ejecutar un método en tiempo de ejecución, incluso si ese método siempre retorna el mismo valor. 
+
+```java
+final int getCookies() { return 4; }
+void feedAnimals() {
+    final int bananas = 1;
+    int apples = 2;
+    int numberOfAnimals = 3;
+    final int cookies = getCookies();
+    switch(numberOfAnimals) {
+        case bananas:
+        case apples:     // DOES NOT COMPILE
+        case getCookies(): // DOES NOT COMPILE
+        case cookies :  // DOES NOT COMPILE
+        case 3 * 5 :
+    }
+}
+```
+
+* La variable bananas está marcada final, y su valor es conocido en tiempo de compilación, así que es válida. 
+* La variable apples no está marcada final, incluso aunque su valor es conocido, así que no está permitida. 
+* Las siguientes dos sentencias case, con valores getCookies() y cookies, no compilan porque los métodos no son evaluados hasta tiempo de ejecución, así que no pueden ser usados como el valor de una sentencia case, incluso si uno de los valores está almacenado en una variable final. 
+* La última sentencia case, con valor 3 * 5, compila, ya que las expresiones están permitidas como valores case, siempre que el valor pueda ser resuelto en tiempo de compilación. 
+* También deben ser capaces de caber en el tipo de datos switch sin un cast explícito. 
+
+* Siguiente, el tipo de datos para sentencias case debe coincidir con el tipo de datos de la variable switch. 
+* Por ejemplo, no puedes tener una sentencia case de tipo String si la variable de la sentencia switch es de tipo int, ya que los tipos son incomparables.
+
+### The switch Expression
+
+Una expresión switch es una forma mucho más compacta de una sentencia switch, capaz de retornar un valor. 
+
+![ch03_04.png](images/ch03/ch03_04.png)
+
+* Para empezar, ahora podemos asignar el resultado de una expresión switch a una variable result. 
+* Para que esto funcione, todas las ramas case y default deben retornar un tipo de datos que sea compatible con la asignación. 
+* La expresión switch soporta dos tipos de ramas: una expresión y un bloque. Cada una tiene reglas sintácticas diferentes sobre cómo debe ser creada. 
 
 
 
