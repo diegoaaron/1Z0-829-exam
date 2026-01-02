@@ -102,6 +102,39 @@ Mientras que la segunda línea compila, la última línea no compila porque patt
 
 ### Flow Scoping
 
+* El compilador aplica flow scoping cuando trabaja con pattern matching. 
+* Flow scoping significa que la variable solo está en alcance cuando el compilador puede determinar definitivamente su tipo. 
+
+```java
+void printIntegersOrNumbersGreaterThan5(Number number) {
+    if(number instanceof Integer data || data.compareTo(5)>0)
+        System.out.print(data);
+}
+```
+
+* Si la entrada no hereda Integer, la variable data es indefinida. 
+* Ya que el compilador no puede garantizar que data es una instancia de Integer, data no está en alcance, y el código no compila.
+
+```java
+void printIntegerTwice(Number number) {
+    if (number instanceof Integer data)
+        System.out.print(data.intValue());
+    System.out.print(data.intValue()); // DOES NOT COMPILE
+}
+```
+
+Ya que la entrada podría no haber heredado Integer, data ya no está en alcance después de la sentencia if. 
+Oh, entonces podrías estar pensando que la variable de patrón está entonces solo en alcance dentro de la sentencia if, 
+
+## Applying switch Statements
+
+
+
+
+
+
+
+
 
 
 
@@ -116,8 +149,6 @@ Mientras que la segunda línea compila, la última línea no compila porque patt
 
 ```
 
-
-Applying switch Statements
 Writing while Loops
 Writing while Loops
 Constructing for Loops
