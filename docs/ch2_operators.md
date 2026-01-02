@@ -179,6 +179,89 @@ var z = x * y;
 * En este caso, seguimos la primera regla. Ya que uno de los valores es int y el otro es long, y long es mayor que int, el valor int `x` es primero promovido a un long. 
 * El resultado `z` es entonces un valor long.
 
+```java
+double x = 39.21;
+float y = 2.1;
+var z = x + y;
+```
+
+* Esta es en realidad una pregunta trampa, ¡ya que la segunda línea no compila! 
+* Los literales de punto flotante se asumen que son double a menos que sean post fijados con un f, como en 2.1f. 
+* Si el valor de `y` fuera establecido apropiadamente a 2.1f, entonces ambos operandos se promueven a un double, y el resultado `z` sería un valor double.
+
+```java
+short w = 14;
+float x = 13;
+double y = 30;
+var z = w * x / y;
+```
+
+* Primero, `w` será automáticamente promovido a int solamente porque es un short y está siendo usado en una operación binaria aritmética. 
+* El valor `w` promovido será entonces automáticamente promovido a un float para que pueda ser multiplicado con `x`. 
+* El resultado de `w * x` será entonces automáticamente promovido a un double para que pueda ser dividido por `y`, resultando en un valor double.
+
+### Assigning Values
+
+### Assignment Operator
+
+* Un operador de asignación es un operador binario que modifica, o asigna, la variable en el lado izquierdo del operador con el resultado del valor en el lado derecho de la ecuación. 
+* A diferencia de la mayoría de otros operadores Java, el operador assignment es evaluado de derecha a izquierda.
+* El operador de asignación más simple es el = assignment, que ya has visto:
+
+`int herd = 1;`
+
+### Casting Values
+
+Casting es una operación unaria donde un tipo de dato es explícitamente interpretado como otro tipo de dato. 
+El Casting es opcional e innecesario cuando se convierte a un tipo de dato más grande o widening, pero es requerido cuando se convierte a un tipo de dato más pequeño o narrowing. 
+Sin casting, el compilador generará un error cuando trate de poner un tipo de dato más grande dentro de uno más pequeño.
+
+```java
+int fur = (int)5;
+int hair = (short) 2;
+String type = (String) "Bird";
+short tail = (short)(4 + 10);
+long feathers = 10(long); // DOES NOT COMPILE
+```
+
+Los espacios entre el cast y el valor son opcionales. 
+El último ejemplo no compila porque el tipo está en el lado equivocado del valor.
+
+```java
+float egg = 2.0 / 9;    // DOES NOT COMPILE
+int tadpole = (int)5 * 2L; // DOES NOT COMPILE
+short frog = 3 - 2.0;   // DOES NOT COMPILE
+```
+
+Todos estos ejemplos anteriores involucran poner un valor más grande en un tipo de dato más pequeño. 
+
+### Reviewing Primitive Assignments
+
+```java
+int fish = 1.0;     // DOES NOT COMPILE
+short bird = 1921222; // DOES NOT COMPILE
+int mammal = 9f;    // DOES NOT COMPILE
+long reptile = 192_301_398_193_810_323; // DOES NOT COMPILE
+```
+
+* La primera sentencia no compila porque estás tratando de asignar un double 1.0 a un valor integer. 
+* La segunda sentencia no compila porque el valor literal 1921222 está fuera del rango de short, y el compilador detecta esto. 
+* La tercera sentencia no compila porque la `f` agregada al final del número instruye al compilador a tratar el número como un valor de punto flotante, pero la asignación es a un int. 
+* Finalmente, la última sentencia no compila porque Java interpreta el literal como un int y nota que el valor es más grande de lo que permite int. El literal necesitaría un postfix L o l para ser considerado un long.
+
+Recuerda, hacer cast a primitivos hace que vayas de un tipo de dato numérico más grande a un tipo de dato numérico más pequeño, o convirtiendo de un número de punto flotante a entero.
+
+`long reptile = (long)192301398193810323; // DOES NOT COMPILE`
+
+* Esto todavía no compila porque el valor es primero interpretado como un int por el compilador y está fuera de rango. 
+* Lo siguiente arregla este código sin requerir casting:
+
+`long reptile = 192301398193810323L;`
+
+
+
+
+
 
 
 
@@ -199,9 +282,5 @@ var z = x * y;
 
 ```
 
-
-Applying Binary Arithmetic Operators
-Assigning Values
 Comparing Values
-Making Decisions with the Ternary Operator
 Making Decisions with the Ternary Operator
