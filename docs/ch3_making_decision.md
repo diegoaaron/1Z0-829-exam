@@ -155,6 +155,43 @@ switch(month) {
 * La segunda sentencia no compila porque le faltan llaves alrededor del cuerpo del switch. 
 * La tercera sentencia no compila porque una coma `(,)` debería ser usada para separar sentencias case combinadas, no dos puntos (:).
 
+* Una última nota de la que deberías estar consciente para el examen: una sentencia switch no está obligada a contener ninguna sentencia case. 
+* Por ejemplo, esta sentencia es perfectamente válida:
+
+`switch(month) {}`
+
+### Exiting with break Statements
+
+* Una sentencia break termina la sentencia switch y retorna el control de flujo al proceso que la encierra. 
+* Las sentencias break son opcionales, pero sin ellas el código ejecutará cada rama siguiendo una sentencia case coincidente, incluyendo cualquier sentencia default que encuentre. 
+
+* ¿Qué piensas que imprime lo siguiente cuando printSeason(2) es llamado?
+
+```java
+public void printSeason(int month) {
+    switch(month) {
+        case 1, 2, 3:  System.out.print("Winter");
+        case 4, 5, 6:  System.out.print("Spring");
+        default:    System.out.print("Unknown");
+        case 7, 8, 9:  System.out.print("Summer");
+        case 10, 11, 12: System.out.print("Fall");
+    }
+}
+```
+
+Imprime todo: WinterSpringUnknownSummerFall
+
+* Coincide con la primera sentencia case y ejecuta todas las ramas en el orden en que se encuentran, incluyendo la sentencia default. 
+* Es común, aunque ciertamente no requerido, usar una sentencia break después de cada sentencia case.
+
+### Selecting switch Data Types
+
+Como se muestra en Figure 3.3, una sentencia switch tiene una variable objetiva que no es evaluada hasta tiempo de ejecución. 
+La siguiente es una lista de todos los tipos de datos soportados por sentencias switch:
+
+■ int and Integer
+■ byte and Byte
+
 
 
 
