@@ -368,8 +368,69 @@ Refiriéndonos a nuestra segunda regla para expresiones switch, las sentencias y
 * La línea 17 tampoco compila. Aunque el código retorna un valor para length mayor que 10, no retorna un valor si length es menor que o igual a 10. 
 * No importa que length esté configurado para ser 12; todas las ramas deben producir (yield) un valor dentro del bloque case.
 
+### Covering All Possible Values
 
+* La última regla dice; una expresión switch que retorna un valor debe manejar todos los valores de entrada posibles. 
+* Y como viste anteriormente, cuando no retorna un valor, es opcional.
 
+```java
+String type = switch(canis) { // DOES NOT COMPILE
+    case 1 -> "dog";
+    case 2 -> "wolf";
+    case 3 -> "coyote";
+};
+```
+
+* No hay una rama case para cubrir 5 (o 4, -1, 0, etc.), entonces ¿debería la expresión switch retornar null, el string vacío, undefined, o algún otro valor? 
+* Cada expresión switch debe manejar todos los valores posibles de la variable switch. Como desarrollador, hay dos maneras de abordar esto:
+
+* Agregar una rama default. 
+* Si la expresión switch toma un valor enum, agrega una rama case para cada posible valor enum.
+
+* En la práctica, la primera solución es la que se usa más frecuentemente. 
+* La segunda solución aplica solo a expresiones switch que toman un enum. 
+
+* Para enums, la segunda solución funciona bien cuando el número de valores enum es relativamente pequeño. 
+* Por ejemplo, considera la siguiente definición de enum y método:
+
+```java
+enum Season {WINTER, SPRING, SUMMER, FALL}
+
+String getWeather(Season value) {
+    return switch(value) {
+        case WINTER -> "Cold";
+        case SPRING -> "Rainy";
+        case SUMMER -> "Hot";
+        case FALL -> "Warm";
+    };
+}
+```
+
+* Ya que todas las permutaciones posibles de Season están cubiertas, una rama default no es requerida en esta expresión switch. 
+* Puedes incluir una rama default opcional, sin embargo, incluso si cubres todos los valores conocidos.
+
+## Writing while Loops
+
+### The while Statement
+
+* La estructura de control repetitiva más simple en Java es la sentencia while, descrita en Figure 3.5. 
+* Tiene una condición de terminación, implementada como una expresión booleana, que continuará mientras la expresión se evalúe a true.
+
+![ch03_05.png](images/ch03/ch03_05.png)
+
+```java
+int roomInBelly = 5;
+public void eatCheese(int bitesOfCheese) {
+    while (bitesOfCheese > 0 && roomInBelly > 0) {
+        bitesOfCheese--;
+        roomInBelly--;
+    }
+    System.out.println(bitesOfCheese+" pieces of cheese left");
+}
+```
+
+* Con cada iteración del bucle, el ratón "come" una mordida de comida y pierde un espacio en su barriga. 
+* Usando una sentencia booleana compuesta, te aseguras de que el bucle while pueda terminar por cualquiera de las condiciones.
 
 
 
@@ -391,7 +452,5 @@ Refiriéndonos a nuestra segunda regla para expresiones switch, las sentencias y
 
 ```
 
-Writing while Loops
-Writing while Loops
 Constructing for Loops
 Controlling Flow with Branching
