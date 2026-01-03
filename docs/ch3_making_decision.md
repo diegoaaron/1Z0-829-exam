@@ -307,6 +307,69 @@ Todas las reglas previas alrededor de tipos de datos switch y valores case todav
 
 ### Returning Consistent Data Types
 
+* La primera regla de usar una expresión switch es probablemente la más fácil. 
+* No puedes retornar tipos de datos incompatibles o aleatorios. 
+
+```java
+int measurement = 10;
+int size = switch(measurement) {
+    case 5 -> 1;
+    case 10 -> (short)2;
+    default -> 5;
+    case 20 -> "3";  // DOES NOT COMPILE
+    case 40 -> 4L;   // DOES NOT COMPILE
+    case 50 -> null; // DOES NOT COMPILE
+};
+```
+
+* Nota que la segunda expresión case retorna un short, pero eso puede ser implícitamente casteado a un int. 
+* De esta manera, los valores tienen que ser consistentes con size, pero no todos tienen que ser del mismo tipo de datos. 
+* Las últimas tres expresiones case no compilan porque cada una retorna un tipo que no puede ser asignado a la variable int.
+
+### Applying a case Block
+
+* Una expresión switch soporta tanto una expresión como un bloque en las ramas case y default. 
+* Como un bloque regular, un bloque case es uno que está rodeado por llaves ({}). 
+* También incluye una sentencia `yield` si la expresión switch retorna un valor. 
+
+```java
+int fish = 5;
+int length = 12;
+var name = switch(fish) {
+    case 1 -> "Goldfish";
+    case 2 -> {yield "Trout";}
+    case 3 -> {
+        if(length > 10) yield "Blobfish";
+        else yield "Green";
+    }
+    default -> "Swordfish";
+};
+```
+
+* La palabra clave `yield` es equivalente a una sentencia `return` dentro de una expresión switch.
+* Es usada para evitar ambigüedad sobre si quieres salir del bloque o del método alrededor de la expresión switch.
+
+Refiriéndonos a nuestra segunda regla para expresiones switch, las sentencias yield no son opcionales si la sentencia switch retorna un valor. 
+
+```java
+10: int fish = 5;
+11: int length = 12;
+12: var name = switch(fish) {
+13:     case 1 -> "Goldfish";
+14:     case 2 -> {} // DOES NOT COMPILE
+15:     case 3 -> {
+16:         if(length > 10) yield "Blobfish";
+17:     } // DOES NOT COMPILE
+18:     default -> "Swordfish";
+19: };
+```
+
+* La línea 14 no compila porque no retorna un valor usando yield. 
+* La línea 17 tampoco compila. Aunque el código retorna un valor para length mayor que 10, no retorna un valor si length es menor que o igual a 10. 
+* No importa que length esté configurado para ser 12; todas las ramas deben producir (yield) un valor dentro del bloque case.
+
+
+
 
 
 
