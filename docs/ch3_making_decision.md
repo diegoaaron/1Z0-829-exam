@@ -263,7 +263,8 @@ public void printDayOfWeek(int day) {
 ```
 
 * Nota que un punto y coma es requerido después de cada expresión switch. 
-* Por ejemplo, el siguiente código no compila. ¿Cuántos puntos y coma le faltan?
+
+Por ejemplo, el siguiente código no compila. ¿Cuántos puntos y coma le faltan?
 
 ```java
 var result = switch(bear) {
@@ -271,6 +272,42 @@ var result = switch(bear) {
     default -> "Panda"
 }
 ```
+
+La respuesta es tres. Cada expresión case o default requiere un punto y coma así como la asignación misma. Lo siguiente arregla el código:
+
+```java
+var result = switch(bear) {
+    case 30 -> "Grizzly";
+    default -> "Panda";
+};
+```
+
+Como se muestra en Figure 3.4, las sentencias case pueden tomar múltiples valores, separados por comas. 
+
+Reescribamos nuestro método printSeason() de antes usando una expresión switch:
+
+```java
+public void printSeason(int month) {
+    switch(month) {
+        case 1, 2, 3  -> System.out.print("Winter");
+        case 4, 5, 6  -> System.out.print("Spring");
+        case 7, 8, 9  -> System.out.print("Summer");
+        case 10, 11, 12 -> System.out.print("Fall");
+    }
+}
+```
+
+Llamar printSeason(2) imprime el valor único Winter. Esta vez no tenemos que preocuparnos sobre sentencias break, ya que solo una rama es ejecutada.
+
+Todas las reglas previas alrededor de tipos de datos switch y valores case todavía aplican, aunque tenemos algunas reglas nuevas: 
+
+1. Todas las ramas de una expresión switch que no lanzan una excepción deben retornar un tipo de datos consistente (si la expresión switch retorna un valor).
+2. Si la expresión switch retorna un valor, entonces cada rama que no es una expresión debe producir (yield) un valor.
+3. Una rama default es requerida a menos que todos los casos estén cubiertos o no se retorna ningún valor.
+
+### Returning Consistent Data Types
+
+
 
 
 
