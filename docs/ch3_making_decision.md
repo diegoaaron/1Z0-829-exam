@@ -240,6 +240,37 @@ Una expresión switch es una forma mucho más compacta de una sentencia switch, 
 * Para que esto funcione, todas las ramas case y default deben retornar un tipo de datos que sea compatible con la asignación. 
 * La expresión switch soporta dos tipos de ramas: una expresión y un bloque. Cada una tiene reglas sintácticas diferentes sobre cómo debe ser creada. 
 
+* Como una sentencia switch tradicional, una expresión switch soporta cero o muchas ramas case y una rama default opcional. 
+* Ambas también soportan la nueva característica que permite que valores case sean combinados con una sola sentencia case usando comas. 
+* A diferencia de una sentencia switch tradicional, las expresiones switch tienen reglas especiales alrededor de cuándo la rama default es requerida.
+
+Podemos reescribir nuestro método printDayOfWeek() previo de una manera mucho más concisa usando expresiones case:
+
+```java
+public void printDayOfWeek(int day) {
+    var result = switch(day) {
+        case 0 -> "Sunday";
+        case 1 -> "Monday";
+        case 2 -> "Tuesday";
+        case 3 -> "Wednesday";
+        case 4 -> "Thursday";
+        case 5 -> "Friday";
+        case 6 -> "Saturday";
+        default -> "Invalid value";
+    };
+    System.out.print(result);
+}
+```
+
+* Nota que un punto y coma es requerido después de cada expresión switch. 
+* Por ejemplo, el siguiente código no compila. ¿Cuántos puntos y coma le faltan?
+
+```java
+var result = switch(bear) {
+    case 30 -> "Grizzly"
+    default -> "Panda"
+}
+```
 
 
 
