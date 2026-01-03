@@ -432,6 +432,58 @@ public void eatCheese(int bitesOfCheese) {
 * Con cada iteración del bucle, el ratón "come" una mordida de comida y pierde un espacio en su barriga. 
 * Usando una sentencia booleana compuesta, te aseguras de que el bucle while pueda terminar por cualquiera de las condiciones.
 
+### The do/while Statement
+
+Un bucle do/while, es como un bucle while, es una estructura de control de repetición con una condición de terminación y sentencia.
+
+![ch03_06.png](images/ch03/ch03_06.png)
+
+A diferencia de un bucle while, sin embargo, un bucle do/while garantiza que la sentencia o bloque será ejecutado al menos una vez.
+
+```java
+int lizard = 0;
+do {
+    lizard++;
+} while(false);
+System.out.println(lizard); // 1
+```
+
+* Java ejecutará el bloque de sentencias primero y luego verificará la condición del bucle. 
+* Aunque el bucle sale inmediatamente, el bloque de sentencias todavía se ejecuta una vez, y el programa imprime 1.
+
+## Constructing for Loops
+
+### The for Loop
+
+Un bucle for básico tiene la misma expresión booleana condicional y sentencia, o bloque de sentencias, que los bucles while, así como dos nuevas secciones: un initialization block y una sentencia update. 
+
+![ch03_07.png](images/ch03/ch03_07.png)
+
+```java
+for(int i=0; i < 10; i++)
+    System.out.println("Value is: "+i);
+System.out.println(i); // DOES NOT COMPILE
+```
+
+Este código no compila porque la variable de bucle `i` es referenciada fuera del bucle.
+
+```java
+for (var counter = 4; counter>= 0; counter--) {
+    System.out.print(counter + " ");
+}
+```
+
+¡Finalmente! Ahora tenemos código que imprime 4 3 2 1 0 y coincide con el reverso de nuestro ejemplo de bucle for en la sección previa.
+
+### Working with for Loops
+
+* Deberías familiarizarte con los siguientes cinco ejemplos; variaciones de estos es probable que se vean en el examen.
+* Abordemos algunos ejemplos con propósitos ilustrativos:
+
+**Creating an Infinite Loop**
+
+
+
 
 
 
