@@ -482,14 +482,111 @@ for (var counter = 4; counter>= 0; counter--) {
 
 **Creating an Infinite Loop**
 
+```java
+for(;;)
+    System.out.println("Hello World");
+```
+
+* Aunque este bucle for puede parecer que no compila, de hecho compilará y se ejecutará sin problema. 
+* Es en realidad un bucle infinito que imprimirá la misma sentencia repetidamente.
+
+**Adding Multiple Terms to the for Statement**
+
+```java
+int x = 0;
+for(long y = 0, z = 4; x < 5 && y < 10; x++, y++) {
+    System.out.print(y + " "); }
+System.out.print(x + " ");
+```
+
+* Este código demuestra tres variaciones del bucle for que podrías no haber visto. 
+* Primero, puedes declarar una variable, como `x` en este ejemplo, antes de que el bucle comience y usarla después de que se complete. 
+* Segundo, tu bloque de inicialización, expresión booleana, y sentencias de actualización pueden incluir variables extra que pueden o no referenciar unas a otras. 
+* Por ejemplo, `z` es definida en el bloque de inicialización y nunca es usada. 
+* Finalmente, la sentencia de actualización puede modificar múltiples variables. 
+
+Este código imprimirá lo siguiente cuando se ejecute: 0 1 2 3 4 5
+
+**Redeclaring a Variable in the Initialization Block**
+
+```java
+int x = 0;
+for(int x = 4; x < 5; x++)  // DOES NOT COMPILE
+    System.out.print(x + " ");
+```
+
+Este ejemplo se ve similar al previo, pero no compila debido al bloque de inicialización. 
+La diferencia es que `x` es repetido en el bloque de inicialización después de ya haber sido declarado antes del bucle, resultando en que el compilador se detenga debido a una declaración de variable duplicada. 
+Podemos arreglar este bucle removiendo la declaración de `x` del bucle for como sigue:
+
+```java
+int x = 0;
+for(x = 0; x < 5; x++)
+    System.out.print(x + " ");
+```
+
+Nota que esta variación ahora compilará porque el bloque de inicialización simplemente asigna un valor a x y no lo declara.
+
+**Using Incompatible Data Types in the Initialization Block**
+
+```java
+int x = 0;
+for(long y = 0, int z = 4; x < 5; x++) // DOES NOT COMPILE
+    System.out.print(y + " ");
+```
+
+* Las variables en el bloque de inicialización deben todas ser del mismo tipo. 
+* En el ejemplo de múltiples términos, `y` y `z` eran ambas long, así que el código compiló sin problema; pero en este ejemplo, tienen tipos diferentes, así que el código no compilará.
+
+**Using Loop Variables Outside the Loop**
+
+```java
+for(long y = 0, x = 4; x < 5 && y < 10; x++, y++)
+    System.out.print(y + " ");
+System.out.print(x); // DOES NOT COMPILE
+```
+
+* Si notas, `x` es definida en el bloque de inicialización del bucle y luego usada después de que el bucle termina. 
+* Ya que `x` solo estaba en el alcance del bucle, usarla fuera del bucle causará un error del compilador.
+
+### The for-each Loop
+
+El bucle for-each es una estructura especializada diseñada para iterar sobre arrays y varias clases Collections Framework, como se presenta en Figure 3.8.
+
+![ch03_08.png](images/ch03/ch03_08.png)
+
+* La declaración del bucle for-each está compuesta de una sección de inicialización y un objeto sobre el cual iterar. 
+* El lado derecho del bucle for-each debe ser uno de los siguientes:
+1. Un tipo Array
+2. Un objeto que implemente `java.lang.Iterable`
+
+![ch03_08.png](images/ch03/ch03_08.png)
+
+* Se necesita saber que el lado derecho debe ser un array o colección de elementos, como una List o un Set.
+* Para el examen, deberías saber que esto no incluye todas las clases o interfaces de Collections Framework, sino solo aquellas que implementan o extienden esa interfaz Collection. 
+* Por ejemplo, Map no está soportado en un bucle for-each, aunque Map incluye métodos que retornan instancias Collection.
+
+* El lado izquierdo del bucle for-each debe incluir una declaración para una variable de instancia cuyo tipo es compatible con el tipo del array o colección en el lado derecho de la sentencia. 
+* En cada iteración del bucle, la variable nombrada en el lado izquierdo de la sentencia se le asigna un nuevo valor del array o colección en el lado derecho de la sentencia.
+
+Compara estos dos métodos que ambos imprimen los valores de un array, uno usando un bucle for tradicional y el otro usando un bucle for-each:
+
+```java
+public void printNames(String[] names) {
+    for(int counter=0; counter<names.length; counter++)
+        System.out.println(names[counter]);
+}
+
+public void printNames(String[] names) {
+    for(var name : names)
+        System.out.println(name);
+}
+```
+
+Como usar un bucle for
 
 
-
-
-
-
-
-
+CONTINUAR EN LA 30
 
 
 
