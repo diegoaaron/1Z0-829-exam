@@ -864,10 +864,47 @@ Recuerda que las sentencias return pueden ser usadas para salir de bucles rápid
 
 ### Unreachable Code
 
-Una faceta de break, continue, y return de la que deberías estar consciente es que cualquier código colocado inmediatamente después de ellos en el mismo bloque es considerado inalcanzable y no compilará. Por ejemplo, el siguiente fragmento de código no compila:
+Una faceta de break, continue, y return de la que deberías estar consciente es que cualquier código colocado inmediatamente después de ellos en el mismo bloque es considerado inalcanzable y no compilará. 
 
+```java
+int checkDate = 0;
+while(checkDate<10) {
+    checkDate++;
+    if(checkDate>100) {
+        break;
+        checkDate++; // DOES NOT COMPILE
+    }
+}
+```
 
+Aunque no es lógicamente posible que la sentencia if se evalúe a true en esta muestra de código, el compilador nota que tienes sentencias inmediatamente siguiendo al break y fallará al compilar con "unreachable code".
 
+```java
+int minute = 1;
+WATCH: while(minute>2) {
+    if(minute++>2) {
+        continue WATCH;
+        System.out.print(minute); // DOES NOT COMPILE
+    }
+}
+
+int hour = 2;
+switch(hour) {
+    case 1: return; hour++; // DOES NOT COMPILE
+    case 2:
+}
+```
+
+* Una cosa para recordar es que no importa si el bucle o estructura de decisión realmente visita la línea de código. 
+* Por ejemplo, el bucle podría ejecutarse cero o infinitas veces en tiempo de ejecución. 
+* Independientemente de la ejecución, el compilador reportará un error si encuentra cualquier código que considere inalcanzable, en este caso cualquier sentencia inmediatamente siguiendo a un break, continue, o return statement.
+
+### Reviewing Branching
+
+* Concluimos esta sección con Table 3.1, que te ayudará a recordar cuándo las etiquetas, sentencias break, y continue están permitidas en Java. 
+* Aunque para propósitos ilustrativos nuestros ejemplos usan estas sentencias en bucles anidados, pueden ser usadas dentro de bucles únicos también.
+
+![ch03_11.png](images/ch03/ch03_11.png)
 
 
 
