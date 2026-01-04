@@ -791,6 +791,82 @@ Cleaning: a,1
 Cleaning: c,1
 Cleaning: d,1
 
+* Ahora, imagina que removemos la etiqueta `CLEANING` en la sentencia `continue` para que el control sea retornado al bucle interno en lugar del externo. 
+* La línea 6 se convierte en lo siguiente:
+
+`6:         continue;`
+
+* Esto corresponde al cuidador del zoológico limpiando todos los leopardos excepto aquellos etiquetados 2 o en el establo b. 
+* La salida es entonces la siguiente:
+
+Cleaning: a,1
+Cleaning: a,3
+Cleaning: c,1
+Cleaning: c,3
+Cleaning: d,1
+Cleaning: d,3
+
+Finalmente, si removemos la sentencia continue y la sentencia if asociada por completo removiendo las líneas 5–7, llegamos a una estructura que produce todos los valores, como esto:
+
+Cleaning: a,1
+Cleaning: a,2
+Cleaning: a,3
+Cleaning: b,1
+Cleaning: b,2
+Cleaning: b,3
+Cleaning: c,1
+Cleaning: c,2
+Cleaning: c,3
+Cleaning: d,1
+Cleaning: d,2
+Cleaning: d,3
+
+### The return Statement
+
+* Por ahora, sin embargo, deberías estar familiarizado con la idea de que crear métodos y usar sentencias return puede ser usado como una alternativa a usar etiquetas y sentencias break. 
+* Por ejemplo, echa un vistazo a esta reescritura de nuestra clase FindInMatrix anterior:
+
+```java
+public class FindInMatrixUsingReturn {
+    private static int[] searchForValue(int[][] list, int v) {
+        for (int i = 0; i < list.length; i++) {
+            for (int j = 0; j < list[i].length; j++) {
+                if (list[i][j] == v) {
+                    return new int[] {i,j};
+                }
+            }
+        }
+        return null;
+    }
+
+    public static void main(String[] args) {
+        int[][] list = { { 1, 13 }, { 5, 2 }, { 2, 2 } };
+        int searchValue = 2;
+        int[] results = searchForValue(list,searchValue);
+
+        if (results == null) {
+            System.out.println("Value " + searchValue + " not found");
+        } else {
+            System.out.println("Value " + searchValue + " found at: " +
+                    "(" + results[0] + "," + results[1] + ")");
+        }
+    }
+}
+
+```
+
+* Esta clase es funcionalmente la misma que la primera clase FindInMatrix que vimos antes usando break. 
+* Si necesitas control de grano fino del bucle con múltiples sentencias break y continue, la primera clase es probablemente mejor. 
+* Dicho esto, encontramos código sin etiquetas y sentencias break mucho más fácil de leer y depurar. 
+* Además, hacer que la lógica de búsqueda sea una función independiente hace el código más reutilizable y el método main() que llama mucho más fácil de leer.
+
+Recuerda que las sentencias return pueden ser usadas para salir de bucles rápidamente y pueden llevar a código más legible en la práctica, especialmente cuando se usan con bucles anidados.
+
+### Unreachable Code
+
+Una faceta de break, continue, y return de la que deberías estar consciente es que cualquier código colocado inmediatamente después de ellos en el mismo bloque es considerado inalcanzable y no compilará. Por ejemplo, el siguiente fragmento de código no compila:
+
+
 
 
 
