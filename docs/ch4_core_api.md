@@ -76,6 +76,43 @@ System.out.println(name.length()); // 7
 El método `charAt()` te permite consultar el string para averiguar qué carácter está en un índice específico.
 
 ```java
+// firma: public char charAt(int index)
+
+var name = "animals";
+System.out.println(name.charAt(0)); // a
+System.out.println(name.charAt(6)); // s
+System.out.println(name.charAt(7)); // exception
+```
+
+### Finding an Index
+
+* El método `indexOf()` mira los caracteres en el string y encuentra el primer índice que coincide con el valor deseado. 
+* El método indexOf puede trabajar con un carácter individual o un String completo como entrada. 
+* También puede comenzar desde una posición solicitada. 
+* Recuerda que un char puede ser pasado a un parámetro de tipo int. En el examen, solo verás un char pasado a los parámetros llamados ch.
+
+```java
+// firma: public int indexOf(int ch)
+// firma: public int indexOf(int ch, int fromIndex)
+// firma: public int indexOf(String str)
+// firma: public int indexOf(String str, int fromIndex)
+
+var name = "animals";
+System.out.println(name.indexOf('a'));     // 0
+System.out.println(name.indexOf("al"));    // 4
+System.out.println(name.indexOf('a', 4));  // 4
+System.out.println(name.indexOf("al", 5)); // -1
+```
+
+A diferencia de charAt(), el método indexOf() no lanza una excepción si no puede encontrar una coincidencia, en su lugar devuelve -1
+
+### Getting a Substring
+
+* El método substring() devuelve partes del string. 
+* El primer parámetro es el índice con el que comenzar para el string devuelto. 
+* Hay un segundo parámetro opcional, que es el índice final en el que quieres detenerte.
+
+```java
 
 ```
 
