@@ -670,6 +670,101 @@ while(hungryHippopotamus>0) {
 * Un label es un puntero opcional a la cabeza de una sentencia que permite que el flujo de la aplicación salte a ella o se rompa desde ella. 
 * Es un identificador único que es seguido por dos puntos (:). Por ejemplo, podemos agregar etiquetas opcionales a uno de los ejemplos previos:
 
+```java
+int[][] myComplexArray = {{5,2,1,3},{3,9,8,9},{5,7,12,7}};
+
+OUTER_LOOP: for(int[] mySimpleArray : myComplexArray) {
+    INNER_LOOP: for(int i=0; i<mySimpleArray.length; i++) {
+        System.out.print(mySimpleArray[i]+"\t");
+    }
+    System.out.println();
+}
+```
+
+* Las etiquetas siguen las mismas reglas de formato que los identificadores. 
+* Por legibilidad, comúnmente se expresan usando letras mayúsculas en snake_case con guiones bajos entre palabras. 
+
+### The break Statement
+
+* Como viste cuando trabajabas con sentencias switch, una sentencia break transfiere el flujo de control fuera de la sentencia que la encierra. 
+* Lo mismo es cierto para una sentencia break que aparece dentro de un bucle while, do/while, o for, ya que terminará el bucle temprano, como se muestra en Figure 3.9.
+
+![ch03_09.png](images/ch03/ch03_09.png)
+
+* Nota en Figure 3.9 que la sentencia break puede tomar un parámetro label opcional. 
+* Sin un parámetro de etiqueta, la sentencia break terminará el bucle interno más cercano en el que se encuentra actualmente en el proceso de ejecutar. 
+* El parámetro de etiqueta opcional nos permite salir de un bucle de nivel superior externo. 
+* En el siguiente ejemplo, buscamos la primera posición de índice de array `(x,y)` de un número dentro de un array bidimensional no ordenado:
+
+```java
+public class FindInMatrix {
+    public static void main(String[] args) {
+        int[][] list = {{1,13},{5,2},{2,2}};
+        int searchValue = 2;
+        int positionX = -1;
+        int positionY = -1;
+        
+        PARENT_LOOP: for(int i=0; i<list.length; i++) {
+            for(int j=0; j<list[i].length; j++) {
+                if(list[i][j]==searchValue) {
+                    positionX = i;
+                    positionY = j;
+                    break PARENT_LOOP;
+                }
+            }
+        }
+        
+        if(positionX==-1 || positionY==-1) {
+            System.out.println("Value "+searchValue+" not found");
+        } else {
+            System.out.println("Value "+searchValue+" found at: " +
+                "("+positionX+","+positionY+")");
+        }
+    }
+}
+```
+
+Cuando se ejecuta, este código producirá la siguiente salida: Value 2 found at: (1,1)
+
+* En particular, echa un vistazo a la sentencia break PARENT_LOOP. 
+* Esta sentencia saldrá de toda la estructura de bucle tan pronto como se encuentre el primer valor coincidente. 
+* Ahora, imagina qué pasaría si reemplazáramos el cuerpo del bucle interno con lo siguiente:
+
+```java
+if(list[i][j]==searchValue) {
+    positionX = i;
+    positionY = j;
+    break;
+}
+```
+
+* ¿Cómo cambiaría esto nuestro flujo, y cambiaría la salida? 
+* En lugar de salir cuando se encuentra el primer valor coincidente, el programa ahora solo saldría del bucle interno cuando se cumpliera la condición. 
+* En otras palabras, la estructura encontraría el primer valor coincidente del último bucle interno que contuviera el valor.
+
+Resultando en la siguiente salida: Value 2 found at: (2,0)
+
+Finalmente, ¿qué tal si removimos el break por completo?
+
+```java
+if(list[i][j]==searchValue) {
+    positionX = i;
+    positionY = j;
+}
+```
+
+En este caso, el código buscaría el último valor en toda la estructura que tuviera el valor coincidente. 
+
+La salida se vería así: Value 2 found at: (2,1)
+
+Puedes ver de este ejemplo que usar una sentencia break en un bucle anidado, o no usar la sentencia break en absoluto, puede causar que la estructura de bucle se comporte de manera bastante diferente.
+
+### The continue Statement
+
+Ahora extendamos nuestra discusión de control de bucle avanzado con la sentencia `continue`, una sentencia que causa que el flujo termine la ejecución de la iteración de bucle actual, como se muestra en Figure 3.10.
+
+
+
 
 
 
