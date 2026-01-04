@@ -621,7 +621,62 @@ Ahora te mostramos otras maneras en que los bucles podrían terminar, o ramifica
 Antes de que pasemos a las sentencias de ramificación, necesitamos introducir el concepto de bucles anidados. 
 Un nested loop es un bucle que contiene otro bucle, incluyendo while, do/while, for, y bucles for-each. 
 Por ejemplo, considera el siguiente código que itera sobre un array bidimensional, que es un array que contiene otros arrays como sus miembros. 
-Cubrimos arrays multidimensionales en detalle en Chapter 4, "Core APIs," pero por ahora, asume que lo siguiente es cómo declararías un array bidimensional:
+
+```java
+int[][] myComplexArray = {{5,2,1,3},{3,9,8,9},{5,7,12,7}};
+
+for(int[] mySimpleArray : myComplexArray) {
+    for(int i=0; i<mySimpleArray.length; i++) {
+        System.out.print(mySimpleArray[i]+"\t");
+    }
+    System.out.println();
+}
+```
+
+* Nota que intencionalmente mezclamos un bucle for y un bucle for-each en este ejemplo. 
+* El bucle externo se ejecutará un total de tres veces. Cada vez que el bucle externo se ejecuta, el bucle interno se ejecuta cuatro veces. 
+* Cuando ejecutamos este código, vemos la siguiente salida:
+
+5    2    1    3
+3    9    8    9
+5    7    12   7
+
+Los bucles anidados pueden incluir bucles while y do/while, como se muestra en este ejemplo. Ve si puedes determinar qué producirá este código:
+
+```java
+int hungryHippopotamus = 8;
+while(hungryHippopotamus>0) {
+    do {
+        hungryHippopotamus -= 2;
+    } while (hungryHippopotamus>5);
+    hungryHippopotamus--;
+    System.out.print(hungryHippopotamus+", ");
+}
+```
+
+* La primera vez que este bucle se ejecuta, el bucle interno se repite hasta que el valor de hungryHippopotamus es 4. 
+* El valor será entonces decrementado a 3, y ese será la salida al final de la primera iteración del bucle externo.
+
+* En la segunda iteración del bucle externo, el bucle interno do/while será ejecutado una vez, aunque hungryHippopotamus ya no es mayor que 5. 
+* Como podrás recordar, las sentencias do/while siempre ejecutan el cuerpo al menos una vez. 
+* Esto reducirá el valor a 1, que será reducido aún más por el operador de decremento en el bucle externo a 0. 
+* Una vez que el valor alcanza 0, el bucle externo terminará. El resultado es que el código producirá lo siguiente:
+
+3, 0,
+
+### Adding Optional Labels
+
+* Una cosa que intencionalmente omitimos cuando presentamos sentencias if, sentencias switch, y bucles es que todos pueden tener etiquetas opcionales. 
+* Un label es un puntero opcional a la cabeza de una sentencia que permite que el flujo de la aplicación salte a ella o se rompa desde ella. 
+* Es un identificador único que es seguido por dos puntos (:). Por ejemplo, podemos agregar etiquetas opcionales a uno de los ejemplos previos:
+
+
+
+
+
+
+
+
 
 
 
