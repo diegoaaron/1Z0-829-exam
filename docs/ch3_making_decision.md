@@ -906,21 +906,3 @@ switch(hour) {
 
 ![ch03_11.png](images/ch03/ch03_11.png)
 
-
-
-
-
-
-
-
----------------------------------------------------------------------
-**Palabra** cuando es una palabra en inglés importante que tiene sentido traducirla, pero no es una palabra reservada
-
-() version en ingles de la palabra anterior
-
-`   `  solo cúando es una línea de código o una palabra reservada que va a ser explicada
-
-```java
-
-```
-
