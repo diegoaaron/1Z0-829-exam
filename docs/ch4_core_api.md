@@ -54,7 +54,34 @@ System.out.println("c" + null);   // cnull
 * La línea 6 intenta engañarte agregando un número, pero es justo como escribimos s = s + 3. 
 * Sabemos que un string "más" cualquier otra cosa significa usar concatenación.
 
-continuar en la 3
+### Important String Methods
+
+* Para todos estos métodos, necesitas recordar que un string es una secuencia de caracteres y Java cuenta desde 0 cuando se indexa.
+* También necesitas saber que un String es inmutable, o no modificable. 
+* Esto significa que llamar a un método en un String devolverá un objeto String diferente en lugar de cambiar el valor de la referencia. 
+
+### Determining the Length
+
+El método `length()` devuelve el número de caracteres en el String
+
+```java
+// firma: public int length() 
+
+var name = "animals";
+System.out.println(name.length()); // 7
+```
+
+### Getting a Single Character
+
+El método `charAt()` te permite consultar el string para averiguar qué carácter está en un índice específico.
+
+```java
+
+```
+
+
+
+
 
 
 
