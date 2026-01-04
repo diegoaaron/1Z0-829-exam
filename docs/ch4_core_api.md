@@ -113,13 +113,36 @@ A diferencia de charAt(), el método indexOf() no lanza una excepción si no pue
 * Hay un segundo parámetro opcional, que es el índice final en el que quieres detenerte.
 
 ```java
+// firma: public String substring(int beginIndex)
+// firma: public String substring(int beginIndex, int endIndex)
 
+var name = "animals";
+System.out.println(name.substring(3));                    // mals
+System.out.println(name.substring(name.indexOf('m'))); // mals
+System.out.println(name.substring(3, 4));                 // m
+System.out.println(name.substring(3, 7));                 // mals
+System.out.println(name.substring(3, 3)); // empty string
+System.out.println(name.substring(3, 2)); // exception
+System.out.println(name.substring(3, 8)); // exception
 ```
 
+Estos métodos hacen fácil convertir tus datos. Las firmas de los métodos son las siguientes:
 
+```java
+//firma: public String toUpperCase()
+//firma: public String toLowerCase()
 
+var name = "animals";
+System.out.println(name.toUpperCase()); // ANIMALS
+System.out.println("Abc123".toLowerCase()); // abc123
+```
 
+El método `equals()` verifica si dos objetos String contienen exactamente los mismos caracteres en el mismo orden. 
+El método `equalsIgnoreCase()` verifica si dos objetos String contienen los mismos caracteres, ignorando si están en mayúsculas o minúsculas.
 
+```java
+
+```
 
 
 ---------------------------------------------------------------------
