@@ -763,9 +763,33 @@ Puedes ver de este ejemplo que usar una sentencia break en un bucle anidado, o n
 
 Ahora extendamos nuestra discusión de control de bucle avanzado con la sentencia `continue`, una sentencia que causa que el flujo termine la ejecución de la iteración de bucle actual, como se muestra en Figure 3.10.
 
+![ch03_10.png](images/ch03/ch03_10.png)
 
+* Podrías notar que la sintaxis de la sentencia continue refleja la de la sentencia break. 
+* Mientras que la sentencia `break` transfiere control a la sentencia que encierra, la sentencia `continue` transfiere control a la expresión booleana que determina si el bucle debe continuar. 
+* En otras palabras, termina la iteración actual del bucle. También, como la sentencia break, la sentencia continue se aplica al bucle interno más cercano bajo ejecución, usando sentencias de etiqueta opcionales para anular este comportamiento.
 
+Echemos un vistazo a un ejemplo. Imagina que tenemos un cuidador de zoológico que se supone debe limpiar el primer leopardo en cada uno de cuatro establos pero omitir el establo `b` por completo.
 
+```java
+1: public class CleaningSchedule {
+2:     public static void main(String[] args) {
+3:         CLEANING: for(char stables = 'a'; stables<='d'; stables++) {
+4:             for(int leopard = 1; leopard<4; leopard++) {
+5:                 if(stables=='b' || leopard==2) {
+6:                     continue CLEANING;
+7:                 }
+8:                 System.out.println("Cleaning: "+stables+","+leopard);
+9: }}}}
+```
+
+* Con la estructura como está definida, el bucle retornará el control al bucle padre cada vez que el primer valor sea `b` o el segundo valor sea 2. 
+* En la primera, tercera, y cuarta ejecución del bucle externo, el bucle interno imprime una sentencia exactamente una vez y luego sale en el siguiente bucle interno cuando leopard es 2. 
+* En la segunda ejecución del bucle externo, el bucle interno inmediatamente sale sin imprimir nada, ya que `b` se encuentra de inmediato. 
+
+Cleaning: a,1
+Cleaning: c,1
+Cleaning: d,1
 
 
 
