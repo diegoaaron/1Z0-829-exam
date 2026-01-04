@@ -583,10 +583,46 @@ public void printNames(String[] names) {
 }
 ```
 
-Como usar un bucle for
+* Los bucles for-each están diseñados para reducir código boilerplate, haciendo que el código sea más fácil de leer/escribir.
+* También podemos usar un bucle for-each en una List, ya que implementa Iterable.
 
+```java
+public void printNames(List<String> names) {
+    for(var name : names)
+        System.out.println(name);
+}
+```
 
-CONTINUAR EN LA 30
+* Para este capítulo, solo necesitas saber que en cada iteración, un bucle for-each asigna una variable con el mismo tipo que el argumento genérico. 
+* En este caso, `name` es de tipo String.
+
+```java
+String birds = "Jay";
+for(String bird : birds) // DOES NOT COMPILE
+    System.out.print(bird + " ");
+
+String[] sloths = new String[3];
+for(int sloth : sloths)  // DOES NOT COMPILE
+    System.out.print(sloth + " ");
+```
+
+* El primer bucle for-each no compila porque String no puede ser usado en el lado derecho de la sentencia. 
+* Aunque un String puede representar una lista de caracteres, tiene que ser en realidad un array o implementar Iterable. 
+* El segundo ejemplo no compila porque el tipo de bucle en el lado izquierdo de la sentencia es int y no coincide con el tipo esperado de String.
+
+## Controlling Flow with Branching
+
+Los tipos finales de estructuras de control de flujo que cubrimos en este capítulo son sentencias de ramificación. 
+Hasta ahora, hemos estado tratando con bucles únicos que terminaban solo cuando su expresión booleana se evaluaba a false. 
+Ahora te mostramos otras maneras en que los bucles podrían terminar, o ramificarse, y ves que el camino tomado durante tiempo de ejecución puede no ser tan directo como en los ejemplos previos.
+
+### Nested Loops
+
+Antes de que pasemos a las sentencias de ramificación, necesitamos introducir el concepto de bucles anidados. 
+Un nested loop es un bucle que contiene otro bucle, incluyendo while, do/while, for, y bucles for-each. 
+Por ejemplo, considera el siguiente código que itera sobre un array bidimensional, que es un array que contiene otros arrays como sus miembros. 
+Cubrimos arrays multidimensionales en detalle en Chapter 4, "Core APIs," pero por ahora, asume que lo siguiente es cómo declararías un array bidimensional:
+
 
 
 
@@ -601,5 +637,3 @@ CONTINUAR EN LA 30
 
 ```
 
-Constructing for Loops
-Controlling Flow with Branching
