@@ -141,8 +141,63 @@ El método `equals()` verifica si dos objetos String contienen exactamente los m
 El método `equalsIgnoreCase()` verifica si dos objetos String contienen los mismos caracteres, ignorando si están en mayúsculas o minúsculas.
 
 ```java
+// firma: public boolean equals(Object obj)
+// firma: public boolean equalsIgnoreCase(String str)
 
+System.out.println("abc".equals("ABC"));               // false
+System.out.println("ABC".equals("ABC"));               // true
+System.out.println("abc".equalsIgnoreCase("ABC")); // true
 ```
+
+---------------------------------------------------------------------
+* El método `toString()` es llamado cuando intentas imprimir un objeto o concatenar el objeto con un String. 
+* Es comúnmente sobrescrito con una versión que imprime una descripción única de la instancia usando sus campos de instancia.
+
+* El método `equals(Object)` es usado para comparar objetos, con la implementación predeterminada simplemente usando el operador ==. 
+* Deberías sobrescribir el método equals(Object) cada vez que quieras comparar elementos convenientemente por igualdad, especialmente si esto requiere verificar numerosos campos.
+
+* Cada vez que sobrescribas `equals(Object)`, debes sobrescribir `hashCode()` para ser consistente. 
+* Esto significa que para cualesquiera dos objetos, si a.equals(b) es true, entonces a.hashCode()==b.hashCode() también debe ser true. 
+* Si no son consistentes, esto podría llevar a datos inválidos y efectos secundarios en colecciones basadas en hash como HashMap y HashSet.
+---------------------------------------------------------------------
+
+### Searching for Substrings
+
+* Los métodos startsWith() y endsWith() miran si el valor proporcionado coincide con parte del String. 
+* El método contains() no es tan particular; busca coincidencias en cualquier lugar del String.
+
+```java
+//firma: public boolean startsWith(String prefix)
+//firma: public boolean endsWith(String suffix)
+//firma: public boolean contains(CharSequence charSeq)
+
+System.out.println("abc".startsWith("a")); // true
+System.out.println("abc".startsWith("A")); // false
+
+System.out.println("abc".endsWith("c")); // true
+System.out.println("abc".endsWith("a")); // false
+
+System.out.println("abc".contains("b")); // true
+System.out.println("abc".contains("B")); // false
+```
+
+### Replacing Values
+
+El método `replace()` hace una búsqueda y reemplazo simple en el string.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ---------------------------------------------------------------------
