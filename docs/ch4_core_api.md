@@ -452,6 +452,170 @@ El método `insert()` agrega caracteres al StringBuilder en el índice solicitad
 7: System.out.println(sb);
 ```
 
+### Deleting Contents
+
+El método delete() remueve caracteres de la secuencia y devuelve una referencia al StringBuilder actual. 
+El método deleteCharAt() es conveniente cuando quieres eliminar solo un carácter.
+
+```java
+//firma: public StringBuilder delete(int startIndex, int endIndex)
+//firma: public StringBuilder deleteCharAt(int index)
+
+var sb = new StringBuilder("abcdef");
+sb.delete(1, 3);        // sb = adef
+sb.deleteCharAt(5);     // exception
+```
+
+* El método delete() es más flexible que algunos otros cuando se trata de índices de array. 
+* Si especificas un segundo parámetro que está más allá del final del StringBuilder, Java simplemente asumirá que querías decir el final. 
+
+```java
+var sb = new StringBuilder("abcdef");
+sb.delete(1, 100);      // sb = a
+```
+
+### Replacing Portions
+
+El método replace() funciona de manera diferente para StringBuilder de lo que hizo para String
+
+```java
+// firma: public StringBuilder replace(int startIndex, int endIndex, String newString)
+
+var builder = new StringBuilder("pigeon dirty");
+builder.replace(3, 6, "sty");
+System.out.println(builder); // pigsty dirty
+```
+
+* Primero, Java elimina los caracteres comenzando con el índice 3 y terminando justo antes del índice 6. 
+* Esto nos da pig dirty. Luego Java inserta el valor "sty" en esa posición.
+* En este ejemplo, el número de caracteres removidos e insertados son los mismos. 
+
+```java
+var builder = new StringBuilder("pigeon dirty");
+builder.replace(3, 100, "");
+System.out.println(builder);
+```
+
+* Imprime "pig". Recuerda, el método primero está haciendo un delete lógico. 
+* El método replace() permite especificar un segundo parámetro que está más allá del final del StringBuilder. 
+* Eso significa que solo permanecen los primeros tres caracteres.
+
+### Reversing
+
+El método reverse() hace justo lo que suena: invierte los caracteres en las secuencias y devuelve una referencia al StringBuilder actual.
+
+```java
+// firma: public StringBuilder reverse()
+
+var sb = new StringBuilder("ABC");
+sb.reverse();
+System.out.println(sb);
+```
+
+Como se esperaba, esto imprime CBA. 
+
+## Understanding Equality
+
+### Comparing equals() and ==
+
+Considera el siguiente código que usa == con objetos:
+
+```java
+var one = new StringBuilder();
+var two = new StringBuilder();
+var three = one.append("a");
+System.out.println(one == two); // false
+System.out.println(one == three); // true
+```
+
+* Dado que este ejemplo no está tratando con primitivos, debemos buscar si las referencias se refieren al mismo objeto. 
+* Las variables one y two son ambos objetos StringBuilder completamente separados, dándonos dos objetos. 
+* Por lo tanto, el primer statement de impresión nos da false. La variable three es más interesante. 
+* ¿Recuerda cómo a los métodos StringBuilder les gusta devolver la referencia actual para encadenar? 
+* Esto significa que one y three ambos apuntan al mismo objeto, y el segundo statement de impresión nos da true.
+
+Viste anteriormente que equals() usa igualdad lógica en lugar de igualdad de objetos para objetos String:
+
+```java
+var x = "Hello World";
+var z = " Hello World".trim();
+System.out.println(x.equals(z)); // true
+```
+
+* Esto funciona porque la clase String implementa el método equals() para verificar los valores dentro del String en lugar de la referencia del string en sí. 
+* Si una clase no tiene un método equals(), Java determina si las referencias apuntan al mismo objeto, que es exactamente lo que == hace.
+
+* En caso de que te estés preguntando, los autores de StringBuilder no implementaron equals(). 
+* Si llamas equals() en dos instancias StringBuilder, verificará igualdad de referencia. 
+* Puedes llamar a toString() en StringBuilder para obtener un String para verificar igualdad en su lugar.
+
+### The String Pool
+
+* Java se da cuenta de que muchos strings se repiten en el programa y resuelve este problema reutilizando los comunes. 
+* El string pool, también conocido como intern pool, es una ubicación en la Java Virtual Machine (JVM) que recolecta todos estos strings.
+
+* El string pool contiene valores literales y constantes que aparecen en tu programa. 
+* Por ejemplo, "name" es un literal y, por lo tanto, va al string pool. 
+* El método `myObject.toString()` devuelve un string, pero no un literal, así que no va al string pool.
+
+Ahora visitemos el escenario más complejo y confuso, igualdad de String, hecho así en parte debido a la forma en que la JVM reúsa literales String.
+
+```java
+var x = "Hello World";
+var y = "Hello World";
+System.out.println(x == y); // true
+```
+
+* Recuerda que un String es inmutable y los literales se agrupan. 
+* La JVM creó solo un literal en memoria. Las variables x e y ambos apuntan a la misma ubicación en memoria; por lo tanto, el statement imprime true. 
+
+Se pone aún más complicado. Considera este código:
+
+```java
+var x = "Hello World";
+var z = " Hello World".trim();
+System.out.println(x == z); // false
+```
+
+* En este ejemplo, no tenemos dos del mismo literal String. 
+* Aunque x y z sucede que evalúan al mismo string, uno se calcula en tiempo de ejecución. 
+* Dado que no es lo mismo en tiempo de compilación, se crea un nuevo objeto String. 
+
+Intentemos otro. ¿Qué piensas que se imprime aquí?
+
+```java
+var singleString = "hello world";
+var concat = "hello ";
+concat += "world";
+System.out.println(singleString == concat); // false
+```
+
+Esto imprime false. Llamar += es justo como llamar a un método y resulta en un nuevo String. 
+
+Puedes decirle a Java que use el string pool. El método intern() usará un objeto en el string pool si uno está presente.
+
+```java
+// firma: public String intern()
+
+var name = "Hello World";
+var name2 = new String("Hello World").intern();
+System.out.println(name == name2); // true
+```
+
+* Primero le decimos a Java que use el string pool normalmente para name. 
+* Luego, para name2, le decimos a Java que cree un nuevo objeto usando el constructor, pero que lo interne y use el string pool de todos modos. 
+* Dado que ambas variables apuntan a la misma referencia en el string pool, podemos usar el operador ==.
+
+## Understanding Arrays
+
+* Un array es un área de memoria en el heap con espacio para un número designado de elementos. 
+* Un String está implementado como un array con algunos métodos que podrías querer usar cuando trabajes con caracteres específicamente.
+
+### Creating an Array of Primitives
+
+
+
+
 
 
 
@@ -469,7 +633,6 @@ El método `insert()` agrega caracteres al StringBuilder en el índice solicitad
 
 ```
 
-Understanding Equality
-Understanding Arrays
+
 Calculating with Math APIs
 Working with Dates and Times
