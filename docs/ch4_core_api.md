@@ -613,9 +613,99 @@ System.out.println(name == name2); // true
 
 ### Creating an Array of Primitives
 
+* La forma más común de crear un array se muestra en Figure 4.3. 
+* Especifica el tipo del array (int) y el tamaño (3). Los corchetes te dicen que esto es un array.
+
+![ch04_03.png](images/ch04/ch04_03.png)
+
+* Cuando usas esta forma para instanciar un array, todos los elementos se establecen al valor predeterminado para ese tipo. 
+* Como aprendiste en Chapter 1, el valor predeterminado de un int es 0. 
+* Dado que numbers es una variable de referencia, apunta al objeto array. 
+* Además, los índices comienzan con 0 y cuentan hacia arriba, justo como lo hicieron para un String.
+
+Otra forma de crear un array es especificar todos los elementos con los que debería comenzar:
+
+`int[] moreNumbers = new int[] {42, 55, 99};`
+
+* En este ejemplo, también creamos un array int de tamaño 3. 
+* Esta vez, especificamos los valores iniciales de esos tres elementos en lugar de usar los valores predeterminados.
+
+* Java reconoce que esta expresión es redundante. 
+* Dado que estás especificando el tipo del array en el lado izquierdo del signo de iguales, Java ya conoce el tipo.
+* Y dado que estás especificando los valores iniciales, ya conoce el tamaño. Como atajo, Java te permite escribir esto:
+
+`int[] moreNumbers = {42, 55, 99};`
+
+Este enfoque se llama un anonymous array. Es anónimo porque no especificas el tipo y tamaño.
+
+* Finalmente, puedes escribir los [] antes o después del nombre, y agregar un espacio es opcional. 
+* Esto significa que los cinco de estos statements hacen exactamente lo mismo:
+
+```java
+int[] numAnimals;
+int [] numAnimals2;
+int []numAnimals3;
+int numAnimals4[];
+int numAnimals5 [];
+```
+
+### Creating an Array with Reference Variables
+
+* Puedes elegir cualquier tipo Java para ser el tipo del array. 
+* Esto incluye clases que creas tú mismo.
+* Echemos un vistazo a un tipo incorporado con String:
+
+```java
+String[] bugs = { "cricket", "beetle", "ladybug" };
+String[] alias = bugs;
+System.out.println(bugs.equals(alias)); // true
+System.out.println(bugs.toString()); // [Ljava.lang.String;@160bc7c0
+```
+
+* Podemos llamar a equals() porque un array es un objeto. 
+* Devuelve true debido a igualdad de referencia. 
+* El método equals() en arrays no mira los elementos del array. Recuerda, esto funcionaría incluso en un int[] también. 
+* El tipo int es un primitivo; int[] es un objeto.
+
+* El segundo statement de impresión es aún más interesante. ¿Qué demonios es `[Ljava.lang.String;@160bc7c0`? 
+* No tienes que saber esto para el examen, pero `[L` significa que es un array, `java.lang.String` es el tipo de referencia, y `160bc7c0` es el código hash. 
+* Obtendrás diferentes números y letras cada vez que lo ejecutes, ya que esto es una referencia.
+
+```java
+public class Names {
+   String names[];
+}
+```
+
+La respuesta es null. El código nunca instanció el array, así que es solo una variable de referencia a null.
 
 
+```java
+public class Names {
+    String names[] = new String[2];
+}
+```
 
+* Es un array porque tiene corchetes. Es un array de tipo String, ya que ese es el tipo mencionado en la declaración. 
+* Tiene dos elementos porque la longitud es 2. Cada uno de esos dos slots actualmente es null, pero tiene el potencial de apuntar a un objeto String.
+
+### Using an Array
+
+Ahora que sabes cómo crear un array, intentemos acceder a uno:
+
+```java
+4: String[] mammals = {"monkey", "chimp", "donkey"};
+5: System.out.println(mammals.length);     // 3
+6: System.out.println(mammals[0]);         // monkey
+7: System.out.println(mammals[1]);         // chimp
+8: System.out.println(mammals[2]);         // donkey
+```
+
+* La línea 4 declara e inicializa el array. 
+* La línea 5 nos dice cuántos elementos puede contener el array. 
+* El resto del código imprime el array. 
+
+continuar en la 30
 
 
 
