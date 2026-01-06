@@ -941,6 +941,44 @@ double num = Math.random();
 
 ## Working with Dates and Times
 
+Necesitas una declaración import para trabajar con las clases modernas de fecha y hora. Para usarla, añade este import a tu programa:
+
+`import java.time.*; // import time classes`
+
+### Creating Dates and Times
+
+Cuando trabajas con fechas y tiempos, lo primero que hay que hacer es decidir cuánta información necesitas. El examen te da cuatro opciones:
+
+**LocalDate** Contiene solo una fecha—no hay hora y no hay zona horaria. 
+
+**LocalTime** Contiene solo una hora—no hay fecha y no hay zona horaria. 
+
+**LocalDateTime** Contiene tanto una fecha como una hora, pero no hay zona horaria. 
+
+**ZonedDateTime** Contiene una fecha, hora, y zona horaria. 
+
+```java
+System.out.println(LocalDate.now());
+System.out.println(LocalTime.now());
+System.out.println(LocalDateTime.now());
+System.out.println(ZonedDateTime.now());
+
+// 2021-10-25
+// 09:13:07.768
+// 2021-10-25T09:13:07.768
+// 2021-10-25T09:13:07.769-05:00[America/New_York]
+```
+
+
+
+
+
+
+
+
+
+
+
 
 
 
