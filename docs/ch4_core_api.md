@@ -1120,6 +1120,58 @@ private static void performAnimalEnrichment(LocalDate start, LocalDate end, Peri
 
 Hay cinco formas de crear una clase Period:
 
+```java
+var annually = Period.ofYears(1);     // every 1 year
+var quarterly = Period.ofMonths(3);   // every 3 months
+var everyThreeWeeks = Period.ofWeeks(3);  // every 3 weeks
+var everyOtherDay = Period.ofDays(2);   // every 2 days
+var everyYearAndAWeek = Period.of(1, 0, 7); // every year and 7 days
+```
+
+* Hay una trampa. No puedes encadenar métodos cuando creas un Period. 
+* El siguiente código parece que es equivalente al ejemplo everyYearAndAWeek, pero no lo es. 
+* Solo se usa el último método porque los métodos `Period.of` son métodos estáticos.
+
+`var wrong = Period.ofYears(1).ofWeeks(1); // every week`
+
+Este código engañoso es realmente como escribir lo siguiente:
+
+```java
+var wrong = Period.ofYears(1);
+wrong = Period.ofWeeks(1);
+```
+
+* ¡Esto claramente no es lo que pretendías! Por eso el método `of()` te permite pasar el número de años, meses, y días. 
+* Todos están incluidos en el mismo período. Obtendrás una advertencia del compilador sobre esto. 
+* Las advertencias del compilador te dicen que algo está mal o es sospechoso sin fallar la compilación.
+
+* El método `of()` toma solo años, meses, y días. La habilidad de usar otro método factory para pasar semanas es meramente una conveniencia. 
+* Como puedes imaginar, el período actual se almacena en términos de años, meses, y días. 
+* Cuando imprimes el valor, Java muestra cualquier parte que no sea cero usando el formato mostrado en la Figura 4.9.
+
+`System.out.println(Period.of(1,2,3));`
+
+![ch04_07.png](images/ch04/ch04_07.png)
+
+* Como puedes ver, la P siempre inicia el String para mostrar que es un período de medida. 
+* Luego viene el número de años, número de meses, y número de días. Si cualquiera de estos es cero, se omite.
+
+`System.out.println(Period.ofMonths(3));`
+
+* La salida es P3M. Recuerda que Java omite cualquier medida que sea cero. 
+* Lo último que debes saber sobre Period es con qué objetos puede usarse. Veamos algo de código:
+
+```java
+3: var date = LocalDate.of(2022, 1, 20);
+4: var time = LocalTime.of(6, 15);
+5: var dateTime = LocalDateTime.of(date, time);
+6: var period = Period.ofMonths(1);
+7: System.out.println(date.plus(period));  // 2022-02-20
+8: System.out.println(dateTime.plus(period)); // 2022-02-20T06:15
+9: System.out.println(time.plus(period));  // Exception
+```
+
+### Working with Durations
 
 
 
@@ -1142,5 +1194,3 @@ Hay cinco formas de crear una clase Period:
 
 ```
 
-
-Working with Dates and Times
