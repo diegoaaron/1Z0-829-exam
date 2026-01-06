@@ -861,7 +861,56 @@ args[1] = new int[3];
 
 Esta técnica revela lo que realmente obtienes con Java: arrays de arrays que, apropiadamente gestionados, ofrecen un efecto multidimensional.
 
-### 
+### Using a Multidimensional Array
+
+La operación más común en un array multidimensional es hacer un loop a través de él. Este ejemplo imprime un array 2D:
+
+```java
+var twoD = new int[3][2];
+for(int i = 0; i < twoD.length; i++) {
+   for(int j = 0; j < twoD[i].length; j++)
+      System.out.print(twoD[i][j] + " "); // print element
+   System.out.println();      // time for a new row
+}
+```
+
+## Calculating with Math APIs
+
+### Finding the Minimum and Maximum
+
+Los métodos min() y max() comparan dos valores y devuelven uno de ellos.
+
+```java
+public static double min(double a, double b)
+public static float min(float a, float b)
+public static int min(int a, int b)
+public static long min(long a, long b)
+
+int first = Math.max(3, 7); // 7
+int second = Math.min(7, -9); // -9
+```
+
+### Rounding Numbers
+
+* El método `round()` se deshace de la porción decimal del valor, eligiendo el siguiente número más alto si es apropiado. 
+* Si la parte fraccionaria es .5 o mayor, redondeamos hacia arriba.
+
+```java
+public static long round(double num)
+public static int round(float num)
+
+long low = Math.round(123.45);  // 123
+long high = Math.round(123.50);  // 124
+int fromFloat = Math.round(123.45f); // 123
+```
+
+
+
+
+
+
+
+
 
 
 
@@ -877,5 +926,4 @@ Esta técnica revela lo que realmente obtienes con Java: arrays de arrays que, a
 ```
 
 
-Calculating with Math APIs
 Working with Dates and Times
