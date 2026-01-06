@@ -823,8 +823,45 @@ Puedes usar una variable definida usando varargs como si fuera un array normal. 
 
 ### Creating a Multidimensional Array
 
+Múltiples separadores de array es todo lo que se necesita para declarar arrays con múltiples dimensiones.
 
+```java
+int[][] vars1;      // 2D array
+int vars2 [][];     // 2D array
+int[] vars3[];      // 2D array
+int[] vars4 [], space [][]; // a 2D AND a 3D array
+```
 
+El ejemplo final declara dos arrays en la misma línea. Sumando los corchetes, vemos que `vars4` es un array 2D y `space` es un array 3D.
+
+Puedes especificar el tamaño de tu array multidimensional en la declaración si te gusta:
+
+`String [][] rectangle = new String[3][2];`
+
+Puedes pensar en el rango direccionable como `[0][0] `hasta `[2][1]`, pero no pienses en él como una estructura de direcciones como `[0,0]` o `[2,1]`.
+
+Ahora supongamos que establecemos uno de estos valores:  `rectangle[0][1] = "set";`
+
+* Este array está poblado escasamente porque tiene muchos valores null.
+* Comienzas en el índice 0 en el array superior. Luego vas al índice 1 en el siguiente array.
+
+`int[][] differentSizes = {{1, 4}, {3}, {9,8,7}};`
+
+* Aún comenzamos con un array de tres elementos. 
+* Sin embargo, esta vez los elementos en el siguiente nivel son todos de diferentes tamaños. 
+* Uno es de longitud 2, la siguiente longitud 1, y el último longitud 3.
+
+Otra manera de crear un array asimétrico es inicializar solo la primera dimensión de un array y definir el tamaño de cada componente de array en una declaración separada:
+
+```java
+int [][] args = new int[4][];
+args[0] = new int[5];
+args[1] = new int[3];
+```
+
+Esta técnica revela lo que realmente obtienes con Java: arrays de arrays que, apropiadamente gestionados, ofrecen un efecto multidimensional.
+
+### 
 
 
 
