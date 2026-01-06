@@ -705,10 +705,16 @@ Ahora que sabes cómo crear un array, intentemos acceder a uno:
 * La línea 5 nos dice cuántos elementos puede contener el array. 
 * El resto del código imprime el array. 
 
-continuar en la 30
+* Es muy común usar un loop cuando se lee o escribe en un array. 
+* Este loop establece cada elemento de numbers a cinco más que el índice actual:
 
+```java
+5: var numbers = new int[10];
+6: for (int i = 0; i < numbers.length; i++)
+7:    numbers[i] = i + 5;
+```
 
-
+### 
 
 
 
