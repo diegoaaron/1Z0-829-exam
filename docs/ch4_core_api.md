@@ -1051,7 +1051,83 @@ var zoned3 = ZonedDateTime.of(dateTime1, zone);
 21: System.out.println(date);  // 2027-02-28
 ```
 
-continuar en la 47
+También hay métodos agradables y fáciles para retroceder en el tiempo. Esta vez, trabajemos con LocalDateTime:
+
+```java
+22: var date = LocalDate.of(2024, Month.JANUARY, 20);
+23: var time = LocalTime.of(5, 15);
+24: var dateTime = LocalDateTime.of(date, time);
+25: System.out.println(dateTime);   // 2024-01-20T05:15
+26: dateTime = dateTime.minusDays(1);
+27: System.out.println(dateTime);   // 2024-01-19T05:15
+28: dateTime = dateTime.minusHours(10);
+29: System.out.println(dateTime);   // 2024-01-18T19:15
+30: dateTime = dateTime.minusSeconds(30);
+31: System.out.println(dateTime);   // 2024-01-18T19:14:30
+```
+
+* Es común que los métodos de fecha y hora se encadenen. 
+* Por ejemplo, sin las declaraciones print, el ejemplo anterior podría reescribirse de la siguiente manera:
+
+```java
+var date = LocalDate.of(2024, Month.JANUARY, 20);
+var time = LocalTime.of(5, 15);
+var dateTime = LocalDateTime.of(date, time)
+   .minusDays(1).minusHours(10).minusSeconds(30);
+```
+
+![ch04_06.png](images/ch04/ch04_06.png)
+
+### Working with Periods
+
+```java
+public static void main(String[] args) {
+   var start = LocalDate.of(2022, Month.JANUARY, 1);
+    var end = LocalDate.of(2022, Month.MARCH, 30);
+    performAnimalEnrichment(start, end);
+}
+private static void performAnimalEnrichment(LocalDate start, LocalDate end) {
+    var upTo = start;
+    while (upTo.isBefore(end)) { // check if still before end
+        System.out.println("give new toy: " + upTo);
+        upTo = upTo.plusMonths(1); // add a month
+    } }
+```
+
+* Este código funciona bien. Añade un mes a la fecha hasta que alcanza la fecha final. 
+* El problema es que este método no puede reutilizarse.
+
+* Afortunadamente, Java tiene una clase Period que podemos pasar. 
+* Este código hace lo mismo que el ejemplo anterior:
+
+```java
+public static void main(String[] args) {
+   var start = LocalDate.of(2022, Month.JANUARY, 1);
+   var end = LocalDate.of(2022, Month.MARCH, 30);
+   var period = Period.ofMonths(1); // create a period
+   performAnimalEnrichment(start, end, period);
+}
+private static void performAnimalEnrichment(LocalDate start, LocalDate end, Period period) { // uses the generic period
+   var upTo = start;
+   while (upTo.isBefore(end)) {
+      System.out.println("give new toy: " + upTo);
+      upTo = upTo.plus(period); // adds the period
+   } }
+```
+
+* El método puede añadir un período arbitrario de tiempo que se pasa. 
+* Esto nos permite reutilizar el mismo método para diferentes períodos de tiempo.
+
+Hay cinco formas de crear una clase Period:
+
+
+
+
+
+
+
+
+
 
 
 
