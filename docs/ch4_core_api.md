@@ -1173,6 +1173,120 @@ wrong = Period.ofWeeks(1);
 
 ### Working with Durations
 
+* Convenientemente, Duration funciona aproximadamente de la misma manera que Period, excepto que se usa con objetos que tienen hora. 
+* Duration se muestra comenzando con PT, lo cual puedes pensar como un período de tiempo. Una Duration se almacena en horas, minutos, y segundos. 
+* El número de segundos incluye segundos fraccionarios.
+
+Podemos crear una Duration usando un número de diferentes granularidades:
+
+```java
+var daily = Duration.ofDays(1);       // PT24H
+var hourly = Duration.ofHours(1);     // PT1H
+var everyMinute = Duration.ofMinutes(1);  // PT1M
+var everyTenSeconds = Duration.ofSeconds(10); // PT10S
+var everyMilli = Duration.ofMillis(1);    // PT0.001S
+var everyNano = Duration.ofNanos(1);      // PT0.000000001S
+```
+
+* Duration no tiene un método factory que tome múltiples unidades como Period sí tiene. 
+* Si quieres que algo suceda cada hora y media, especificas 90 minutos.
+
+* Duration incluye otro método factory más genérico. Toma un número y un TemporalUnit. 
+* La idea es, digamos, algo como "5 segundos." Sin embargo, TemporalUnit es una interfaz. 
+* En este momento, solo hay una implementación llamada ChronoUnit.
+
+```java
+var daily = Duration.of(1, ChronoUnit.DAYS);
+var hourly = Duration.of(1, ChronoUnit.HOURS);
+var everyMinute = Duration.of(1, ChronoUnit.MINUTES);
+var everyTenSeconds = Duration.of(10, ChronoUnit.SECONDS);
+var everyMilli = Duration.of(1, ChronoUnit.MILLIS);
+var everyNano = Duration.of(1, ChronoUnit.NANOS);
+```
+
+ChronoUnit también incluye algunas unidades convenientes como `ChronoUnit.HALF_DAYS` para representar 12 horas.
+
+Usar una Duration funciona de la misma manera que usar un Period. Por ejemplo:
+
+```java
+7: var date = LocalDate.of(2022, 1, 20);
+8: var time = LocalTime.of(6, 15);
+9: var dateTime = LocalDateTime.of(date, time);
+10: var duration = Duration.ofHours(6);
+11: System.out.println(dateTime.plus(duration)); // 2022-01-20T12:15
+12: System.out.println(time.plus(duration));  // 12:15
+13: System.out.println(date.plus(duration)); // UnsupportedTemporalTypeException
+```
+
+* La línea 13 falla porque no podemos añadir horas a un objeto que no contiene una hora.
+* Intentemos eso otra vez, pero añadiendo 23 horas esta vez.
+
+```java
+7: var date = LocalDate.of(2022, 1, 20);
+8: var time = LocalTime.of(6, 15);
+9: var dateTime = LocalDateTime.of(date, time);
+10: var duration = Duration.ofHours(23);
+11: System.out.println(dateTime.plus(duration)); // 2022-01-21T05:15
+12: System.out.println(time.plus(duration));  // 05:15
+13: System.out.println(date.plus(duration)); // UnsupportedTemporalTypeException
+```
+
+### Period vs. Duration
+
+Recuerda que Period y Duration no son equivalentes. Este ejemplo muestra un Period y Duration de la misma longitud:
+
+```java
+var date = LocalDate.of(2022, 5, 25);
+var period = Period.ofDays(1);
+var days = Duration.ofDays(1);
+System.out.println(date.plus(period)); // 2022-05-26
+System.out.println(date.plus(days));  // Unsupported unit: Seconds
+```
+
+* Ya que estamos trabajando con un LocalDate, se nos requiere usar Period. 
+* Duration tiene unidades de tiempo en él, incluso si no las vemos, y están destinadas solo para objetos con tiempo. 
+
+Asegúrate de que puedes llenar la Tabla 4.7 para identificar qué objetos pueden usar Period y Duration.
+
+![ch05_08.png](images/ch04/ch05_08.png)
+
+### Working with Instants
+
+* La clase Instant representa un momento específico en el tiempo en la zona horaria GMT. 
+* Supón que quieres ejecutar un temporizador:
+
+```java
+var now = Instant.now(); // do something time consuming
+
+var later = Instant.now();
+
+var duration = Duration.between(now, later);
+System.out.println(duration.toMillis()); // Returns number milliseconds
+```
+
+En nuestro caso, el "something time consuming" fue apenas más de un segundo, y el programa imprimió 1025.
+
+Si tienes un ZonedDateTime, puedes convertirlo en un Instant:
+
+```java
+var date = LocalDate.of(2022, 5, 25);
+var time = LocalTime.of(11, 55, 00);
+var zone = ZoneId.of("US/Eastern");
+var zonedDateTime = ZonedDateTime.of(date, time, zone);
+var instant = zonedDateTime.toInstant(); // 2022-05-25T15:55:00Z
+System.out.println(zonedDateTime); // 2022-05-25T11:55-04:00[US/Eastern]
+System.out.println(instant); // 202-05-25T15:55:00Z
+```
+
+* Las últimas dos líneas representan el mismo momento en el tiempo. 
+* El ZonedDateTime incluye una zona horaria. El Instant se deshace de la zona horaria y la convierte en un Instant de tiempo en GMT.
+
+* No puedes convertir un LocalDateTime a un Instant. Recuerda que un Instant es un punto en el tiempo. 
+* Un LocalDateTime no contiene una zona horaria, y por lo tanto no es reconocido universalmente alrededor del mundo como el mismo momento en el tiempo.
+
+
+
+
 
 
 
