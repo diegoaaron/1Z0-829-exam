@@ -904,12 +904,42 @@ long high = Math.round(123.50);  // 124
 int fromFloat = Math.round(123.45f); // 123
 ```
 
+### Determining the Ceiling and Floor
 
+* El método `ceil()` toma un valor double. Si es un número entero, devuelve el mismo valor.
+* Si tiene algún valor fraccionario, redondea hacia arriba al siguiente número entero. 
+* Por el contrario, el método `floor()` descarta cualquier valor después del decimal.
 
+```java
+public static double ceil(double num)
+public static double floor(double num)
 
+double c = Math.ceil(3.14); // 4.0
+double f = Math.floor(3.14); // 3.0
+```
 
+### Calculating Exponents
 
+* El método `pow()` maneja exponentes.
+* Los exponentes fraccionarios también están permitidos. Dieciséis a la potencia .5 significa la raíz cuadrada de 16, que es 4. 
 
+```java
+public static double pow(double number, double exponent)
+
+double squared = Math.pow(5, 2); // 25.0
+```
+
+### Generating Random Numbers
+
+El método `random()` devuelve un valor mayor que o igual a 0 y menor que 1. La firma de método es la siguiente:
+
+```java
+public static double random()
+
+double num = Math.random();
+```
+
+## Working with Dates and Times
 
 
 
