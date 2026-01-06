@@ -1284,6 +1284,15 @@ System.out.println(instant); // 202-05-25T15:55:00Z
 * No puedes convertir un LocalDateTime a un Instant. Recuerda que un Instant es un punto en el tiempo. 
 * Un LocalDateTime no contiene una zona horaria, y por lo tanto no es reconocido universalmente alrededor del mundo como el mismo momento en el tiempo.
 
+### Accounting for Daylight Saving Time
+
+* Solo tienes que trabajar con el horario de verano de U.S. en el examen, y eso es lo que describimos aquí.
+* La pregunta te hará saber si una fecha/hora mencionada cae en un fin de semana cuando los relojes están programados para cambiarse. 
+* Si no se menciona en una pregunta, puedes asumir que es un fin de semana normal. 
+
+* La Figura 4.10 muestra qué sucede con los relojes. 
+* Cuando cambiamos nuestros relojes en marzo, el tiempo salta hacia adelante de 1:59 a.m. a 3:00 a.m. 
+* Cuando cambiamos nuestros relojes en noviembre, el tiempo retrocede, y experimentamos la hora de 1:00 a.m. a 1:59 a.m. dos veces. 
 
 
 
