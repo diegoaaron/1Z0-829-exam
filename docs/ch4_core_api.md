@@ -776,6 +776,41 @@ Ahora que sabes cómo comparar un solo valor, veamos cómo comparar arrays de di
 * Si el primer elemento que difiere es más pequeño en el primer array, devuelve un número negativo.
 * Si el primer elemento que difiere es más grande en el primer array, devuelve un número positivo.
 
+Finalmente, ¿qué significa más pequeño? Aquí hay algunas reglas más que aplican aquí y a compareTo()
+
+* El `null` es más pequeño que otro valor
+* Para los números, se aplica el orden numérico normal.
+* Para las cadenas, uno es más pequeño si es un prefijo de otro.
+* Para cadenas/caracteres, los números son más pequeños que las letras.
+* Para cadenas/caracteres, las mayúsculas son más pequeñas que las minúsculas.
+
+![ch04_05.png](images/ch04/ch04_05.png)
+
+```java
+System.out.println(Arrays.compare(
+   new int[] {1}, new String[] {"a"})); // DOES NOT COMPILE
+```
+
+Finalmente, este código no compila porque los tipos son diferentes. Cuando comparas dos arrays, deben ser del mismo tipo de array.
+
+### Using mismatch()
+
+Si los arrays son iguales, `mismatch()` devuelve -1. De lo contrario, devuelve el primer índice donde difieren. 
+
+```java
+System.out.println(Arrays.mismatch(new int[] {1}, new int[] {1}));
+System.out.println(Arrays.mismatch(new String[] {"a"},new String[] {"A"}));
+System.out.println(Arrays.mismatch(new int[] {1, 2}, new int[] {1}));
+```
+
+* En el primer ejemplo, los arrays son iguales, así que el resultado es -1. 
+* En el segundo ejemplo, las entradas en el elemento 0 no son iguales, así que el resultado es 0. 
+* En el tercer ejemplo, las entradas en el elemento 0 son iguales, así que seguimos buscando. 
+* El elemento en el índice 1 no es igual. O, más específicamente, un array tiene un elemento en el índice 1, y el otro no. 
+* Por lo tanto, el resultado es 1.
+
+
+
 
 
 
