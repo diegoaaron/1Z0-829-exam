@@ -1294,26 +1294,60 @@ System.out.println(instant); // 202-05-25T15:55:00Z
 * Cuando cambiamos nuestros relojes en marzo, el tiempo salta hacia adelante de 1:59 a.m. a 3:00 a.m. 
 * Cuando cambiamos nuestros relojes en noviembre, el tiempo retrocede, y experimentamos la hora de 1:00 a.m. a 1:59 a.m. dos veces. 
 
+![ch05_09.png](images/ch04/ch05_09.png)
 
-
-
-
-
-
-
-
-
-
-
-
----------------------------------------------------------------------
-**Palabra** cuando es una palabra en inglés importante que tiene sentido traducirla, pero no es una palabra reservada
-
-() version en ingles de la palabra anterior
-
-`   `  solo cúando es una línea de código o una palabra reservada que va a ser explicada
+* Por ejemplo, el 13 de marzo de 2022, movemos nuestros relojes hacia adelante una hora y saltamos de 2:00 a.m. a 3:00 a.m. 
+* Esto significa que no hay 2:30 a.m. ese día. Si quisiéramos saber la hora una hora más tarde que 1:30, sería 3:30.
 
 ```java
+var date = LocalDate.of(2022, Month.MARCH, 13);
+var time = LocalTime.of(1, 30);
+var zone = ZoneId.of("US/Eastern");
+var dateTime = ZonedDateTime.of(date, time, zone);
+System.out.println(dateTime); // 2022-03-13T01:30-05:00[US/Eastern]
+System.out.println(dateTime.getHour()); // 1
+System.out.println(dateTime.getOffset()); // -05:00
 
+dateTime = dateTime.plusHours(1);
+System.out.println(dateTime); // 2022-03-13T03:30-04:00[US/Eastern]
+System.out.println(dateTime.getHour()); // 3
+System.out.println(dateTime.getOffset()); // -04:00
 ```
+
+* Nota que dos cosas cambian en este ejemplo. El tiempo salta de 1:30 a 3:30. 
+* El desplazamiento UTC también cambia. ¿Recuerda cuando calculamos el tiempo GMT restando la zona horaria del tiempo? 
+* Puedes ver que fuimos de 6:30 GMT (1:30 minus -5:00) a 7:30 GMT (3:30 minus -4:00). 
+* Esto muestra que el tiempo realmente sí cambió una hora desde el punto de vista de GMT. Imprimimos los campos hour y offset por separado para énfasis.
+
+* Similarmente, en noviembre, una hora después de la 1:30 a.m. inicial también es 1:30 a.m. porque a las 2:00 a.m. repetimos la hora. 
+* Esta vez, intenta calcular el tiempo GMT tú mismo para las tres veces para confirmar que realmente nos movemos solo una hora a la vez.
+
+```java
+var date = LocalDate.of(2022, Month.NOVEMBER, 6);
+var time = LocalTime.of(1, 30);
+
+var zone = ZoneId.of("US/Eastern");
+var dateTime = ZonedDateTime.of(date, time, zone);
+System.out.println(dateTime); // 2022-11-06T01:30-04:00[US/Eastern]
+
+dateTime = dateTime.plusHours(1);
+System.out.println(dateTime); // 2022-11-06T01:30-05:00[US/Eastern]
+
+dateTime = dateTime.plusHours(1);
+System.out.println(dateTime); // 2022-11-06T02:30-05:00[US/Eastern]
+```
+
+¿Lo conseguiste? Fuimos de 5:30 GMT a 6:30 GMT, a 7:30 GMT.
+
+Finalmente, intentar crear un tiempo que no existe simplemente avanza:
+
+```java
+var date = LocalDate.of(2022, Month.MARCH, 13);
+var time = LocalTime.of(2, 30);
+var zone = ZoneId.of("US/Eastern");
+var dateTime = ZonedDateTime.of(date, time, zone);
+System.out.println(dateTime);  // 2022-03-13T03:30-04:00[US/Eastern]
+```
+
+Java es lo suficientemente inteligente para saber que no hay 2:30 a.m. esa noche y cambia al desplazamiento GMT apropiado.
 
