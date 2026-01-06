@@ -714,7 +714,73 @@ Ahora que sabes cómo crear un array, intentemos acceder a uno:
 7:    numbers[i] = i + 5;
 ```
 
-### 
+### Sorting
+
+Java hace fácil ordenar un array proporcionando el método Arrays.sort().
+
+Arrays requiere un import. Para usarlo, debes tener uno de los siguientes dos statements en tu clase:
+
+```java
+import java.util.*;     // import whole package including Arrays
+import java.util.Arrays;  // import just Arrays
+
+int[] numbers = { 6, 9, 1 };
+Arrays.sort(numbers);
+for (int i = 0; i < numbers.length; i++)
+        System.out.print(numbers[i] + " ");
+
+// El resultado es 1 6 9
+```
+
+### Searching
+
+Java también proporciona una forma conveniente de buscar, pero solo si el array ya está ordenado.
+
+![ch04_04.png](images/ch04/ch04_04.png)
+
+```java
+3: int[] numbers = {2,4,6,8};
+4: System.out.println(Arrays.binarySearch(numbers, 2)); // 0
+5: System.out.println(Arrays.binarySearch(numbers, 4)); // 1
+6: System.out.println(Arrays.binarySearch(numbers, 1)); // -1
+7: System.out.println(Arrays.binarySearch(numbers, 3)); // -2
+8: System.out.println(Arrays.binarySearch(numbers, 9)); // -5
+```
+
+* Toma nota del hecho de que la línea 3 es un array ordenado. Si no lo fuera, no podríamos aplicar ninguna de las otras reglas. 
+* La línea 4 busca el índice de 2. La respuesta es índice 0. La línea 5 busca el índice de 4, que es 1.
+* La línea 6 busca el índice de 1. Aunque 1 no está en la lista, la búsqueda puede determinar que debería ser insertado en el elemento 0 para preservar el orden ordenado. 
+* Dado que 0 ya significa algo para los índices de array, Java necesita restar 1 para darnos la respuesta de –1. 
+* La línea 7 es similar. Aunque 3 no está en la lista, necesitaría ser insertado en el elemento 1 para preservar el orden ordenado. Negamos y restamos 1 por consistencia, obteniendo –1 –1, también conocido como –2. 
+* Finalmente, la línea 8 quiere decirnos que 9 debería ser insertado en el índice 4. Nuevamente, negamos y restamos 1, obteniendo –4 –1, también conocido como –5.
+
+### Comparing
+
+Hay un montón de reglas que necesitas saber antes de llamar a `compare()`.
+
+Primero necesitas aprender qué significa el valor de retorno. No necesitas saber los valores de retorno exactos, pero sí necesitas saber lo siguiente:
+
+* Un número negativo significa que el primer array es más pequeño que el segundo.
+* Un zero significa que los arrays son iguales.
+* Un número positivo significa que el primer array es más grande que el segundo.
+
+`System.out.println(Arrays.compare(new int[] {1}, new int[] {2}));`
+
+Este código imprime un número negativo. Debería ser bastante intuitivo que 1 es más pequeño que 2, haciendo el primer array más pequeño.
+
+Ahora que sabes cómo comparar un solo valor, veamos cómo comparar arrays de diferentes longitudes:
+
+* Si ambos arrays tienen la misma longitud y tienen los mismos valores en cada posición en el mismo orden, devuelve cero.
+* Si todos los elementos son iguales, pero el segundo array tiene elementos extra al final, devuelve un número negativo.
+* Si todos los elementos son iguales, pero el primer array tiene elementos extra al final, devuelve un número positivo.
+* Si el primer elemento que difiere es más pequeño en el primer array, devuelve un número negativo.
+* Si el primer elemento que difiere es más grande en el primer array, devuelve un número positivo.
+
+
+
+
+
+
 
 
 
