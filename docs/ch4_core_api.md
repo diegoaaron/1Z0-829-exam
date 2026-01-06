@@ -809,10 +809,19 @@ System.out.println(Arrays.mismatch(new int[] {1, 2}, new int[] {1}));
 * El elemento en el índice 1 no es igual. O, más específicamente, un array tiene un elemento en el índice 1, y el otro no. 
 * Por lo tanto, el resultado es 1.
 
+### Using Methods with Varargs
 
+Cuando uno se pasa a tu método, hay otra manera en que puede verse. Aquí hay tres ejemplos con un método `main()`:
 
+```java
+public static void main(String[] args)
+public static void main(String args[])
+public static void main(String... args) // varargs
+```
 
+Puedes usar una variable definida usando varargs como si fuera un array normal. Por ejemplo, `args.length` y `args[0]` son legales.
 
+### Creating a Multidimensional Array
 
 
 
