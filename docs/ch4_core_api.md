@@ -969,16 +969,89 @@ System.out.println(ZonedDateTime.now());
 // 2021-10-25T09:13:07.769-05:00[America/New_York]
 ```
 
+* Ambos pasan el año, mes, y fecha. Aunque es bueno usar las constantes Month (para hacer el código más fácil de leer), puedes pasar el número int del mes directamente. 
+* Solo usa el número del mes de la misma manera que lo harías si estuvieras escribiendo la fecha en la vida real.
 
+```java
+public static LocalDate of(int year, int month, int dayOfMonth)
+public static LocalDate of(int year, Month month, int dayOfMonth)
 
+var date1 = LocalDate.of(2022, Month.JANUARY, 20);
+var date2 = LocalDate.of(2022, 1, 20);
+```
 
+* Cuando creas una hora, puedes elegir qué tan detallado quieres ser. Puedes especificar solo la hora y minuto, o puedes incluir el número de segundos. 
+* Incluso puedes incluir nanosegundos si quieres ser muy preciso. 
 
+```java
+public static LocalDate of(int year, int month, int dayOfMonth)
+public static LocalDate of(int year, Month month, int dayOfMonth)
 
+var time1 = LocalTime.of(6, 15);         // hour and minute
+var time2 = LocalTime.of(6, 15, 30);     // + seconds
+var time3 = LocalTime.of(6, 15, 30, 200); // + nanoseconds
+```
 
+Puedes combinar fechas y tiempos en un objeto:
 
+```java
+public static LocalDateTime of(int year, int month, int dayOfMonth, int hour, int minute)
+public static LocalDateTime of(int year, int month, int dayOfMonth, int hour, int minute, int second)
+public static LocalDateTime of(int year, int month, int dayOfMonth, int hour, int minute, int second, int nanos)
 
+public static LocalDateTime of(int year, Month month, int dayOfMonth, int hour, int minute)
+public static LocalDateTime of(int year, Month month, int dayOfMonth, int hour, int minute, int second)
+public static LocalDateTime of(int year, Month month, int dayOfMonth, int hour, int minute, int second, int nanos)
 
+public static LocalDateTime of(LocalDate date, LocalTime time)
+    
+var dateTime1 = LocalDateTime.of(2022, Month.JANUARY, 20, 6, 15, 30);
+var dateTime2 = LocalDateTime.of(date1, time1);
+```
 
+Para crear un ZonedDateTime, primero necesitamos obtener la zona horaria deseada. Usaremos US/Eastern en nuestros ejemplos:
+
+```java
+public static ZonedDateTime of(int year, int month, int dayOfMonth, int hour, int minute, int second, int nanos, ZoneId zone)
+public static ZonedDateTime of(LocalDate date, LocalTime time, ZoneId zone)
+public static ZonedDateTime of(LocalDateTime dateTime, ZoneId zone)
+
+var zone = ZoneId.of("US/Eastern");
+var zoned1 = ZonedDateTime.of(2022, 1, 20, 6, 15, 30, 200, zone);
+var zoned2 = ZonedDateTime.of(date1, time1, zone);
+var zoned3 = ZonedDateTime.of(dateTime1, zone);
+```
+
+* Nota que no hay una opción para pasar el enum Month. Además, no usamos un constructor en ninguno de los ejemplos. 
+* Las clases de fecha y hora tienen constructores privados junto con métodos estáticos que devuelven instancias. 
+* Esto se conoce como el factory pattern. Los creadores del examen pueden lanzarte algo como esto:
+
+`var d = new LocalDate(); // DOES NOT COMPILE`
+
+* No caigas en esto. No se te permite construir un objeto de fecha o hora directamente.
+* Otro truco es qué sucede cuando pasas números inválidos a of(), por ejemplo:
+
+`var d = LocalDate.of(2022, Month.JANUARY, 32) // java.time.DateTimeException: Invalid value for DayOfMonth (valid values 1-28/31): 32`
+
+### Manipulating Dates and Times
+
+* Añadir a una fecha es fácil. Las clases de fecha y hora son inmutables. 
+* Recuerda asignar los resultados de estos métodos a una variable de referencia para que no se pierdan.
+
+```java
+12: var date = LocalDate.of(2022, Month.JANUARY, 20);
+13: System.out.println(date);  // 2022-01-20
+14: date = date.plusDays(2);
+15: System.out.println(date);  // 2022-01-22
+16: date = date.plusWeeks(1);
+17: System.out.println(date);  // 2022-01-29
+18: date = date.plusMonths(1);
+19: System.out.println(date);  // 2022-02-28
+20: date = date.plusYears(5);
+21: System.out.println(date);  // 2027-02-28
+```
+
+continuar en la 47
 
 
 
