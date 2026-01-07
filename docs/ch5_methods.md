@@ -421,6 +421,95 @@ Acceder a un parámetro varargs es justo como acceder a un array. Usa indexació
 
 ### Private Access
 
+Solo el código en la misma clase puede llamar métodos `private` o acceder a campos `private`.
+
+* Primero, echa un vistazo a Figure 5.2. Muestra las clases que usarás para explorar el acceso `private` y `package`. 
+* Las cajas grandes son los nombres de los paquetes. Las cajas más pequeñas dentro de ellas son las clases en cada paquete. 
+
+![ch05_05.png](images/ch05/ch05_05.png)
+
+Este es código perfectamente legal porque todo es una clase:
+
+```java
+1: package pond.duck;
+2: public class FatherDuck {
+3:     private String noise = "quack";
+4:     private void quack() {
+5:         System.out.print(noise);     // private access is ok
+6:     }
+7: }
+```
+
+Hasta ahora, todo bien. FatherDuck declara un método `private quack()` y usa la variable de instancia `private noise` en la línea 5.
+
+Ahora agregamos otra clase:
+
+```java
+1: package pond.duck;
+2: public class BadDuckling {
+3:     public void makeNoise() {
+4:         var duck = new FatherDuck();
+5:         duck.quack();                // DOES NOT COMPILE
+6:         System.out.print(duck.noise); // DOES NOT COMPILE
+7:     }
+8: }
+```
+
+* BadDuckling está intentando acceder a una variable de instancia y un método que no tiene permitido tocar. 
+* En la línea 5, intenta acceder a un método `private` en otra clase. 
+* En la línea 6, intenta acceder a una variable de instancia `private` en otra clase. 
+
+### Package Access
+
+Cuando no hay modificador de acceso, Java asume acceso de paquete.
+
+```java
+package pond.duck;
+public class MotherDuck {
+    String noise = "quack";
+    void quack() {
+        System.out.print(noise);     // package access is ok
+    }
+}
+```
+
+* MotherDuck puede referirse a noise y llamar quack(). Después de todo, los miembros en la misma clase están ciertamente en el mismo paquete. 
+* La gran diferencia es que MotherDuck permite a otras clases en el mismo paquete acceder a los miembros, mientras que FatherDuck no lo hace (debido a ser `private`). 
+
+```java
+package pond.duck;
+public class GoodDuckling {
+    public void makeNoise() {
+        var duck = new MotherDuck();
+        duck.quack();                    // package access is ok
+        System.out.print(duck.noise);    // package access is ok
+    }
+}
+```
+
+* GoodDuckling tiene éxito en aprender a quack() y hacer ruido copiando a su madre. 
+* Nota que todas las clases cubiertas hasta ahora están en el mismo paquete, pond.duck. 
+* Esto permite que el acceso de paquete funcione.
+
+En este mismo estanque, un cisne acaba de dar a luz a un bebé cisne. Un bebé cisne se llama un cygnet. El cygnet ve a los patitos aprendiendo a quack y decide aprender de MotherDuck también.
+
+```java
+package pond.swan;
+import pond.duck.MotherDuck;         // import another package
+public class BadCygnet {
+    public void makeNoise() {
+        var duck = new MotherDuck();
+        duck.quack();                    // DOES NOT COMPILE
+        System.out.print(duck.noise);    // DOES NOT COMPILE
+    }
+}
+```
+
+* ¡Oh, no! MotherDuck solo permite lecciones a otros patos restringiendo el acceso al paquete pond.duck. 
+* El pobre pequeño BadCygnet está en el paquete pond.swan, y el código no compila. 
+
+### Protected Access
+
 
 
 
