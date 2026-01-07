@@ -510,6 +510,192 @@ public class BadCygnet {
 
 ### Protected Access
 
+* El acceso `protected` permite todo lo que el acceso de paquete hace, y más. 
+* El modificador de acceso `protected` agrega la habilidad de acceder a miembros de una clase padre. 
+* En el siguiente ejemplo, la clase "hijo" ClownFish es una subclase de la clase "padre" Fish, usando la palabra clave extends para conectarlas:
+
+```java
+public class Fish {}
+
+public class ClownFish extends Fish {}
+```
+
+* Al extender una clase, la subclase gana acceso a todos los miembros protected y public de la clase padre, como si fueran declarados en la subclase. 
+* Si las dos clases están en el mismo paquete, entonces la subclase también gana acceso a todos los miembros de paquete.
+
+Figure 5.3 muestra las muchas clases que creamos en esta sección. 
+
+![ch05_06.png](images/ch05/ch05_06.png)
+
+Primero, crea una clase Bird y dale acceso protected a sus miembros:
+
+```java
+package pond.shore;
+public class Bird {
+    protected String text = "floating";
+    protected void floatInWater() {
+        System.out.print(text);     // protected access is ok
+    }
+}
+```
+
+Siguiente, creamos una subclase:
+
+```java
+package pond.goose;        // Different package than Bird
+import pond.shore.Bird;
+public class Gosling extends Bird { // Gosling is a subclass of Bird
+    public void swim() {
+        floatInWater();            // protected access is ok
+        System.out.print(text);    // protected access is ok
+    }
+    public static void main(String[] args) {
+        new Gosling().swim();
+    }
+}
+```
+
+* Esta es una subclase simple. `extends` la clase Bird. Extending significa crear una subclase que tiene acceso a cualquier miembro protected o public de la clase padre. 
+* Ejecutar este programa imprime floating dos veces: una vez desde llamar floatInWater(), y una vez desde el enunciado print en swim(). 
+* Ya que Gosling es una subclase de Bird, puede acceder a estos miembros aunque esté en un paquete diferente.
+
+Recuerda que protected también nos da acceso a todo lo que el acceso de paquete hace. 
+Esto significa que una clase en el mismo paquete que Bird puede acceder a sus miembros protected.
+
+```java
+package pond.shore;            // Same package as Bird
+public class BirdWatcher {
+    public void watchBird() {
+        Bird bird = new Bird();
+        bird.floatInWater();       // protected access is ok
+        System.out.print(bird.text); // protected access is ok
+    }
+}
+```
+
+* Ya que Bird y BirdWatcher están en el mismo paquete, BirdWatcher puede acceder a los miembros de paquete de la variable bird. 
+* La definición de protected permite acceso a subclases y clases en el mismo paquete. Este ejemplo usa la parte de mismo paquete de esa definición.
+* Ahora intentemos lo mismo desde un paquete diferente:
+
+```java
+package pond.inland;         // Different package than Bird
+import pond.shore.Bird;
+public class BirdWatcherFromAfar {  // Not a subclass of Bird
+    public void watchBird() {
+        Bird bird = new Bird();
+        bird.floatInWater();         // DOES NOT COMPILE
+        System.out.print(bird.text); // DOES NOT COMPILE
+    }
+}
+```
+
+* BirdWatcherFromAfar no está en el mismo paquete que Bird, y no hereda de Bird. Esto significa que no está permitido acceder a los miembros protected de Bird.
+* ¿Entendido? Las subclases y las clases en el mismo paquete son las únicas permitidas para acceder a miembros protected.
+* Hay una trampa para el acceso protected. Considera esta clase:
+
+```java
+1: package pond.swan;        // Different package than Bird
+2: import pond.shore.Bird;
+3: public class Swan extends Bird { // Swan is a subclass of Bird
+4:     public void swim() {
+5:         floatInWater();          // protected access is ok
+6:         System.out.print(text);  // protected access is ok
+7:     }
+8:     public void helpOtherSwanSwim() {
+9:         Swan other = new Swan();
+10:        other.floatInWater();    // subclass access to superclass
+11:        System.out.print(other.text); // subclass access to superclass
+12:    }
+13:    public void helpOtherBirdSwim() {
+14:        Bird other = new Bird();
+15:        other.floatInWater();    // DOES NOT COMPILE
+16:        System.out.print(other.text); // DOES NOT COMPILE
+17:    }
+18: }
+```
+
+* Toma un respiro profundo. Esto es interesante. 
+* Swan no está en el mismo paquete que Bird, pero sí la extiende—lo cual implica que tiene acceso a los miembros protected de Bird, ya que es una subclase. 
+* Y sí lo tiene. Las líneas 5 y 6 se refieren a miembros protected vía heredarlos.
+
+* Las líneas 10 y 11 también usan exitosamente miembros protected de Bird. 
+* Esto está permitido porque estas líneas se refieren a un objeto Swan. Swan hereda de Bird, así que esto está bien. 
+* Es como una verificación de dos fases. La clase Swan está permitida de usar miembros protected de Bird, y nos estamos refiriendo a un objeto Swan. 
+* Concedido, es un objeto Swan creado en la línea 9 en lugar de uno heredado, pero aún es un objeto Swan.
+
+* Las líneas 15 y 16 no compilan. Espera un minuto. Son casi exactamente iguales a las líneas 10 y 11. Hay una diferencia clave. 
+* Esta vez se usa una referencia Bird en lugar de herencia. Es creada en la línea 14. 
+* Bird está en un paquete diferente, y este código no está heredando de Bird, así que no llega a usar miembros protected. 
+* Di qué, ¿ahora? Acabamos de decir repetidamente que Swan hereda de Bird. Y sí lo hace. Sin embargo, la referencia de variable no es un Swan. 
+* El código solo resulta estar en la clase Swan.
+
+* Está bien estar confundido. Este es posiblemente uno de los puntos más confusos en el examen. 
+* Mirándolo de una manera diferente, las reglas protected se aplican bajo dos escenarios:
+
+* Un miembro es usado sin referirse a una variable. Este es el caso en las líneas 5 y 6. 
+* En este caso, estamos aprovechando la herencia, y el acceso protected está permitido.
+* Un miembro es usado a través de una variable. 
+* Este es el caso en las líneas 10, 11, 15, y 16. En este caso, las reglas para el tipo de referencia de la variable son lo que importa. 
+* Si es una subclase, el acceso protected está permitido. Esto funciona para referencias a la misma clase o una subclase.
+* Vamos a intentar esto de nuevo para asegurarnos de que entiendes lo que está pasando. ¿Puedes descifrar por qué estos ejemplos no compilan?
+
+```java
+package pond.goose;
+import pond.shore.Bird;
+public class Goose extends Bird {
+    public void helpGooseSwim() {
+        Goose other = new Goose();
+        other.floatInWater();
+        System.out.print(other.text);
+    }
+    public void helpOtherGooseSwim() {
+        Bird other = new Goose();
+        other.floatInWater();        // DOES NOT COMPILE
+        System.out.print(other.text); // DOES NOT COMPILE
+    }
+}
+```
+
+* El primer método está bien. De hecho, es equivalente al ejemplo Swan. Goose extiende Bird. 
+* Ya que estamos en la subclase Goose y refiriéndonos a una referencia Goose, puede acceder a miembros protected. 
+* El segundo método es un problema.
+
+* Aunque el objeto resulta ser un Goose, está almacenado en una referencia Bird. 
+* No estamos permitidos de referirnos a miembros de la clase Bird, ya que no estamos en el mismo paquete y el tipo de referencia de other no es una subclase de Goose.
+* ¿Qué tal este?
+
+```java
+package pond.duck;
+import pond.goose.Goose;
+public class GooseWatcher {
+    public void watch() {
+        Goose goose = new Goose();
+        goose.floatInWater();  // DOES NOT COMPILE
+    }
+}
+```
+
+* Este código no compila porque no estamos en el objeto goose. El método floatInWater() es declarado en Bird. 
+* GooseWatcher no está en el mismo paquete que Bird, ni extiende Bird. Goose extiende Bird. 
+* Eso solo permite a Goose referirse a floatInWater(), no a los que llaman a Goose.
+
+* Si esto todavía es desconcertante, inténtalo. Escribe el código e intenta hacerlo compilar. 
+* Luego vuelve a leer esta sección. No te preocupes—no nos fue obvio la primera vez tampoco.
+
+### Public Access
+
+El último tipo de modificador de acceso es fácil: `public` significa que cualquiera puede acceder al miembro desde cualquier lugar.
+
+```java
+package pond.duck;
+public class DuckTeacher {
+    public String name = "helpful";
+    public void swim() {
+        System.out.print(name);      // public access is ok
+    }
+}
+```
+
 
 
 
