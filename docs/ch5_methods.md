@@ -358,7 +358,70 @@ public class VisitAttractions {
 
 ### Calling Methods with Varargs
 
-continuar en la 14
+Al llamar a un método con un parámetro varargs, tienes una opción. Puedes pasar un array, o puedes listar los elementos del array y dejar que Java lo cree por ti. 
+Dado nuestro método walk1() anterior, que toma un parámetro varargs, podemos llamarlo de dos maneras:
+
+```java
+// Pass an array
+int[] data = new int[] {1, 2, 3};
+walk1(data);
+
+// Pass a list of values
+walk1(1,2,3);
+```
+
+### Accessing Elements of a Vararg
+
+Acceder a un parámetro varargs es justo como acceder a un array. Usa indexación de arrays.
+
+```java
+16: public static void run(int... steps) {
+17:     System.out.print(steps[1]);
+18: }
+19: public static void main(String[] args) {
+20:     run(11, 77); // 77
+21: }
+```
+
+* La línea 20 llama a un método varargs con dos parámetros. 
+* Cuando el método es llamado, ve un array de tamaño 2. 
+* Ya que los índices están basados en cero, 77 es impreso.
+
+### Using Varargs with Other Method Parameters
+
+¿Puedes descifrar por qué cada llamada a método produce lo que hace?
+
+```java
+1: public class DogWalker {
+2:     public static void walkDog(int start, int... steps) {
+3:         System.out.println(steps.length);
+4:     }
+5:     public static void main(String[] args) {
+6:         walkDog(1);           // 0
+7:         walkDog(1, 2);        // 1
+8:         walkDog(1, 2, 3);     // 2
+9:         walkDog(1, new int[] {4, 5}); // 2
+10:    } }
+```
+
+* La línea 6 pasa 1 como start pero nada más. Esto significa que Java crea un array de longitud 0 para steps. 
+* La línea 7 pasa 1 como start y un valor más. Java convierte este un valor a un array de longitud 1. 
+* La línea 8 pasa 1 como start y dos valores más. Java convierte estos dos valores a un array de longitud 2. 
+* La línea 9 pasa 1 como start y un array de longitud 2 directamente como steps.
+
+* Has visto que Java creará un array vacío si no se pasan parámetros para un vararg. 
+* Sin embargo, aún es posible pasar null explícitamente. El siguiente snippet sí compila:
+
+`walkDog(1, null); // Triggers NullPointerException in walkDog()`
+
+* Ya que null no es un int, Java lo trata como una referencia de array que resulta ser null. 
+* Simplemente, pasa el objeto array null a walkDog(). Entonces el método walkDog() lanza una excepción porque intenta determinar la longitud de null.
+
+## Applying Access Modifiers
+
+### Private Access
+
+
 
 
 
@@ -377,8 +440,6 @@ continuar en la 14
 
 ```
 
-
-Applying Access Modifiers
 Accessing static Data
 Passing Data among Methods
 Overloading Methods
