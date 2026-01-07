@@ -197,9 +197,113 @@ public class Bird {
 }
 ```
 
+* El método fly1() es una declaración válida con un cuerpo de método vacío. 
+* El método fly2() no compila porque le faltan las llaves alrededor del cuerpo del método vacío. 
+* Los métodos están obligados a tener un cuerpo a menos que estén declarados abstract. 
+* El método fly3() es una declaración válida con una sentencia en el cuerpo del método.
 
+## Declaring Local and Instance Variables
 
+Las variables locales son aquellas definidas dentro de un método o bloque, mientras que las variables de instancia son aquellas que están definidas como miembro de una clase.
 
+```java
+public class Lion {
+    int hunger = 4;
+    
+    public int feedZooAnimals() {
+        int snack = 10; // Local variable
+        if(snack> 4) {
+            long dinnerTime = snack++;
+            hunger--;
+        }
+        return snack;
+    }
+}
+```
+
+* En la clase Lion, `snack` y `dinnerTime` son variables locales accesibles solo dentro de sus respectivos bloques de código. 
+* Mientras que `hunger` es una variable de instancia y creada en cada objeto de la clase Lion.
+
+Todas las referencias de variable local son destruidas después de que el bloque es ejecutado, pero los objetos a los que apuntan aún pueden ser accesibles.
+
+### Local Variable Modifiers
+
+* Solo hay un modificador que puede ser aplicado a una variable local: `final`. Fácil de recordar.
+* Cuando escriben métodos, los desarrolladores pueden querer establecer una variable que no cambie durante el transcurso del método. 
+* En este ejemplo de código, intentar cambiar el valor u objeto al que estas variables hacen referencia resulta en un error del compilador:
+
+```java
+public void zooAnimalCheckup(boolean isWeekend) {
+    final int rest;
+    if(isWeekend) rest = 5; else rest = 20;
+    System.out.print(rest);
+    
+    final var giraffe = new Animal();
+    final int[] friends = new int[5];
+    
+    rest = 10;                          // DOES NOT COMPILE
+    giraffe = new Animal();             // DOES NOT COMPILE
+    friends = null;                     // DOES NOT COMPILE
+}
+```
+
+* Como se muestra con la variable rest, no necesitamos asignar un valor cuando una variable final es declarada. 
+* La regla es solo que debe ser asignado un valor antes de que pueda ser usado. 
+* Incluso podemos usar var y final juntos. Contrasta esto con el siguiente ejemplo:
+
+```java
+public void zooAnimalCheckup(boolean isWeekend) {
+    final int rest;
+    if(isWeekend) rest = 5;
+    System.out.print(rest); // DOES NOT COMPILE
+}
+```
+
+* La variable rest podría no haber sido asignada un valor, tal como si isWeekend es false. 
+* Dado que el compilador no permite el uso de variables locales que pueden no haber sido asignadas un valor, el código no compila.
+
+* ¿Usar el modificador final significa que no podemos modificar los datos? No. 
+* El atributo final solo se refiere a la referencia de la variable; los contenidos pueden ser libremente modificados (asumiendo que el objeto no es inmutable).
+
+```java
+public void zooAnimalCheckup() {
+    final int rest = 5;
+    final Animal giraffe = new Animal();
+    final int[] friends = new int[5];
+    
+    giraffe.setName("George");
+    friends[2] = 2;
+}
+```
+
+* La variable rest es un primitivo, así que es solo un valor que no puede ser modificado. 
+* Por otro lado, los contenidos de las variables giraffe y friends pueden ser libremente modificados, siempre que las variables no sean reasignadas.
+
+### Effectively Final Variables
+
+Una variable local effectively final es una que no es modificada después de que es asignada. 
+Esto significa que el valor de una variable no cambia después de que es establecido, sin importar si está explícitamente marcada como final. 
+Si no estás seguro si una variable local es effectively final, solo agrega la keyword final. Si el código aún compila, la variable es effectively final.
+
+Dada esta definición, ¿cuál de las siguientes variables es effectively final?
+
+```java
+11: public String zooFriends() {
+12:     String name = "Harry the Hippo";
+13:     var size = 10;
+14:     boolean wet;
+15:     if(size > 100) size++;
+16:     name.substring(0);
+17:     wet = true;
+18:     return name;
+19: }
+```
+
+* Recuerda, una prueba rápida de effectively final es solo agregar final a la declaración de variable y ver si aún compila. 
+* En este ejemplo, `name` y `wet` son effectively final y pueden ser actualizadas con el modificador final, pero no `size`. 
+* La variable name es asignada un valor en la línea 12 y no reasignada. La línea 16 crea un valor que nunca es usado. 
+* Recuerda que los strings son inmutables. La variable size no es effectively final porque podría ser incrementada en la línea 15. 
+* La variable `wet` es asignada un valor solo una vez y no modificada después.
 
 
 
@@ -220,7 +324,7 @@ public class Bird {
 
 ```
 
-Declaring Local and Instance Variables
+
 Working with Varargs
 Applying Access Modifiers
 Accessing static Data
