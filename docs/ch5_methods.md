@@ -696,6 +696,100 @@ public class DuckTeacher {
 }
 ```
 
+DuckTeacher permite acceso a cualquier clase que lo quiera. Ahora podemos intentarlo:
+
+```java
+package pond.goose;
+import pond.duck.DuckTeacher;
+public class LostDuckling {
+    public void swim() {
+        var teacher = new DuckTeacher();
+        teacher.swim();                         // allowed
+        System.out.print("Thanks" + teacher.name);  // allowed
+    }
+}
+```
+
+LostDuckling es capaz de referirse a swim() y name en DuckTeacher porque son public. 
+
+* Asegúrate de saber por qué todo en Table 5.4 es verdadero. 
+* Usa la primera columna para el primer espacio en blanco y la primera fila para el segundo espacio en blanco. 
+
+![ch05_07.png](images/ch05/ch05_07.png)
+
+## Accessing static Data
+
+### Designing static Methods and Variables
+
+* Los métodos y variables declarados `static` no requieren una instancia de la clase. 
+* Son compartidos entre todos los usuarios de la clase. Por ejemplo, echa un vistazo a la siguiente clase Penguin:
+
+```java
+public class Penguin {
+    String name;
+    static String nameOfTallestPenguin;
+}
+```
+
+* En esta clase, cada instancia Penguin tiene su propio nombre como Willy o Lilly, pero solo un Penguin entre todas las instancias es el más alto. 
+* Puedes pensar en una variable static como siendo un miembro del objeto de clase única que existe independientemente de cualquier instancia de esa clase. 
+
+```java
+public static void main(String[] unused) {
+    var p1 = new Penguin();
+    p1.name = "Lilly";
+    p1.nameOfTallestPenguin = "Lilly";
+    var p2 = new Penguin();
+    p2.name = "Willy";
+    p2.nameOfTallestPenguin = "Willy";
+    
+    System.out.println(p1.name);                    // Lilly
+    System.out.println(p1.nameOfTallestPenguin);    // Willy
+    System.out.println(p2.name);                    // Willy
+    System.out.println(p2.nameOfTallestPenguin);    // Willy
+}
+```
+
+* Vemos que cada instancia penguin es actualizada con su propio nombre único. 
+* El campo nameOfTallestPenguin es static y, por lo tanto, compartido, así que en cualquier momento que es actualizado, impacta todas las instancias de la clase.
+
+Además de los métodos main(), los métodos static tienen dos propósitos principales:
+
+* Para métodos de utilidad o ayudantes que no requieren ningún estado de objeto. 
+* Ya que no hay necesidad de acceder a variables de instancia, tener métodos static elimina la necesidad de que el llamador instancie un objeto solo para llamar al método.
+* Para estado que es compartido por todas las instancias de una clase, como un contador. 
+* Todas las instancias deben compartir el mismo estado. Los métodos que meramente usan ese estado deberían ser static también.
+
+En las siguientes secciones, veremos algunos ejemplos cubriendo otros conceptos static.
+
+### Accessing a static Variable or Method
+
+Usualmente, acceder a un miembro static es fácil.
+
+```java
+public class Snake {
+    public static long hiss = 2;
+}
+```
+
+Solo pones el nombre de la clase antes del método o variable, y listo. Aquí hay un ejemplo:
+
+`System.out.println(Snake.hiss);`
+
+* Agradable y fácil. Hay una regla que es más complicada. 
+* Puedes usar una instancia del objeto para llamar a un método static. 
+* El compilador verifica el tipo de la referencia y usa eso en lugar del objeto—lo cual es astuto de Java. 
+* Este código es perfectamente legal:
+
+```java
+5: Snake s = new Snake();
+6: System.out.println(s.hiss); // s is a Snake
+7: s = null;
+8: System.out.println(s.hiss); // s is still a Snake
+```
+
+* Créelo o no, este código produce 2 dos veces. La línea 6 ve qué `s` es un Snake y `hiss` es una variable static, así que lee esa variable static. 
+* La línea 8 hace lo mismo. Java no le importa que `s` resulte ser `null`. Ya que estamos buscando una variable static, no importa.
 
 
 
@@ -715,6 +809,5 @@ public class DuckTeacher {
 
 ```
 
-Accessing static Data
 Passing Data among Methods
 Overloading Methods
