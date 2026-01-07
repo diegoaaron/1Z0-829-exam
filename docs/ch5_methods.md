@@ -80,14 +80,61 @@ public class Exercise {
 * El tipo de retorno podría ser un tipo Java real como String o int. Si no hay tipo de retorno, la keyword `void` es usada.
 
 ```java
-public void swim(int distance) {
-    if(distance <= 0) {
-        // Exit early, nothing to do!
-        return;
+public class Hike {
+    public void hike1() {}
+    public void hike2() { return; }
+    public String hike3() { return ""; }
+    public String hike4() {}           // DOES NOT COMPILE
+    public hike5() {}                  // DOES NOT COMPILE
+    public String int hike6() { }      // DOES NOT COMPILE
+    String hike7(int a) {              // DOES NOT COMPILE
+        if(1 < 2) return "orange";
     }
-    System.out.print("Fish is swimming " + distance + " meters");
 }
 ```
+
+* Dado que el tipo de retorno del método hike1() es void, la sentencia return es opcional. 
+* El método hike2() muestra la sentencia return opcional que correctamente no devuelve nada. 
+* El método hike3() es una declaración válida con un tipo de retorno String y una sentencia return que devuelve un String. 
+* El método hike4() no compila porque la sentencia return falta. 
+* El método hike5() no compila porque el tipo de retorno falta. 
+* El método hike6() no compila porque intenta usar dos tipos de retorno. Obtienes solo un tipo de retorno.
+* El método hike7() es un poco complicado. Hay una sentencia return, pero no siempre se ejecuta. 
+* Aunque 1 es siempre menor que 2, el compilador no evaluará completamente la sentencia if y requiere una sentencia return si esta condición es falsa. 
+
+### Method Name
+
+* Los nombres de método siguen las mismas reglas que practicamos con nombres de variable.
+* Por convención, los métodos comienzan con una letra minúscula, pero no están obligados a hacerlo.
+
+```java
+public class BeachTrip {
+    public void jog1() {}
+    public void 2jog() {} // DOES NOT COMPILE
+    public jog3 void() {} // DOES NOT COMPILE
+    public void Jog_$() {}
+    public _() {}         // DOES NOT COMPILE
+    public void() {}      // DOES NOT COMPILE
+}
+```
+
+* El método `jog1()` es una declaración válida con un nombre tradicional. 
+* El método `2jog()` no compila porque los identificadores no tienen permitido comenzar con números. 
+* El método `jog3()` no compila porque el nombre del método está antes del tipo de retorno. 
+* El método `Jog_$()` es una declaración válida. Mientras que ciertamente no es una buena práctica comenzar un nombre de método con una letra mayúscula y terminar con puntuación, es legal. 
+* El método `_` no está permitido, ya que consiste de un solo guion bajo. 
+* La línea final de código no compila porque el nombre del método falta.
+
+### Parameter List
+
+* Aunque la lista de parámetros es requerida, no tiene que contener ningún parámetro. 
+* Esto significa que puedes tener simplemente un par vacío de paréntesis después del nombre del método, como sigue:
+
+```java
+
+```
+
+
 
 
 
