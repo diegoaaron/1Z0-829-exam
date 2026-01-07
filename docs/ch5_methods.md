@@ -131,8 +131,73 @@ public class BeachTrip {
 * Esto significa que puedes tener simplemente un par vacío de paréntesis después del nombre del método, como sigue:
 
 ```java
-
+public class PhysicalEducation {
+    public void run1() {}
+    public void run2 {}            // DOES NOT COMPILE
+    public void run3(int a) {}
+    public void run4(int a; int b) {} // DOES NOT COMPILE
+    public void run5(int a, int b) {}
+}
 ```
+
+* El método run1() es una declaración válida sin ningún parámetro. 
+* El método run2() no compila porque le faltan los paréntesis alrededor de la lista de parámetros. 
+* El método run3() es una declaración válida con un parámetro. 
+* El método run4() no compila porque los parámetros están separados por un punto y coma en lugar de una coma. 
+* Los puntos y coma son para separar sentencias, no para listas de parámetros. 
+* El método run5() es una declaración válida con dos parámetros.
+
+### Method Signature
+
+* Una firma de método, compuesta del nombre del método y la lista de parámetros, es lo que Java usa para determinar de manera única exactamente qué método estás intentando llamar. 
+* Una vez que determina qué método estás intentando llamar, entonces determina si la llamada está permitida.
+* Es importante notar que los nombres de los parámetros en la firma del método no son usados como parte de una firma de método. 
+* La lista de parámetros trata sobre los tipos de parámetros y su orden. Por ejemplo, los siguientes dos métodos tienen exactamente la misma firma:
+
+```java
+public class Trip {
+    public void visitZoo(String name, int waitTime) {}
+    public void visitZoo(String attraction, int rainFall) {} // DOES NOT COMPILE
+}
+```
+
+A pesar de tener nombres de parámetro diferentes, estos dos métodos tienen la misma firma y no pueden ser declarados dentro de la misma clase. 
+Cambiar el orden de los tipos de parámetro sí permite que el método compile, sin embargo:
+
+```java
+public class Trip {
+    public void visitZoo(String name, int waitTime) {}
+    public void visitZoo(int rainFall, String attraction) {}
+}
+```
+
+### Exception List
+
+En Java, el código puede indicar que algo salió mal lanzando una excepción solo necesitas saber que es opcional y dónde en la declaración del método va si está presente. 
+
+```java
+public class ZooMonorail {
+    public void zeroExceptions() {}
+    public void oneException() throws IllegalArgumentException {}
+    public void twoExceptions() throws IllegalArgumentException, InterruptedException {}
+}
+```
+
+Mientras que la lista de excepciones es opcional, puede ser requerida por el compilador, dependiendo de lo que aparece dentro del cuerpo del método. 
+
+### Method Body
+
+Un cuerpo de método es simplemente un bloque de código. Tiene llaves que contienen cero o más sentencias Java.
+
+```java
+public class Bird {
+    public void fly1() {}
+    public void fly2()      // DOES NOT COMPILE
+    public void fly3(int a) { int name = 5; }
+}
+```
+
+
 
 
 
