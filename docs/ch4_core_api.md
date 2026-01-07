@@ -1248,7 +1248,7 @@ System.out.println(date.plus(days));  // Unsupported unit: Seconds
 
 Asegúrate de que puedes llenar la Tabla 4.7 para identificar qué objetos pueden usar Period y Duration.
 
-![ch05_08.png](images/ch04/ch05_08.png)
+![ch04_08.png](images/ch04/ch04_08.png)
 
 ### Working with Instants
 
@@ -1292,9 +1292,9 @@ System.out.println(instant); // 202-05-25T15:55:00Z
 
 * La Figura 4.10 muestra qué sucede con los relojes. 
 * Cuando cambiamos nuestros relojes en marzo, el tiempo salta hacia adelante de 1:59 a.m. a 3:00 a.m. 
-* Cuando cambiamos nuestros relojes en noviembre, el tiempo retrocede, y experimentamos la hora de 1:00 a.m. a 1:59 a.m. dos veces. 
+* Cuando cambiamos nuestros relojes en noviembre, el tiempo retrocede, y experimentamos la hora de 1:00 a.m. a 1:59 a.m. dos veces.
 
-![ch05_09.png](images/ch04/ch05_09.png)
+![ch04_09.png](images/ch04/ch04_09.png)
 
 * Por ejemplo, el 13 de marzo de 2022, movemos nuestros relojes hacia adelante una hora y saltamos de 2:00 a.m. a 3:00 a.m. 
 * Esto significa que no hay 2:30 a.m. ese día. Si quisiéramos saber la hora una hora más tarde que 1:30, sería 3:30.
