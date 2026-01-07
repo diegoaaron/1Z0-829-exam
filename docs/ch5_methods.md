@@ -305,7 +305,60 @@ Dada esta definición, ¿cuál de las siguientes variables es effectively final?
 * Recuerda que los strings son inmutables. La variable size no es effectively final porque podría ser incrementada en la línea 15. 
 * La variable `wet` es asignada un valor solo una vez y no modificada después.
 
+### Instance Variable Modifiers
 
+Como los métodos, las variables de instancia pueden usar modificadores de acceso, tales como `private`, `package`, `protected`, y `public`. 
+Recuerda, el acceso `package` es indicado por la falta de cualquier modificador. 
+Cubrimos cada uno de los diferentes modificadores de acceso en breve en este capítulo. 
+Las variables de instancia también pueden usar especificadores opcionales, descritos en Table 5.3.
+
+![ch05_04.png](images/ch05/ch05_04.png)
+
+* Si una variable de instancia está marcada como final, entonces debe ser asignada un valor cuando es declarada o cuando el objeto es instanciado. 
+* Como una variable final local, no puede ser asignada un valor más de una vez, sin embargo. La siguiente clase PolarBear demuestra estas propiedades:
+
+```java
+public class PolarBear {
+    final int age = 10;
+    final int fishEaten;
+    final String name;
+    
+    { fishEaten = 10; }
+    
+    public PolarBear() {
+        name = "Robert";
+    }
+}
+```
+
+* A la variable `age` se le da un valor cuando es declarada, mientras que la variable `fishEaten` es asignada un valor en un inicializador de instancia. 
+* La variable `name` es dada un valor en el constructor sin argumentos. 
+* Fallar al inicializar una variable de instancia (o asignar un valor más de una vez) llevará a un error del compilador. 
+* Hablamos sobre la inicialización de variables final con más detalle cuando cubrimos constructores en el siguiente capítulo.
+
+## Working with Varargs
+
+### Creating Methods with Varargs
+
+1. Un método puede tener a lo mucho un parámetro varargs.
+2. Si un método contiene un parámetro varargs, debe ser el último parámetro en la lista.
+
+```java
+public class VisitAttractions {
+    public void walk1(int... steps) {}
+    public void walk2(int start, int... steps) {}
+    public void walk3(int... steps, int start) {}  // DOES NOT COMPILE
+    public void walk4(int... start, int... steps) {} // DOES NOT COMPILE
+}
+```
+
+* El método walk1() es una declaración válida con un parámetro varargs. 
+* El método walk2() es una declaración válida con un parámetro int y un parámetro varargs parámetro. 
+* Los métodos walk3() y walk4() no compilan porque tienen un parámetro varargs en una posición que no es la última.
+
+### Calling Methods with Varargs
+
+continuar en la 14
 
 
 
@@ -325,7 +378,6 @@ Dada esta definición, ¿cuál de las siguientes variables es effectively final?
 ```
 
 
-Working with Varargs
 Applying Access Modifiers
 Accessing static Data
 Passing Data among Methods
