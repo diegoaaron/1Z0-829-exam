@@ -791,10 +791,276 @@ Solo pones el nombre de la clase antes del método o variable, y listo. Aquí ha
 * Créelo o no, este código produce 2 dos veces. La línea 6 ve qué `s` es un Snake y `hiss` es una variable static, así que lee esa variable static. 
 * La línea 8 hace lo mismo. Java no le importa que `s` resulte ser `null`. Ya que estamos buscando una variable static, no importa.
 
+### Class vs. Instance Membership
 
+* Un miembro static no puede llamar a un miembro de instancia sin referenciar una instancia de la clase. 
+* Esto no debería ser una sorpresa, ya que static no requiere ninguna instancia de la clase para siquiera existir.
 
+El siguiente es un error común para programadores novatos hacer:
 
+```java
+public class MantaRay {
+    private String name = "Sammy";
+    public static void first() { }
+    public static void second() { }
+    public void third() { System.out.print(name); }
+    public static void main(String args[]) {
+        first();
+        second();
+        third();           // DOES NOT COMPILE
+    }
+}
+```
 
+* El compilador te dará un error sobre hacer una referencia static a un método de instancia. 
+* Si arreglamos esto agregando static a third(), creamos un nuevo problema. ¿Puedes descifrar qué es?
+
+`public static void third() { System.out.print(name); } // DOES NOT COMPILE`
+
+* Todo lo que esto hace es mover el problema. Ahora, third() se está refiriendo a una variable de instancia name. 
+* Hay dos maneras en que podríamos arreglar esto. La primera es agregar static a la variable name también.
+
+```java
+public class MantaRay {
+    private static String name = "Sammy";
+    ...
+    public static void third() { System.out.print(name); }
+    ...
+}
+```
+
+La segunda solución habría sido llamar third() como un método de instancia y no usar static para el método o la variable.
+
+```java
+public class MantaRay {
+    private String name = "Sammy";
+    ...
+    public void third() { System.out.print(name); }
+    public static void main(String args[]) {
+        ...
+        var ray = new MantaRay();
+        ray.third();
+    }
+}
+```
+
+* A los creadores del examen les gusta este tema—mucho. 
+* Un método static o un método de instancia puede llamar a un método static porque los métodos static no requieren un objeto para usar. 
+* Solo un método de instancia puede llamar a otro método de instancia en la misma clase sin usar una variable de referencia, porque los métodos de instancia sí requieren un objeto. 
+* Una lógica similar aplica para variables de instancia y static.
+* Supón que tenemos una clase Giraffe:
+
+```java
+public class Giraffe {
+    public void eat(Giraffe g) {}
+    public void drink() {};
+    public static void allGiraffeGoHome(Giraffe g) {}
+    public static void allGiraffeComeOut() {}
+}
+```
+
+![ch05_08.png](images/ch05/ch05_08.png)
+
+Intentemos un ejemplo más para que tengas más práctica reconociendo este escenario. ¿Entiendes por qué las siguientes líneas fallan al compilar?
+
+```java
+1: public class Gorilla {
+2:     public static int count;
+3:     public static void addGorilla() { count++; }
+4:     public void babyGorilla() { count++; }
+5:     public void announceBabies() {
+6:         addGorilla();
+7:         babyGorilla();
+8:     }
+9:     public static void announceBabiesToEveryone() {
+10:        addGorilla();
+11:        babyGorilla();  // DOES NOT COMPILE
+12:    }
+13:    public int total;
+14:    public static double average
+15:        = total / count;  // DOES NOT COMPILE
+16: }
+```
+
+* Las líneas 3 y 4 están bien porque tanto métodos static como de instancia pueden referirse a una variable static. 
+* Las líneas 5–8 están bien porque un método de instancia puede llamar a un método static. 
+* La línea 11 no compila porque un método static no puede llamar a un método de instancia. 
+* De manera similar, la línea 15 no compila porque una variable static está intentando usar una variable de instancia.
+
+Un uso común para variables static es contar el número de instancias:
+
+```java
+public class Counter {
+    private static int count;
+    public Counter() { count++; }
+    public static void main(String[] args) {
+        Counter c1 = new Counter();
+        Counter c2 = new Counter();
+        Counter c3 = new Counter();
+        System.out.println(count);  // 3
+    }
+}
+```
+
+* Cada vez que el constructor es llamado, incrementa count en uno. 
+* Este ejemplo se basa en el hecho de que las variables static (y de instancia) son automáticamente inicializadas al valor por defecto para ese tipo, que es 0 para int. 
+
+* También nota que no escribimos `Counter.count`. Podríamos haberlo hecho. 
+* No es necesario porque ya estamos en esa clase, así que el compilador puede inferirlo.
+
+### static Variable Modifiers
+
+* Refiriéndonos de vuelta a Table 5.3, las variables static pueden ser declaradas con los mismos modificadores que las variables de instancia, tales como final, transient, y volatile. 
+* Mientras algunas variables static están destinadas a cambiar conforme el programa se ejecuta, como nuestro ejemplo count, otras están destinadas a nunca cambiar. 
+* Este tipo de variable static es conocida como una constant. Usa el modificador `final` para asegurar que la variable nunca cambie.
+
+* Las constantes usan el modificador static final y una convención de nomenclatura diferente que otras variables. 
+* Usan todas letras mayúsculas con guiones bajos entre "palabras." Aquí hay un ejemplo:
+
+```java
+public class ZooPen {
+    private static final int NUM_BUCKETS = 45;
+    public static void main(String[] args) {
+        NUM_BUCKETS = 5; // DOES NOT COMPILE
+    }
+}
+```
+
+* El compilador se asegurará de que no intentes accidentalmente actualizar una variable final. 
+* Esto puede ponerse interesante. ¿Crees que lo siguiente compila?
+
+```java
+import java.util.*;
+public class ZooInventoryManager {
+    private static final String[] treats = new String[10];
+    public static void main(String[] args) {
+        treats[0] = "popcorn";
+    }
+}
+```
+
+* De hecho sí compila, ya que treats es una variable de referencia. 
+* Estamos permitidos de modificar el objeto referenciado o los contenidos del array. 
+* Todo lo que el compilador puede hacer es verificar que no intentemos reasignar treats para apuntar a un objeto diferente.
+
+Las reglas para variables static final son similares a las variables de instancia final, excepto que no usan constructores static y usan inicializadores static en lugar de inicializadores de instancia.
+
+```java
+public class Panda {
+    final static String name = "Ronda";
+    static final int bamboo;
+    static final double height; // DOES NOT COMPILE
+    static { bamboo = 5;}
+}
+```
+
+La variable name es asignada un valor cuando es declarada, mientras que la variable bamboo es asignada un valor en un inicializador static. 
+La variable height no es asignada un valor en ningún lugar en la definición de la clase, así que esa línea no compila. 
+Recuerda, las variables `final` deben ser inicializadas con un valor. Siguiente, cubrimos los inicializadores static.
+
+### static Initializers
+
+Los inicializadores `static` agregan la palabra clave static para especificar que deberían ejecutarse cuando la clase es cargada por primera vez. 
+
+```java
+private static final int NUM_SECONDS_PER_MINUTE;
+private static final int NUM_MINUTES_PER_HOUR;
+private static final int NUM_SECONDS_PER_HOUR;
+static {
+    NUM_SECONDS_PER_MINUTE = 60;
+    NUM_MINUTES_PER_HOUR = 60;
+}
+static {
+    NUM_SECONDS_PER_HOUR = NUM_SECONDS_PER_MINUTE * NUM_MINUTES_PER_HOUR;
+}
+```
+
+* Todos los inicializadores static se ejecutan cuando la clase es usada por primera vez, en el orden en que están definidos. 
+* Los enunciados en ellos se ejecutan y asignan cualquier variable static según sea necesario. 
+* Hay algo interesante sobre este ejemplo. Acabamos de decir que las variables `final` no están permitidas de ser reasignadas. 
+* La clave aquí es que el inicializador static es la primera asignación. Y, ya que ocurre al frente, está bien.
+
+Intentemos otro ejemplo para asegurarnos de que entiendes la distinción:
+
+```java
+14: private static int one;
+15: private static final int two;
+16: private static final int three = 3;
+17: private static final int four;  // DOES NOT COMPILE
+18: static {
+19:     one = 1;
+20:     two = 2;
+21:     three = 3;        // DOES NOT COMPILE
+22:     two = 4;          // DOES NOT COMPILE
+23: }
+```
+
+* La línea 14 declara una variable static que no es final. Puede ser asignada tantas veces como queramos. 
+* La línea 15 declara una variable final sin inicializarla. Esto significa que podemos inicializarla exactamente una vez en un bloque static. 
+* La línea 22 no compila porque este es el segundo intento. 
+* La línea 16 declara una variable final e inicializa al mismo tiempo. No estamos permitidos de asignarla de nuevo, así que la línea 21 no compila. 
+* La línea 17 declara una variable final que nunca es inicializada. 
+* El compilador da un error de compilación porque sabe que los bloques static son el único lugar donde la variable podría posiblemente ser inicializada. 
+* Ya que el programador olvidó, esto es claramente un error.
+
+### static Imports
+
+En Chapter 1, viste que puedes importar una clase específica o todas las clases en un paquete. 
+
+```java
+import java.util.ArrayList;
+import java.util.*;
+```
+
+Podríamos usar esta técnica para importar dos clases:
+
+```java
+import java.util.List;
+import java.util.Arrays;
+public class Imports {
+    public static void main(String[] args) {
+        List<String> list = Arrays.asList("one", "two");
+    }
+}
+```
+
+* Los imports son convenientes porque no necesitas especificar de dónde viene cada clase cada vez que la usas. 
+* Hay otro tipo de import llamado static import. 
+* Los imports regulares son para importar clases, mientras que los static imports son para importar miembros static de clases como variables y métodos.
+
+* Justo como los imports regulares, puedes usar un comodín o importar un miembro específico. 
+* La idea es que no deberías tener que especificar de dónde viene cada método static o variable cada vez que lo uses. 
+* Un ejemplo de cuándo los static imports brillan es cuando te estás refiriendo a muchas constantes en otra clase.
+
+Podemos reescribir nuestro ejemplo anterior para usar un static import. Hacerlo produce lo siguiente:
+
+```java
+import java.util.List;
+import static java.util.Arrays.asList;  // static import
+public class ZooParking {
+    public static void main(String[] args) {
+        List<String> list = asList("one", "two"); // No Arrays. prefix
+    }
+}
+```
+
+* En este ejemplo, estamos específicamente importando el método asList. 
+* Esto significa que en cualquier momento nos refiramos a asList en la clase, llamará Arrays.asList().
+
+* Un caso interesante es qué pasaría si creáramos un método asList en nuestra clase ZooParking. 
+* Java le daría preferencia sobre el importado, y el método que codificamos sería usado.
+
+Este ejemplo muestra casi todo lo que puedes hacer mal. ¿Puedes descifrar qué está mal con cada uno?
+
+```java
+1: import static java.util.Arrays;  // DOES NOT COMPILE
+2: import static java.util.Arrays.asList;
+3: static import java.util.Arrays.*;  // DOES NOT COMPILE
+4: public class BadZooParking {
+5:     public static void main(String[] args) {
+```
+
+continuar en la 34
 
 
 
