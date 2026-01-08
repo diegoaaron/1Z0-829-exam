@@ -1216,8 +1216,137 @@ long ears = e;                       // Unboxing, then implicit casting
 * Ya que llamar cualquier método en null da una `NullPointerException`, eso es justo lo que obtenemos. 
 * Ten cuidado cuando veas `null` en relación con el autoboxing y unboxing.
 
+Donde autoboxing y unboxing realmente brillan es cuando los aplicamos a llamadas de métodos.
 
+```java
+public class Chimpanzee {
+    public void climb(long t) {}
+    public void swing(Integer u) {}
+    public void jump(int v) {}
+    public static void main(String[] args) {
+        var c = new Chimpanzee();
+        c.climb(123);
+        c.swing(123);
+        c.jump(123L); // DOES NOT COMPILE
+    }
+}
+```
 
+* En este ejemplo, la llamada a climb() compila porque el valor int puede ser implícitamente casteado a long. 
+* La llamada a swing() también está permitida, porque el valor int es autoboxed a un Integer. 
+* Por otro lado, la llamada a jump() resulta en un error de compilador porque un long debe ser explícitamente casteado a un int. 
+* En otras palabras, Java no automáticamente convertirá a un tipo más estrecho.
+
+Como antes, la misma limitación alrededor de autoboxing y promoción numérica aplica a llamadas de métodos. Por ejemplo, lo siguiente no compila:
+
+```java
+public class Gorilla {
+    public void rest(Long x) {
+        System.out.print("long");
+    }
+    public static void main(String[] args) {
+        var g = new Gorilla();
+        g.rest(8); // DOES NOT COMPILE
+    }
+}
+```
+
+Java hará cast o autobox del valor automáticamente, pero no ambos al mismo tiempo.
+
+## Overloading Methods
+
+* Ahora que estás familiarizado con las reglas para declarar y usar métodos, es tiempo de ver la creación de métodos con el mismo nombre en la misma clase. 
+* La sobrecarga de métodos (Method overloading) ocurre cuando métodos en la misma clase tienen el mismo nombre, pero diferentes firmas de método, lo que significa que usan diferentes listas de parámetros.
+
+* Hemos estado mostrando cómo llamar métodos sobrecargados por un tiempo. `System.out.println()` y los métodos `append()` de StringBuilder proveen muchas versiones sobrecargadas, así que puedes pasar casi cualquier cosa a ellos sin tener que pensar en ello. 
+* En ambos ejemplos, el único cambio fue el tipo del parámetro. Overloading también permite diferentes números de parámetros.
+
+* Todo lo demás que no sea el nombre del método puede variar para métodos con overloading. 
+* Esto significa que puede haber diferentes modificadores de acceso, especificadores opcionales (como static), tipos de retorno, y listas de excepciones.
+
+Lo siguiente muestra cinco versiones sobrecargadas del método fly():
+
+```java
+public class Falcon {
+    public void fly(int numMiles) {}
+    public void fly(short numFeet) {}
+    public boolean fly() { return false; }
+    void fly(int numMiles, short numFeet) {}
+    public void fly(short numFeet, int numMiles) throws Exception {}
+}
+```
+
+* Como puedes ver, podemos sobrecargar cambiando cualquier cosa en la lista de parámetros. 
+* Podemos tener un tipo diferente, más tipos, o los mismos tipos en un orden diferente. 
+* También nota que el tipo de retorno, modificador de acceso, y lista de excepciones son irrelevantes para overloading. 
+* Solo el nombre del método y la lista de parámetros importan.
+
+Ahora veamos un ejemplo que no es un overloading válido:
+
+```java
+public class Eagle {
+    public void fly(int numMiles) {}
+    public int fly(int numMiles) { return 1; }  // DOES NOT COMPILE
+}
+```
+
+* Este método no compila porque difiere del original solo por tipo de retorno. 
+* Las firmas de métodos son las mismas, así que son métodos duplicados hasta donde Java está preocupado.
+
+¿Qué tal estos; por qué no compilan?
+
+```java
+public class Hawk {
+    public void fly(int numMiles) {}
+    public static void fly(int numMiles) {}  // DOES NOT COMPILE
+    public void fly(int numKilometers) {}    // DOES NOT COMPILE
+}
+```
+
+* De nuevo, las firmas de método de estos tres métodos son las mismas. 
+* No puedes declarar métodos en la misma clase donde la única diferencia es que uno es un método de instancia y uno es un método static. 
+* Tampoco puedes tener dos métodos que tengan listas de parámetros con los mismos tipos de variables y en el mismo orden. 
+* Como mencionamos antes, los nombres de los parámetros en la lista no importan al determinar la firma del método.
+
+Llamar métodos sobrecargados es fácil. Solo escribes código, y Java llama al correcto. Por ejemplo, mira estos dos métodos:
+
+```java
+public class Dove {
+    public void fly(int numMiles) {
+        System.out.println("int");
+    }
+    public void fly(short numFeet) {
+        System.out.println("short");
+    }
+}
+```
+
+La llamada `fly((short) 1)` imprime short. Busca tipos coincidentes y llama al método apropiado. Por supuesto, puede ser más complicado que esto.
+
+### Reference Types
+
+Dada la regla sobre Java escogiendo la versión más específica de un método que puede, ¿qué crees que produce este código?
+
+```java
+public class Pelican {
+    public void fly(String s) {
+        System.out.print("string");
+    }
+    
+    public void fly(Object o) {
+        System.out.print("object");
+    }
+    public static void main(String[] args) {
+        var p = new Pelican();
+        p.fly("test");
+        System.out.print("-");
+        p.fly(56);
+    }
+}
+```
+
+* La respuesta es string-object. La primera llamada pasa un String y encuentra una coincidencia directa. 
+* No hay razón para usar la versión Object cuando hay una coincidencia
 
 
 
@@ -1234,4 +1363,3 @@ long ears = e;                       // Unboxing, then implicit casting
 
 ```
 
-Overloading Methods
