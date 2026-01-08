@@ -1058,9 +1058,66 @@ Este ejemplo muestra casi todo lo que puedes hacer mal. ¿Puedes descifrar qué 
 3: static import java.util.Arrays.*;  // DOES NOT COMPILE
 4: public class BadZooParking {
 5:     public static void main(String[] args) {
+6:     Arrays.asList("one");   // DOES NOT COMPILE
+7:  }
+8: }
 ```
 
-continuar en la 34
+* La línea 1 intenta usar un static import para importar una clase. Recuerda que los static imports son solo para importar miembros static como un método o variable. 
+* Los imports regulares son para importar una clase. La línea 3 intenta ver si estás prestando atención al orden de las palabras clave. 
+* La sintaxis es import static y no viceversa. 
+* La línea 6 es astuta. El método asList es importado en la línea 2. 
+* Sin embargo, la clase Arrays no es importada en ningún lugar. Esto hace que esté bien escribir `asList("one")` y no `Arrays.asList("one")`.
+
+* Solo hay un escenario más con static imports. En Chapter 1, aprendiste que importar dos clases con el mismo nombre da un error de compilador. 
+* Esto es verdad para los static imports también. El compilador se quejará si intentas hacer explícitamente un static import de dos métodos con el mismo nombre o dos variables static con el mismo nombre. 
+
+```java
+import static zoo.A.TYPE;
+import static zoo.B.TYPE;  // DOES NOT COMPILE
+```
+
+Afortunadamente, cuando esto sucede, podemos simplemente referirnos a los miembros static vía su nombre de clase en el código en lugar de intentar usar un static import.
+
+## Passing Data among Methods
+
+* Java es un lenguaje "pass-by-value". Esto significa que se hace una copia de la variable y el método recibe esa copia. 
+* Las asignaciones hechas en el método no afectan al llamador. Veamos un ejemplo:
+
+```java
+2: public static void main(String[] args) {
+3:     int num = 4;
+4:     newNumber(num);
+5:     System.out.print(num);  // 4
+6: }
+7: public static void newNumber(int num) {
+8:     num = 8;
+9: }
+```
+
+* En la línea 3, `num` es asignado el valor de 4. En la línea 4, llamamos un método. En la línea 8, el parámetro `num` en el método es establecido a 8. 
+* Aunque este parámetro tiene el mismo nombre que la variable en la línea 3, esta es una coincidencia. El nombre podría ser cualquier cosa. 
+* El examen frecuentemente usará el mismo nombre para intentar confundirte. La variable en la línea 3 nunca cambia porque no se le hacen asignaciones.
+
+### Passing Objects
+
+Ahora que has visto primitivos, intentemos un ejemplo con un tipo de referencia. ¿Qué crees que produce el siguiente código?
+
+```java
+public class Dog {
+    public static void main(String[] args) {
+        String name = "Webby";
+        speak(name);
+        System.out.print(name);
+    }
+    public static void speak(String name) {
+        name = "Georgette";
+    }
+}
+```
+
+
+
 
 
 
@@ -1075,5 +1132,4 @@ continuar en la 34
 
 ```
 
-Passing Data among Methods
 Overloading Methods
