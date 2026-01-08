@@ -1116,6 +1116,44 @@ public class Dog {
 }
 ```
 
+La respuesta correcta es Webby. Justo como en el ejemplo de primitivo, la asignación de variable es solo para el parámetro del método y no afecta al llamador.
+
+* Nota cómo seguimos hablando sobre asignaciones de variables. Esto es porque podemos llamar métodos en los parámetros. 
+* Como ejemplo, aquí hay código que llama un método en el StringBuilder pasado al método:
+
+```java
+public class Dog {
+    public static void main(String[] args) {
+        var name = new StringBuilder("Webby");
+        speak(name);
+        System.out.print(name); // WebbyGeorgette
+    }
+    public static void speak(StringBuilder s) {
+        s.append("Georgette");
+    }
+}
+```
+
+* En este caso, speak() llama un método en el parámetro. No reasigna `s` a un objeto diferente. 
+* La variable `s` es una copia de la variable name. 
+* Ambas apuntan al mismo StringBuilder, lo que significa que los cambios hechos al StringBuilder están disponibles para ambas referencias.
+
+### Returning Objects
+
+* Obtener datos de vuelta desde un método es más fácil. Se hace una copia del primitivo o referencia y es retornada desde el método. 
+* La mayoría del tiempo, este retornado valor es usado. Por ejemplo, podría ser almacenado en una variable. 
+* Si el valor retornado no es usado, el resultado es ignorado. 
+
+```java
+
+```
+
+
+
+
+
+
+
 
 
 
