@@ -1145,12 +1145,76 @@ public class Dog {
 * Si el valor retornado no es usado, el resultado es ignorado. 
 
 ```java
-
+1: public class ZooTickets {
+2:     public static void main(String[] args) {
+3:         int tickets = 2;           // tickets = 2
+4:         String guests = "abc";     // guests = abc
+5:         addTickets(tickets);       // tickets = 2
+6:         guests = addGuests(guests);    // guests = abcd
+7:         System.out.println(tickets + guests);  // 2abcd
+8:     }
+9:     public static int addTickets(int tickets) {
+10:        tickets++;
+11:        return tickets;
+12:    }
+13:    public static String addGuests(String guests) {
+14:        guests += "d";
+15:        return guests;
+16:    }
+17: }
 ```
 
+* Las líneas 3 y 4 son asignaciones directas. La línea 5 llama un método. 
+* La línea 10 incrementa el parámetro del método a 3, pero deja la variable tickets en el método main() como 2. 
+* Mientras la línea 11 retorna el valor, el llamador lo ignora. La llamada al método en la línea 6 no ignora el resultado, así que guests se convierte en "abcd". 
+* Recuerda que esto está sucediendo debido al valor retornado y no al parámetro del método.
 
+### Autoboxing and Unboxing Variables
 
+Java soporta algunas características útiles alrededor del paso de tipos de datos primitivos y wrapper, tales como int e Integer. 
+Recuerda de Chapter 1 que podemos convertir explícitamente entre primitivos y clases wrapper usando métodos integrados.
 
+```java
+5: int quack = 5;
+6: Integer quackquack = Integer.valueOf(quack);  // Convert int to Integer
+7: int quackquackquack = quackquack.intValue();  // Convert Integer to int
+```
+
+* Útil, pero un poco verboso. Afortunadamente, Java tiene manejadores integrados en el lenguaje Java que automáticamente convierten entre primitivos y clases wrapper y viceversa. 
+* Autoboxing es el proceso de convertir un primitivo en su clase wrapper equivalente, mientras unboxing es el proceso de convertir una clase wrapper en su primitivo equivalente.
+
+```java
+5: int quack = 5;
+6: Integer quackquack = quack;      // Autoboxing
+7: int quackquackquack = quackquack; // Unboxing
+```
+
+* El nuevo código es equivalente al código anterior, ya que el compilador está "haciendo el trabajo" de convertir los tipos automáticamente por ti. 
+* Autoboxing aplica a todos los primitivos y sus tipos wrapper asociados, tales como el siguiente:
+
+```java
+Short tail = 8;                      // Autoboxing
+Character p = Character.valueOf('p');
+char paw = p;                        // Unboxing
+Boolean nose = true;                 // Autoboxing
+Integer e = Integer.valueOf(9);
+long ears = e;                       // Unboxing, then implicit casting
+```
+
+* Cada uno de estos ejemplos compila sin problema. En la última línea, `e` es unboxed a un valor int. 
+* Ya que un valor int puede ser almacenado en una variable long vía casting implícito, el compilador permite la asignación.
+
+¿Qué crees que sucede si intentas hacer unbox de un null?
+
+```java
+10: Character elephant = null;
+11: char badElephant = elephant;  // NullPointerException
+```
+
+* En la línea 10, almacenamos null en una referencia Character. Esto es legal porque una referencia null puede ser asignada a cualquier variable de referencia. 
+* En la línea 11, intentamos hacer unbox ese null a un primitivo char. Esto es un problema. Java intenta obtener el valor char de null. 
+* Ya que llamar cualquier método en null da una `NullPointerException`, eso es justo lo que obtenemos. 
+* Ten cuidado cuando veas `null` en relación con el autoboxing y unboxing.
 
 
 
