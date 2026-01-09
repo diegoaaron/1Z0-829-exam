@@ -119,6 +119,91 @@ public class Zoo extends java.lang.Object { }
 
 ## Creating Classes
 
+### Extending a Class
+
+Creemos dos archivos en el mismo package, `Animal.java` y `Lion.java`.
+
+```java
+// Animal.java
+public class Animal {
+    private int age;
+    protected String name;
+    public int getAge() {
+        return age;
+    }
+    public void setAge(int newAge) {
+        age = newAge;
+    }
+}
+
+// Lion.java
+public class Lion extends Animal {
+    protected void setProperties(int age, String n) {
+        setAge(age);
+        name = n;
+    }
+    public void roar() {
+        System.out.print(name + ", age " + getAge() + ", says: Roar!");
+    }
+    public static void main(String[] args) {
+        var lion = new Lion();
+        lion.setProperties(3, "kion");
+        lion.roar();
+    }
+}
+```
+
+Hay mucho sucediendo aquí, ¡lo sabemos! La variable age existe en la clase padre Animal y no es directamente accesible en la clase hija Lion. 
+Es indirectamente accesible vía el método `setAge()`. La variable `name` es `protected`, así que es heredada en la clase `Lion` y directamente accesible. 
+Creamos la instancia Lion en el método `main()` y usamos `setProperties()` para establecer las variables de instancia. 
+Finalmente, llamamos al método `roar()`, el cual imprime lo siguiente:
+
+**kion, age 3, says: Roar!**
+
+* Echemos un vistazo a los miembros de la clase Lion. La variable de instancia age está marcada como `private` y no es directamente accesible desde la subclase Lion. 
+* Por lo tanto, lo siguiente no compilaría:
+
+```java
+public class Lion extends Animal {
+    public void roar() {
+        System.out.print("Lions age: " + age); // DOES NOT COMPILE
+    }
+}
+```
+
+Recuerda cuando trabajas con subclases que los miembros `private` nunca son heredados, y los miembros package solo son heredados si las dos clases están en el mismo package. 
+
+### Applying Class Access Modifiers
+
+* Como las variables y métodos, puedes aplicar modificadores de acceso a las clases. 
+* Como podrías recordar del Capítulo 1, una clase de nivel superior (top-level) es una que no está definida dentro de otra clase. 
+* También recuerda que un archivo **.java** puede tener como máximo una clase de nivel superior.
+
+* Aunque solo puedes tener una clase de nivel superior, puedes tener tantas clases (en cualquier orden) con acceso package como quieras. 
+* De hecho, ¡ni siquiera necesitas declarar una clase public! Lo siguiente declara tres clases, cada una con acceso package:
+
+```java
+// Bear.java
+class Bird {}
+class Bear {}
+class Fish {}
+```
+
+Intentar declarar una clase de nivel superior con protected o private class llevará a un error de compilador, aunque:
+
+```java
+// ClownFish.java
+protected class ClownFish{} // DOES NOT COMPILE
+// BlueTang.java
+private class BlueTang {} // DOES NOT COMPILE
+```
+
+
+
+
+
+
+
 
 
 
