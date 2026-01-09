@@ -198,6 +198,106 @@ protected class ClownFish{} // DOES NOT COMPILE
 private class BlueTang {} // DOES NOT COMPILE
 ```
 
+* ¿Eso significa que una clase nunca puede ser declarada como `protected` o `private`? No exactamente. 
+* En el Capítulo 7, presentamos tipos anidados (nested types) y mostramos que cuando defines una clase dentro de otra, puede usar cualquier modificador de acceso.
+
+### Accessing the `this` Reference
+
+* ¿Qué sucede cuando un parámetro de método tiene el mismo nombre que una variable de instancia existente? 
+* Echemos un vistazo a un ejemplo. ¿Qué crees que imprime el siguiente programa?
+
+```java
+public class Flamingo {
+    private String color = null;
+    public void setColor(String color) {
+        color = color;
+    }
+    public static void main(String... unused) {
+        var f = new Flamingo();
+        f.setColor("PINK");
+        System.out.print(f.color);
+    }
+}
+```
+
+* Si dijiste `null`, entonces estarías en lo correcto. 
+* Java usa el alcance más granular, así que cuando ve `color = color`, piensa que estás asignando el valor del parámetro del método a sí mismo (no la variable de instancia). 
+* La asignación se completa exitosamente dentro del método, pero el valor de la variable de instancia color nunca es modificado y es `null` cuando se imprime en el método `main()`.
+
+* La solución cuando tienes una variable local con el mismo nombre que una variable de instancia es usar la referencia `this` o palabra clave. 
+* La referencia `this` se refiere a la instancia actual de la clase y puede ser usada para acceder a cualquier miembro de la clase, incluyendo miembros heredados. 
+* Puede ser usada en cualquier método de instancia, constructor, o bloque inicializador de instancia. 
+* No puede ser usada cuando no hay una instancia implícita de la clase, tal como en un método `static` o bloque inicializador `static`. 
+* Aplicamos esto a nuestra implementación de método anterior de la siguiente manera:
+
+```java
+public void setColor(String color) {
+    this.color = color; // Sets the instance variable with method parameter
+}
+```
+
+* El código corregido ahora imprimirá PINK como se esperaba. En muchos casos, la referencia `this` es opcional. 
+* Si Java encuentra una variable o método que no puede encontrar, verificará la jerarquía de clases para ver si está disponible.
+
+### Calling the `super` Reference
+
+* En Java, una variable o método puede ser definido tanto en una clase padre como en una clase hija. 
+* Esto significa que la instancia del objeto en realidad contiene dos copias de la misma variable con el mismo nombre subyacente. 
+* Cuando esto sucede, ¿cómo referenciamos la versión en la clase padre en lugar de la clase actual? Echemos un vistazo a un ejemplo.
+
+```java
+// Reptile.java
+1: public class Reptile {
+2:     protected int speed = 10;
+3: }
+
+// Crocodile.java
+1: public class Crocodile extends Reptile {
+2:     protected int speed = 20;
+3:     public int getSpeed() {
+4:     return speed;
+5:  }
+6:  public static void main(String[] data) {
+7:     var croc = new Crocodile();
+8:     System.out.println(croc.getSpeed()); // 20
+9:  } }
+```
+
+* Una de las cosas más importantes para recordar sobre este código es que una instancia de `Crocodile` almacena dos valores separados para `speed`: uno en el nivel `Reptile` y uno en el nivel `Crocodile`. 
+* En la línea 4, Java primero verifica si hay una variable local o parámetro de método llamado `speed`. 
+* Dado que no lo hay, entonces verifica `this.speed;` y dado que existe, el programa imprime 20.
+
+* ¿Pero qué pasa si queremos que el programa imprima el valor en la clase Reptile? 
+* Dentro de la clase `Crocodile`, podemos acceder al valor padre de `speed`, en su lugar, usando la referencia o palabra clave `super`. 
+* La referencia `super` es similar a la referencia `this`, excepto que excluye cualquier miembro encontrado en la clase actual. 
+* En otras palabras, el miembro debe ser accesible vía herencia.
+
+```java
+3:  public int getSpeed() {
+4:     return super.speed; // Causes the program to now print 10
+5:  }
+```
+
+Veamos si has captado la idea de this y super. ¿Qué imprime el siguiente programa?
+
+```java
+1: class Insect {
+2:     protected int numberOfLegs = 4;
+3:     String label = "buggy";
+4: }
+5:
+6: public class Beetle extends Insect {
+7:     protected int numberOfLegs = 6;
+8:     short age = 3;
+9:     public void printData() {
+10:        System.out.println(this.label);
+11:        System.out.println(super.label);
+12:        System.out.println(this.age);
+13:        System.out.println(super.age);
+```
+
+
+
 
 
 
