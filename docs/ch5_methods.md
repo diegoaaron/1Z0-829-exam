@@ -1346,20 +1346,156 @@ public class Pelican {
 ```
 
 * La respuesta es string-object. La primera llamada pasa un String y encuentra una coincidencia directa. 
-* No hay razón para usar la versión Object cuando hay una coincidencia
-
-
-
-
-
----------------------------------------------------------------------
-**Palabra** cuando es una palabra en inglés importante que tiene sentido traducirla, pero no es una palabra reservada
-
-() version en ingles de la palabra anterior
-
-`   `  solo cúando es una línea de código o una palabra reservada que va a ser explicada
+* No hay razón para usar la versión Object cuando hay una coincidencia lista de parámetros String esperando a ser llamada. 
+* La segunda llamada busca una lista de parámetros int. Cuando no encuentra una, hace autobox a Integer. 
+* Ya que todavía no encuentra una coincidencia, va a la Object.
+  
+Intentemos otro. ¿Qué imprime esto?
 
 ```java
-
+import java.time.*;
+import java.util.*;
+public class Parrot {
+    public static void print(List<Integer> i) {
+        System.out.print("I");
+    }
+    public static void print(CharSequence c) {
+        System.out.print("C");
+    }
+    public static void print(Object o) {
+        System.out.print("O");
+    }
+    public static void main(String[] args){
+        print("abc");
+        print(Arrays.asList(3));
+        print(LocalDate.of(2019, Month.JULY, 4));
+    }
+}
 ```
+
+* La respuesta es CIO. El código es debido a una promoción. La primera llamada a print() pasa un String. 
+* Como aprendiste en Chapter 4, String y StringBuilder implementan la interfaz CharSequence. 
+* También aprendiste que Arrays.asList() puede ser usado para crear un List<Integer> object, lo cual explica el segundo output. 
+* La llamada final a print() pasa un LocalDate. Esta es una clase que podrías no conocer, pero está bien. 
+* Claramente, no es una secuencia de caracteres o una lista. Eso significa que la firma del método Object es usada.
+
+### Primitives
+
+* Los primitivos funcionan de una manera que es similar a las variables de referencia. 
+* Java intenta encontrar el método sobrecargado con la coincidencia más específica. ¿Qué crees que sucede aquí?
+
+```java
+public class Ostrich {
+    public void fly(int i) {
+        System.out.print("int");
+    }
+    public void fly(long l) {
+        System.out.print("long");
+    }
+    public static void main(String[] args) {
+        var p = new Ostrich();
+        p.fly(123);
+        System.out.print("-");
+        p.fly(123L);
+    }
+}
+```
+
+* La respuesta es int-long. La primera llamada pasa un int y ve una coincidencia exacta. 
+* La segunda llamada pasa un long y también ve una coincidencia exacta. 
+* Si comentamos el método sobrecargado con la lista de parámetros int, el output se convierte en long-long. 
+* Java no tiene problema llamando a un primitivo más grande. Sin embargo, no lo hará a menos que no se encuentre una mejor coincidencia.
+
+### Autoboxing
+
+Como vimos antes, autoboxing aplica a llamadas de métodos, pero ¿qué sucede si tienes tanto un primitivo como una versión integer?
+
+```java
+public class Kiwi {
+    public void fly(int numMiles) {}
+    public void fly(Integer numMiles) {}
+}
+```
+
+* Estos sobrecargas de método son válidos. Java intenta usar el parámetro más específico que puede encontrar. 
+* Esto es verdad para autoboxing así como otros tipos coincidentes de los que hablamos en esta sección.
+
+* Esto significa que llamar `fly(3)` llamará el primer método. Cuando la versión int primitiva no está presente, Java hará autobox. 
+* Sin embargo, cuando la versión int primitiva es provista, no hay razón para que Java haga el trabajo extra de autoboxing.
+
+### Arrays
+
+A diferencia del ejemplo anterior, este código no hace autobox:
+
+```java
+public static void walk(int[] ints) {}
+public static void walk(Integer[] integers) {}
+```
+
+Los arrays han existido desde el principio de Java. Especifican sus tipos reales. 
+
+### Varargs
+
+¿Qué método crees que es llamado si pasamos un int[]?
+
+```java
+public class Toucan {
+    public void fly(int[] lengths) {}
+    public void fly(int... lengths) {} // DOES NOT COMPILE
+}
+```
+
+* Recuerda que Java trata varargs como si fueran un array. 
+* Esto significa que la firma del método es la misma para ambos métodos. 
+* Ya que no está permitido sobrecargar métodos con la misma lista de parámetros, este código no compila. 
+* Aunque el código no se ve igual, compila a la misma lista de parámetros.
+
+* Ahora que acabamos de explicar que los dos métodos son similares, es tiempo de mencionar cómo son diferentes. 
+* No debería ser una sorpresa que puedas llamar cualquier método pasando un array:
+
+`fly(new int[] { 1, 2, 3 }); // Allowed to call either fly() method`
+
+Sin embargo, solo puedes llamar la versión varargs con parámetros independientes:
+
+`fly(1, 2, 3); // Allowed to call only the fly() method using varargs`
+
+* Obviamente, esto significa que no compilan exactly igual. 
+* La lista de parámetros es la misma, sin embargo, y eso es lo que necesitas saber con respecto a overloading para el examen.
+
+### Putting It All Together
+
+* Hasta ahora, todas las reglas para cuando un método sobrecargado es llamado deberían ser lógicas. 
+* Java llama al método más específico que puede. Cuando algunos de los tipos interactúan, las reglas de Java se enfocan en compatibilidad hacia atrás. 
+* Hace mucho tiempo, autoboxing y varargs no existían. 
+* Ya que código antiguo todavía necesita funcionar, esto significa que autoboxing y varargs vienen de último cuando Java mira métodos sobrecargados. 
+
+![ch05_09.png](images/ch05/ch05_09.png)
+
+Démosle a esto una práctica usando las reglas en Table 5.6. ¿Qué crees que produce esto?
+
+```java
+public class Glider {
+    public static String glide(String s) {
+        return "1";
+    }
+    public static String glide(String... s) {
+        return "2";
+    }
+    public static String glide(Object o) {
+        return "3";
+    }
+    public static String glide(String s, String t) {
+        return "4";
+    }
+    public static void main(String[] args) {
+        System.out.print(glide("a"));
+        System.out.print(glide("a", "b"));
+        System.out.print(glide("a", "b", "c"));
+    }
+}
+```
+
+* Imprime 142. La primera llamada coincide con la firma que toma un solo String porque esa es la coincidencia más específica. 
+* La segunda llamada coincide con la firma que toma dos parámetros String, ya que esa es una coincidencia exacta. 
+* No es hasta la tercera llamada que la versión varargs es usada, ya que no hay mejores coincidencias.
 
