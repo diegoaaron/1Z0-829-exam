@@ -36,9 +36,88 @@ public class BigCat {
 }
 
 public class Jaguar extends BigCat {
+    public Jaguar() {
+        size = 10.2;
+    }
+
+    public void printDetails() {
+        System.out.print(size);
+    }
+}
+
+public class Spider {
+    public void printDetails() {
+        System.out.println(size); // DOES NOT COMPILE
+    }
+}
 ```
 
-continuar en la página 2
+* Jaguar es una subclase de BigCat, lo que la convierte en una superclase o clase madre de Jaguar. 
+* En la clase Jaguar, se puede acceder a la propiedad `size` porque está marcada como protegida. 
+* Mediante herencia, la subclase Jaguar puede leer o escribir `size` como si fuera su propio miembro. 
+* En contraste, la clase Spider no tiene acceso a `size` porque no se hereda.
+
+### Class Modifiers
+
+* Al igual que los métodos y las variables, una declaración de clase puede tener varios modificadores. 
+* La Tabla 6.1 lista los modificadores que debes conocer para el examen.
+
+![ch06_02.png](images/ch06/ch06_02.png)
+
+Por ahora, hablemos sobre marcar una clase como final. El modificador final previene que una clase sea extendida más. 
+Por ejemplo, lo siguiente no compila:
+
+```java
+public final class Rhinoceros extends Mammal { }
+
+public class Clara extends Rhinoceros { } // DOES NOT COMPILE
+```
+
+En el examen, presta atención a cualquier clase marcada como final. Si ves otra clase extendiéndola, sabes inmediatamente que el código no compila.
+
+### Single vs. Multiple Inheritance
+
+* Java soporta single inheritance, por el cual una clase puede heredar de solo una clase padre directa. 
+* Java también soporta múltiples niveles de herencia, por el cual una clase puede extender otra clase, que a su vez extiende otra clase. 
+* Puedes tener cualquier número de niveles de herencia, permitiendo que cada descendiente gane acceso a los miembros de su ancestro.
+
+* Para entender verdaderamente la herencia simple, puede ser útil contrastarla con multiple inheritance, por el cual una clase puede tener múltiples padres directos. 
+* Por diseño, Java no soporta herencia múltiple en el lenguaje porque la herencia múltiple puede llevar a modelos de datos complejos, a menudo difíciles de mantener. 
+* Java sí permite una excepción a la regla de herencia simple, la cual ves en el Capítulo 7—una clase puede implementar múltiples interfaces.
+
+* La Figura 6.2 ilustra los varios tipos de modelos de herencia. 
+* Los elementos de la izquierda se consideran herencia simple porque cada hijo tiene exactamente un padre. 
+* Puedes notar que la herencia simple no excluye a los padres de tener múltiples hijos. 
+* El lado derecho muestra elementos que tienen herencia múltiple. Como puedes ver, un objeto Dog tiene múltiples designaciones de padre.
+
+![ch06_03.png](images/ch06/ch06_03.png)
+
+Parte de lo que hace que la herencia múltiple sea complicada es determinar de qué padre heredar valores en caso de un conflicto. 
+Por ejemplo, si tienes un objeto o método definido en todos los padres, ¿cuál hereda el hijo? 
+No hay un ordenamiento natural para los padres en este ejemplo, que es por qué Java evita estos problemas al prohibir por completo la herencia múltiple.
+
+### Inheriting Object
+
+* A lo largo de nuestra discusión de Java en este libro, hemos mencionado la palabra object numerosas veces—y con buena razón. 
+* En Java, todas las clases heredan de una sola clase: `java.lang.Object`, u Object para abreviar. 
+* Además, Object es la única clase que no tiene una clase padre.
+
+* Podrías estar preguntándote, Ninguna de las clases que he escrito hasta ahora extiende Object, entonces, ¿cómo heredan todas las clases de él?
+* La respuesta es que el compilador ha estado automáticamente insertando código en cualquier clase que escribes que no extiende una clase específica. 
+* Por ejemplo, las siguientes dos son equivalentes:
+
+```java
+public class Zoo { }
+
+public class Zoo extends java.lang.Object { }
+```
+
+* La clave es que cuando Java ve que defines una clase que no extiende otra clase, el compilador automáticamente agrega la sintaxis `extends java.lang.Object` a la definición de la clase. 
+* El resultado es que cada clase gana acceso a cualquier método accesible en la clase Object. 
+* Por ejemplo, los métodos `toString()` y `equals()` están disponibles en Object; por lo tanto, son accesibles en todas las clases. 
+* Sin ser sobreescritos en una subclase, aunque, pueden no ser particularmente útiles.
+
+## Creating Classes
 
 
 
@@ -57,8 +136,6 @@ continuar en la página 2
 ```
 
 
-Understanding Inheritance
-Creating Classes
 Declaring Constructors
 Initializing Objects
 Inheriting Members
