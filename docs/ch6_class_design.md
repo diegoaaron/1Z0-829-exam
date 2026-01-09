@@ -294,15 +294,37 @@ Veamos si has captado la idea de this y super. ¿Qué imprime el siguiente progr
 11:        System.out.println(super.label);
 12:        System.out.println(this.age);
 13:        System.out.println(super.age);
+14:        System.out.println(numberOfLegs);
+15:    }
+16:    public static void main(String []n) {
+17:        new Beetle().printData();
+18:    }
+19: }
 ```
 
+* Esa fue una pregunta trampa—¡este código de programa no compilaría! Revisemos cada línea del método printData(). 
+* Dado que label está definido en la clase padre, es accesible vía tanto las referencias `this` como `super`. 
+* Por esta razón, las líneas 10 y 11 compilan y ambas imprimirían buggy si la clase compilara. 
+* Por otro lado, la variable `age` está definida solo en la clase actual, haciéndola accesible vía `this` pero no `super`. 
+* Por esta razón, la línea 12 compila (e imprimiría 3), pero la línea 13 no. 
+* Recuerda, mientras `this` incluye miembros actuales y heredados, `super` solo incluye miembros heredados.
 
+* Por último, pero no menos importante, ¿qué imprimiría la línea 14 si la línea 13 estuviera comentada? 
+* Aunque ambas variables `numberOfLegs` son accesibles en Beetle, Java verifica hacia afuera, comenzando con el alcance más estrecho. 
+* Por esta razón, el valor de `numberOfLegs` en la clase Beetle es usado, y 6 es impreso. 
+* En este ejemplo, `this.numberOfLegs` y `super.numberOfLegs` se refieren a diferentes variables con valores distintos.
 
+* Dado que esto incluye miembros heredados, a menudo solo usas `super` cuando tienes un conflicto de nombres vía herencia. 
+* Por ejemplo, tienes un método o variable definido en la clase actual que coincide con un método o variable en una clase padre. 
+* Esto comúnmente surge en la sobre escritura de métodos y el ocultamiento de variables, que se discuten más adelante en este capítulo.
 
+## Declaring Constructors
 
+### Creating a Constructor
 
+Comencemos con un constructor simple:
 
-
+continuar en la 11
 
 
 
@@ -321,7 +343,7 @@ Veamos si has captado la idea de this y super. ¿Qué imprime el siguiente progr
 ```
 
 
-Declaring Constructors
+
 Initializing Objects
 Inheriting Members
 Creating Abstract Classes
