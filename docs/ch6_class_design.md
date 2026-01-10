@@ -324,8 +324,56 @@ Veamos si has captado la idea de this y super. ¿Qué imprime el siguiente progr
 
 Comencemos con un constructor simple:
 
-continuar en la 11
+```java
+public class Bunny {
+    public Bunny() {
+        System.out.print("hop");
+    }
+}
+```
 
+* El nombre del constructor, Bunny, coincide con el nombre de la clase, Bunny, y no hay tipo de retorno, ni siquiera void. 
+* Eso hace que esto sea un constructor. ¿Puedes decir por qué estos dos no son constructores válidos para la clase Bunny?
+
+```java
+public class Bunny {
+    public bunny() {} // DOES NOT COMPILE
+    public void Bunny() {}
+}
+```
+
+* El primero no coincide con el nombre de la clase porque Java es sensible a mayúsculas y minúsculas (case-sensitive). 
+* Dado que no coincide, Java sabe que no puede ser un constructor y se supone que es un método regular. 
+* Sin embargo, le falta el tipo de retorno y no compila. 
+* El segundo método es un método perfectamente válido, pero no es un constructor porque tiene un tipo de retorno.
+
+Como los parámetros de método, los parámetros de constructor pueden ser cualquier tipo de clase, array, o tipo primitivo válido, incluyendo genéricos, pero no pueden incluir var.
+
+```java
+public class Bonobo {
+    public Bonobo(var food) { // DOES NOT COMPILE
+    }
+}
+```
+
+* Una clase puede tener múltiples constructores, siempre y cuando cada constructor tenga una firma de constructor única. 
+* En este caso, eso significa que los parámetros del constructor deben ser distintos. 
+* Como los métodos con el mismo nombre, pero diferentes firmas, declarar múltiples constructores con diferentes firmas se conoce como constructor overloading. 
+* La siguiente clase Turtle tiene cuatro constructores sobrecargados distintos:
+
+```java
+public class Turtle {
+    private String name;
+    public Turtle() {
+        name = "John Doe";
+    }
+    public Turtle(int age) {}
+    public Turtle(long age) {}
+    public Turtle(String newName, String... favoriteFoods) {
+        name = newName;
+    }
+}
+```
 
 
 
