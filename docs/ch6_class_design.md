@@ -375,6 +375,24 @@ public class Turtle {
 }
 ```
 
+* Los constructores se utilizan cuando se crea un nuevo objeto. 
+* Este proceso se llama instantiation (instanciación) porque crea una nueva instancia de la clase. 
+* Un constructor se llama cuando escribimos new seguido del nombre de la clase que queremos instanciar. 
+
+`new Turtle(15)`
+
+Cuando Java ve la palabra clave `new`, asigna memoria para el nuevo objeto. Luego busca un constructor con una firma coincidente y lo llama.
+
+### The Default Constructor
+
+* Cada clase en Java tiene un constructor, ya sea que codifiques uno o no. 
+* Si no incluyes ningún constructor en la clase, Java creará uno por ti sin ningún parámetro. 
+* Este constructor creado por Java se llama default constructor (constructor por defecto) y se añade cada vez que se declara una clase sin ningún constructor. 
+* A menudo nos referimos a él como el constructor sin argumentos por defecto, para mayor claridad. He aquí un ejemplo:
+
+
+
+
 
 
 
