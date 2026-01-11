@@ -390,7 +390,34 @@ Cuando Java ve la palabra clave `new`, asigna memoria para el nuevo objeto. Lueg
 * Este constructor creado por Java se llama default constructor (constructor por defecto) y se añade cada vez que se declara una clase sin ningún constructor. 
 * A menudo nos referimos a él como el constructor sin argumentos por defecto, para mayor claridad. He aquí un ejemplo:
 
+```java
+public class Rabbit {
+  public static void main(String[] args) {
+    new Rabbit(); // Calls the default constructor
+  }
+}
+```
 
+* En la clase Rabbit, Java ve que no se codificó ningún constructor y crea uno. 
+* La clase anterior es equivalente a la siguiente, en la cual se proporciona el constructor por defecto y, por lo tanto, no es insertado por el compilador:
+
+```java
+public class Rabbit {
+  public Rabbit() {}
+  public static void main(String[] args) {
+    new Rabbit(); // Calls the user-defined constructor
+  }
+}
+```
+
+* El constructor por defecto tiene una lista de parámetros vacía y un cuerpo vacío. Está bien que tú mismo escribas esto. 
+* Sin embargo, dado que no hace nada, Java está feliz de generarlo por ti y ahorrarte algo de escritura.
+
+* Seguimos diciendo generated (generado). Esto sucede durante el paso de compilación. 
+* Si miras el archivo con la extensión `.java`, el constructor seguirá faltando. 
+* Solo hace una aparición en el archivo compilado con la extensión `.class`.
+
+Para el examen, una de las reglas más importantes que necesitas saber es que el compilador only inserts the default constructor when no constructors are defined (solo inserta el constructor por defecto cuando no se definen constructores). ¿Cuál de estas clases crees que tiene un constructor por defecto?
 
 
 
