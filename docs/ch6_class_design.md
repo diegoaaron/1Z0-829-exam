@@ -645,11 +645,93 @@ public class Gorilla extends Animal {
 * En este ejemplo, observa que los constructores hijo no están obligados a llamar constructores padre coincidentes. 
 * Cualquier constructor padre válido es aceptable siempre que se proporcionen los parámetros de entrada apropiados al constructor padre.
 
+### Understanding Compiler Enhancements
 
-continuar en la 19
+* Java inserta automáticamente una llamada al constructor sin argumentos `super()` si no llamas explícitamente a `this()` o `super()` como la primera línea de un constructor. 
+* Por ejemplo, las siguientes tres definiciones de clase y constructor son equivalentes, porque el compilador automáticamente las convertirá todas al último ejemplo: 
 
+```java
+public class Donkey {}
 
+public class Donkey {
+  public Donkey() {}
+}
 
+public class Donkey {
+  public Donkey() {
+    super();
+  }
+}
+```
+
+* Asegúrate de comprender las diferencias entre estas tres definiciones de clase `Donkey` y por qué Java las convertirá automáticamente todas a la última definición. 
+* Mientras lees la siguiente sección, ten en mente el proceso que el compilador de Java realiza.
+
+### Default Constructor Tips and Tricks
+
+* Hemos presentado muchas reglas hasta ahora, y podrías haber notado algo. Digamos que tenemos una clase que no incluye un constructor sin argumentos. 
+* ¿Qué sucede si definimos una subclase sin constructores, o una subclase con un constructor que no incluye una referencia a `super()`?
+
+```java
+public class Mammal {
+  public Mammal(int age) {}
+}
+
+public class Seal extends Mammal {} // DOES NOT COMPILE
+
+public class Elephant extends Mammal {
+  public Elephant() {}     // DOES NOT COMPILE
+}
+```
+
+* La respuesta es que ninguna subclase compila. Dado que `Mammal` define un constructor, el compilador no inserta un constructor sin argumentos. 
+* El compilador insertará un constructor sin argumentos por defecto en `Seal`, sin embargo, pero será una implementación simple que solo llama a un constructor padre por defecto inexistente.
+
+```java
+public class Seal extends Mammal {
+  public Seal() {
+    super(); // DOES NOT COMPILE
+  }
+}
+```
+
+* Del mismo modo, `Elephant` no compilará por razones similares. 
+* El compilador no ve una llamada a `super()` o `this()` como la primera línea del constructor, así que inserta una llamada a un `super()` sin argumentos inexistente automáticamente.
+
+En estos casos, el compilador no ayudará, y must (debes) crear al menos un constructor en tu clase hija que llame explícitamente a un constructor padre vía el comando `super()`.
+
+```java
+public class Seal extends Mammal {
+  public Seal() {
+    super(6); // Explicit call to parent constructor
+  }
+}
+
+public class Elephant extends Mammal {
+  public Elephant() {
+    super(4); // Explicit call to parent constructor
+  }
+}
+```
+
+* Las subclases pueden incluir constructores sin argumentos incluso si sus clases padre no. 
+* Por ejemplo, lo siguiente compila porque `Elephant` incluye un constructor sin argumentos:
+
+`public class AfricanElephant extends Elephant {}`
+
+Para el examen, deberías ser capaz de detectar inmediatamente por qué clases como nuestras primeras implementaciones de `Seal` y `Elephant` no compilaron.
+
+Concluimos esta sección agregando tres reglas de constructor a tu conjunto de habilidades:
+
+* La primera línea de cada constructor es una llamada a un constructor padre usando `super()` o a un constructor sobrecargado usando `this()`.
+* Si el constructor no contiene una referencia a `this()` o `super()`, entonces el compilador inserta automáticamente `super()` sin argumentos como la primera línea del constructor.
+* Si un constructor llama a `super()`, entonces debe ser la primera línea del constructor.
+
+## Initializing Objects
+
+### Initializing Classes
+
+Comenzamos nuestra discusión sobre el orden de inicialización con la inicialización de clases. Primero, inicializamos la clase, lo que implica invocar a todos los miembros estáticos en la jerarquía de clases, comenzando con la superclase más alta y trabajando hacia abajo. Esto a veces se conoce como loading (cargar) la clase. La Java Virtual Machine (JVM) controla cuándo se inicializa la clase, aunque puedes asumir que la clase se carga antes de que se use. La clase puede ser inicializada cuando el programa comienza primero, cuando un miembro estático de la clase es referenciado, o poco antes de que una instancia de la clase sea creada.
 
 
 
@@ -665,8 +747,6 @@ continuar en la 19
 ```
 
 
-
-Initializing Objects
 Inheriting Members
 Creating Abstract Classes
 Creating Immutable Objects
