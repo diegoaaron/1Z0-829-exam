@@ -532,9 +532,80 @@ public class Gopher {
 }
 ```
 
-El compilador es capaz de detectar que este constructor se está llamando a sí mismo infinitamente. 
-Esto a menudo se conoce como un cycle (ciclo) y es similar a los bucles infinitos que discutimos en Chapter 3, "Making Decisions." 
-Dado que el código nunca puede
+* El compilador es capaz de detectar que este constructor se está llamando a sí mismo infinitamente. 
+* Esto a menudo se conoce como un cycle (ciclo) y es similar a los bucles infinitos que discutimos en Chapter 3, "Making Decisions." 
+* Dado que el código nunca puede terminar, el compilador se detiene y reporta esto como un error. Del mismo modo, esto tampoco compila:
+
+```java
+public class Gopher {
+  public Gopher() {
+    this(5); // DOES NOT COMPILE
+  }
+  public Gopher(int dugHoles) {
+    this(); // DOES NOT COMPILE
+  }
+}
+```
+
+En este ejemplo, los constructores se llaman entre sí, y el proceso continúa infinitamente. Dado que el compilador puede detectar esto, reporta un error.
+
+Aquí resumimos las reglas que deberías conocer sobre constructores que cubrimos en esta sección. 
+
+* Una clase puede contener muchos constructores sobrecargados, siempre que la firma de cada uno sea distinta.
+* El compilador inserta un constructor sin argumentos por defecto si no se declaran constructores.
+* Si un constructor llama a this(), entonces debe ser la primera línea del constructor.
+* Java no permite llamadas de constructor cíclicas.
+
+### Calling Parent Constructors with `super()`
+
+Hay un conjunto más de reglas que necesitamos cubrir, sin embargo, para llamar constructores en la clase padre. 
+Después de todo, ¿cómo se inicializan los miembros de instancia de la clase padre?
+
+La primera declaración de every (cada) constructor es una llamada a un constructor padre usando `super()` o a otro constructor en la clase usando `this()`. 
+
+Echemos un vistazo a la clase `Animal` y su subclase `Zebra` y veamos cómo sus constructores pueden escribirse correctamente para llamarse entre sí:
+
+```java
+public class Animal {
+  private int age;
+  public Animal(int age) {
+    super(); // Refers to constructor in java.lang.Object
+    this.age = age;
+  }
+}
+
+public class Zebra extends Animal {
+  public Zebra(int age) {
+    super(age); // Refers to constructor in Animal
+  }
+  public Zebra() {
+    this(4); // Refers to constructor in Zebra with int argument
+  }
+}
+```
+
+* En la clase `Animal`, la primera declaración del constructor es una llamada al constructor padre definido en `java.lang.Object`, que no toma argumentos. 
+* En la segunda clase, `Zebra`, la primera declaración del primer constructor es una llamada al constructor de `Animal`, que toma un solo argumento. 
+* La clase `Zebra` también incluye un segundo constructor sin argumentos que no llama a `super()` sino que en su lugar llama al otro constructor dentro de la clase `Zebra` usando `this(4)`.
+
+* Como llamar a `this()`, llamar a `super()` solo puede usarse como la primera declaración del constructor. 
+* Por ejemplo, las siguientes dos definiciones de clase no compilarán:
+
+```java
+public class Zoo {
+  public Zoo() {
+    System.out.println("Zoo created");
+    super();  // DOES NOT COMPILE
+  }
+}
+
+public class Zoo {
+  public Zoo() {
+    super();
+
+```
+
+
 
 
 
