@@ -498,6 +498,43 @@ public Hamster(int weight) { // Second constructor
 * De esta manera, terminamos con dos objetos, uno de los cuales se descarta después de que se crea. Eso no es lo que queremos. 
 * Queremos que el peso y color se establezcan en el objeto que estamos tratando de instanciar en primer lugar.
 
+* Java proporciona una solución: `this()`—sí, la misma palabra clave que usamos para referirnos a miembros de instancia, pero con paréntesis. 
+* Cuando `this()` se usa con paréntesis, Java llama a otro constructor en la misma instancia de la clase.
+
+```java
+public Hamster(int weight) { // Second constructor
+  this(weight, "brown");
+}
+```
+
+* Llamar a `this()` tiene una regla especial que necesitas conocer. 
+* Si eliges llamarlo, la llamada a `this()` debe ser la primera declaración en el constructor. 
+* El efecto secundario de esto es que solo puede haber una llamada a `this()` en cualquier constructor.
+
+```java
+3: public Hamster(int weight) {
+4:   System.out.println("chew");
+5:   // Set weight and default color
+6:   this(weight, "brown");  // DOES NOT COMPILE
+7: }
+```
+
+* Aunque una declaración de impresión en la línea 4 no cambia ninguna variable, sigue siendo una declaración de Java y no está permitido insertarla antes de la llamada a `this()`. 
+* El comentario en la línea 5 está bien. Los comentarios no se consideran declaraciones y están permitidos en cualquier lugar.
+
+Hay una última regla para constructores sobrecargados de la que deberías estar consciente. Considera la siguiente definición de la clase Gopher:
+
+```java
+public class Gopher {
+  public Gopher(int dugHoles) {
+    this(5); // DOES NOT COMPILE
+  }
+}
+```
+
+El compilador es capaz de detectar que este constructor se está llamando a sí mismo infinitamente. 
+Esto a menudo se conoce como un cycle (ciclo) y es similar a los bucles infinitos que discutimos en Chapter 3, "Making Decisions." 
+Dado que el código nunca puede
 
 
 
