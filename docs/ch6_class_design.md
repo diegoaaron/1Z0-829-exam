@@ -767,6 +767,172 @@ public class Hippo extends Animal {
 * Dado que el método `main()` está dentro de la clase `Hippo`, la clase será inicializada primero, comenzando con la superclase e imprimiendo **AB**. 
 * Después, el método `main()` es ejecutado, imprimiendo **C**. Aunque el método `main()` crea tres instancias, la clase se carga solo una vez.
 
+### Initializing final Fields
+
+Cuando presentamos las variables de instancia y de clase, dijimos que se les asigna un valor por defecto basado en su tipo si no se especifica ningún valor. 
+Por ejemplo, un double se inicializa con 0.0, mientras que una referencia de objeto se inicializa con `null`. 
+Un valor por defecto solo se aplica a un campo no final, sin embargo.
+
+* Como viste en Chapter 5, las variables estáticas `final` deben ser asignadas explícitamente un valor exactamente una vez. 
+* Los campos marcados como `final` siguen reglas similares. Pueden ser asignados valores en la línea en que se declaran o en un inicializador de instancia.
+
+```java
+public class MouseHouse {
+  private final int volume;
+  private final String name = "The Mouse House"; // Declaration assignment
+  {
+    volume = 10; // Instance initializer assignment
+  }
+}
+```
+
+* A diferencia de los miembros de clase estáticos, sin embargo, los campos de instancia `final` también pueden establecerse en un constructor. 
+* El constructor es parte del proceso de inicialización, por lo que está permitido asignar variables de instancia `final`. 
+* Para el examen, necesitas conocer una regla importante: **para cuando el constructor se completa, todas las variables de instancia final deben haber sido asignadas un valor exactamente una vez**.
+
+Intentemos esto en un ejemplo:
+
+```java
+public class MouseHouse {
+  private final int volume;
+  private final String name;
+  public MouseHouse() {
+    this.name
+      = "Empty House"; // Constructor assignment
+  }
+  {
+    volume = 10; // Instance initializer assignment
+  }
+}
+```
+
+* A diferencia de las variables locales `final`, que no están obligadas a tener un valor a menos que sean realmente usadas, las variables de instancia `final` deben ser asignadas un valor. 
+* Si no se les asigna un valor cuando se declaran o en un inicializador de instancia, entonces deben ser asignadas un valor en la declaración del constructor. 
+* No hacerlo resultará en un error del compilador en la línea que declara el constructor.
+
+```java
+public class MouseHouse {
+  private final int volume;
+  private final String type;
+  {
+    this.volume = 10;
+  }
+  public MouseHouse(String type) {
+    this.type = type;
+  }
+  public MouseHouse() { // DOES NOT COMPILE
+    this.volume = 2;  // DOES NOT COMPILE
+  }
+}
+```
+
+* En este ejemplo, el primer constructor que toma un argumento String compila. 
+* En términos de asignación de valores, cada constructor se revisa individualmente, que es por qué el segundo constructor no compila. 
+* Primero, el constructor falla en establecer un valor para la variable `type`. 
+* El compilador detecta que un valor nunca se establece para `type` y reporta un error en la línea donde el constructor es declarado. 
+* Segundo, el constructor establece un valor para la variable `volume`, aunque ya fue asignado un valor por el inicializador de instancia.
+
+* ¿Qué pasa con las variables de instancia `final` cuando un constructor llama a otro constructor en la misma clase? 
+* En ese caso, tienes que seguir el flujo cuidadosamente, asegurándote de que cada variable de instancia `final` sea asignada un valor exactamente una vez. 
+* Podemos reemplazar nuestro constructor malo anterior con el siguiente que sí compila:
+
+```java
+public MouseHouse() {
+  this(null);
+}
+```
+
+* Este constructor no realiza ninguna asignación a ninguna variable de instancia `final`, pero llama al constructor `MouseHouse(String)`, que nosotros observamos que compila sin problema. 
+* Usamos `null` aquí para demostrar que la variable no necesita ser un valor de objeto. Podemos asignar un valor `null` a variables de instancia final siempre que se establezcan explícitamente.
+
+### Initializing Instances
+
+* Primero, comienza en el constructor del nivel más bajo donde se usa la palabra clave `new`. 
+* Recuerda, la primera línea de cada constructor es una llamada a `this()` o `super()`, y si se omite, el compilador insertará automáticamente una llamada al constructor sin argumentos padre `super()`. 
+* Luego, avanza hacia arriba y nota el orden de los constructores. 
+* Finalmente, inicializa cada clase comenzando con la superclase, procesando cada inicializador de instancia y constructor en el orden inverso en que fue llamado. 
+* Resumimos el orden de inicialización para una instancia de la siguiente manera: Inicializando una instancia de **X**
+
+1. Inicializa la clase `X` si no ha sido inicializada previamente.
+2. Si hay una superclase `Y` de `X`, entonces inicializa la instancia de `Y` primero.
+3. Procesa todas las declaraciones de variables de instancia en el orden en que aparecen en la clase.
+4. Procesa todos los inicializadores de instancia en el orden en que aparecen en la clase.
+5. Inicializa el constructor, incluyendo cualquier constructor sobrecargado referenciado con `this()`.
+
+```java
+1: public class ZooTickets {
+2:   private String name = "BestZoo";
+3:   { System.out.print(name + "-"); }
+4:   private static int COUNT = 0;
+5:   static { System.out.print(COUNT + "-"); }
+6:   static { COUNT += 10; System.out.print(COUNT + "-"); }
+7:
+8:   public ZooTickets() {
+9:     System.out.print("z-");
+10:  }
+11:
+12:  public static void main(String... patrons) {
+13:    new ZooTickets();
+14:  } }
+```
+
+La salida es la siguiente: **0-10-BestZoo-z-**
+
+* Primero, tenemos que inicializar la clase. 
+* Dado que no hay superclase declarada, lo que significa que la superclase es `Object`, podemos comenzar con los componentes estáticos de `ZooTickets`. 
+* En este caso, las líneas 4, 5, y 6 son ejecutadas, imprimiendo 0- y 10-. A 
+* continuación, inicializamos la instancia creada en la línea 13. Nuevamente, dado que no se declara superclase, comenzamos con los componentes de instancia. 
+* Las líneas 2 y 3 son ejecutadas, lo que imprime BestZoo-. Finalmente, ejecutamos el constructor en las líneas 8–10, que imprime z-.
+
+```java
+class Primate {
+  public Primate() {
+    System.out.print("Primate-");
+  } }
+
+class Ape extends Primate {
+    public Ape(int fur) {
+        System.out.print("Ape1-");
+    }
+    public Ape() {
+        System.out.print("Ape2-");
+    } }
+
+public class Chimpanzee extends Ape {
+    public Chimpanzee() {
+        super(2);
+        System.out.print("Chimpanzee-");
+    }
+    public static void main(String[] args) {
+        new Chimpanzee();
+    } }
+```
+
+* El compilador inserta el comando `super()` como la primera declaración tanto en el constructor de `Primate` como en el de `Ape`. 
+* El código se ejecutará con los constructores padre llamados primero y producirá la siguiente salida: **Primate-Ape1-Chimpanzee-**
+
+* Nota que solo uno de los dos constructores `Ape()` es llamado. 
+* Necesitas comenzar con la llamada a `new Chimpanzee()` para determinar qué constructores serán ejecutados. 
+* Recuerda, los constructores se ejecutan de abajo hacia arriba, pero dado que la primera línea de cada constructor es una llamada a otro constructor, el flujo termina con el constructor padre ejecutado antes que el constructor hijo.
+
+Concluimos esta sección listando reglas importantes que deberías conocer para el examen:
+
+* Una clase se inicializa como máximo una vez por la JVM antes de que sea referenciada o usada.
+* Todas las variables estáticas `final` deben ser asignadas un valor exactamente una vez, ya sea cuando se declaran o en un inicializador estático.
+* Todos los campos `final` deben ser asignados un valor exactamente una vez, ya sea cuando se declaran, en un inicializador de instancia, o en un constructor.
+* Las variables estáticas y de instancia no finales definidas sin un valor se les asigna un valor por defecto basado en su tipo.
+* El orden de inicialización es el siguiente: declaraciones de variables, luego inicializadores, y finalmente constructores.
+
+## Inheriting Members
+
+### Overriding a Method
+
+
+
+
+
+
+
 
 
 
@@ -785,7 +951,5 @@ public class Hippo extends Animal {
 
 ```
 
-
-Inheriting Members
 Creating Abstract Classes
 Creating Immutable Objects
