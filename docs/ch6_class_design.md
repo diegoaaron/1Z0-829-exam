@@ -417,8 +417,31 @@ public class Rabbit {
 * Si miras el archivo con la extensión `.java`, el constructor seguirá faltando. 
 * Solo hace una aparición en el archivo compilado con la extensión `.class`.
 
-Para el examen, una de las reglas más importantes que necesitas saber es que el compilador only inserts the default constructor when no constructors are defined (solo inserta el constructor por defecto cuando no se definen constructores). ¿Cuál de estas clases crees que tiene un constructor por defecto?
+Para el examen, una de las reglas más importantes que necesitas saber es que el compilador solo inserta el constructor por defecto cuando no se definen constructores.
 
+
+```java
+public class Rabbit1 {}
+
+public class Rabbit2 {
+    public Rabbit2() {}
+}
+
+public class Rabbit3 {
+    public Rabbit3(boolean b) {}
+}
+
+public class Rabbit4 {
+    private Rabbit4() {}
+}
+```
+
+* Solo `Rabbit1` obtiene un constructor sin argumentos por defecto. 
+* No tiene un constructor codificado, así que Java genera un constructor sin argumentos por defecto. 
+* Para `Rabbit2` y `Rabbit3` ambos tienen constructores públicos ya. `Rabbit4` tiene un constructor privado. 
+* Dado que estas tres clases tienen un constructor definido, el constructor sin argumentos por defecto no se inserta por ti.
+
+Echemos un vistazo rápido a cómo llamar estos constructores:
 
 
 
