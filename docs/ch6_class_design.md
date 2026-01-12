@@ -602,16 +602,51 @@ public class Zoo {
 public class Zoo {
   public Zoo() {
     super();
-
+    System.out.println("Zoo created");
+    super();  // DOES NOT COMPILE
+  }
+}
 ```
 
+* La primera clase no compilará porque la llamada al constructor padre debe ser la primera declaración del constructor. 
+* En el segundo fragmento de código, `super()` es la primera declaración del constructor, pero también se usa como la tercera declaración. 
+* Dado que `super()` solo puede llamarse una vez como la primera declaración del constructor, el código no compilará.
+
+Si la clase padre tiene más de un constructor, la clase hija puede usar cualquier constructor padre válido en su definición, como se muestra en el siguiente ejemplo:
+
+```java
+public class Animal {
+  private int age;
+  private String name;
+  public Animal(int age, String name) {
+    super();
+    this.age = age;
+    this.name = name;
+  }
+  public Animal(int age) {
+    super();
+    this.age = age;
+    this.name = null;
+  }
+}
+
+public class Gorilla extends Animal {
+    public Gorilla(int age) {
+        super(age,"Gorilla"); // Calls the first Animal constructor
+    }
+    public Gorilla() {
+        super(5);      // Calls the second Animal constructor
+    }
+}
+```
+
+* En este ejemplo, el primer constructor hijo toma un argumento, `age`, y llama al constructor padre, que toma dos argumentos, `age` y `name`. 
+* El segundo constructor hijo no toma argumentos, y llama al constructor padre, que toma un argumento, `age`. 
+* En este ejemplo, observa que los constructores hijo no están obligados a llamar constructores padre coincidentes. 
+* Cualquier constructor padre válido es aceptable siempre que se proporcionen los parámetros de entrada apropiados al constructor padre.
 
 
-
-
-
-
-
+continuar en la 19
 
 
 
