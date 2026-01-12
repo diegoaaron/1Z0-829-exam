@@ -731,7 +731,46 @@ Concluimos esta sección agregando tres reglas de constructor a tu conjunto de h
 
 ### Initializing Classes
 
-Comenzamos nuestra discusión sobre el orden de inicialización con la inicialización de clases. Primero, inicializamos la clase, lo que implica invocar a todos los miembros estáticos en la jerarquía de clases, comenzando con la superclase más alta y trabajando hacia abajo. Esto a veces se conoce como loading (cargar) la clase. La Java Virtual Machine (JVM) controla cuándo se inicializa la clase, aunque puedes asumir que la clase se carga antes de que se use. La clase puede ser inicializada cuando el programa comienza primero, cuando un miembro estático de la clase es referenciado, o poco antes de que una instancia de la clase sea creada.
+* Comenzamos nuestra discusión sobre el orden de inicialización con la inicialización de clases. 
+* Primero, inicializamos la clase, lo que implica invocar a todos los miembros estáticos en la jerarquía de clases, comenzando con la superclase más alta y trabajando hacia abajo. 
+* Esto a veces se conoce como loading (cargar) la clase. La Java Virtual Machine (JVM) controla cuándo se inicializa la clase, aunque puedes asumir que la clase se carga antes de que se use. 
+* La clase puede ser inicializada cuando el programa comienza primero, cuando un miembro estático de la clase es referenciado, o poco antes de que una instancia de la clase sea creada.
+
+* Una de las reglas más importantes con la inicialización de clases es que ocurre como máximo una vez para cada clase. 
+* La clase también puede nunca cargarse si no se usa en el programa. Resumimos el orden de inicialización para una clase de la siguiente manera:
+
+**Initialize Class X**
+
+1. Si hay una superclase Y de X, entonces inicializa la clase Y primero.
+2. Procesa todas las declaraciones de variables estáticas en el orden en que aparecen en la clase.
+3. Procesa todos los inicializadores estáticos en el orden en que aparecen en la clase.
+
+Echando un vistazo a un ejemplo, ¿qué imprime el siguiente programa?
+
+```java
+public class Animal {
+  static { System.out.print("A"); }
+}
+
+public class Hippo extends Animal {
+  public static void main(String[] grass) {
+    System.out.print("C");
+    new Hippo();
+    new Hippo();
+    new Hippo();
+  }
+  static { System.out.print("B"); }
+}
+```
+
+* Imprime **ABC** exactamente una vez. 
+* Dado que el método `main()` está dentro de la clase `Hippo`, la clase será inicializada primero, comenzando con la superclase e imprimiendo **AB**. 
+* Después, el método `main()` es ejecutado, imprimiendo **C**. Aunque el método `main()` crea tres instancias, la clase se carga solo una vez.
+
+
+
+
+
 
 
 
