@@ -443,6 +443,69 @@ public class Rabbit4 {
 
 Echemos un vistazo rápido a cómo llamar estos constructores:
 
+```java
+1: public class RabbitsMultiply {
+2:   public static void main(String[] args) {
+3:     var r1 = new Rabbit1();
+4:     var r2 = new Rabbit2();
+5:   var r3 = new Rabbit3(true);
+6:   var r4 = new Rabbit4(); // DOES NOT COMPILE
+7: } }
+```
+
+* La línea 3 llama al constructor sin argumentos por defecto generado. 
+* Las líneas 4 y 5 llaman a los constructores proporcionados por el usuario. 
+* La línea 6 no compila. Rabbit4 hizo el constructor privado para que otras clases no pudieran llamarlo.
+
+### Calling Overloaded Constructors with `this()`
+
+* Dado que una clase puede contener múltiples constructores sobrecargados, estos constructores en realidad pueden llamarse entre sí. 
+* Comencemos con una clase simple que contiene dos constructores sobrecargados:
+
+```java
+public class Hamster {
+  private String color;
+  private int weight;
+  public Hamster(int weight, String color) { // First constructor
+    this.weight = weight;
+    this.color = color;
+  }
+  public Hamster(int weight) { // Second constructor
+    this.weight = weight;
+    color = "brown";
+  }
+}
+```
+
+* Uno de los constructores toma un solo parámetro `int`. El otro toma un `int` y un `String`. 
+* Estas listas de parámetros son diferentes, por lo que los constructores están sobrecargados exitosamente.
+
+* Hay un poco de duplicación, ya que `this.weight` se asigna de la misma manera en ambos constructores. 
+* En programación, incluso un poco de duplicación tiende a convertirse en mucha duplicación a medida que seguimos agregando "solo una cosa más". 
+* Por ejemplo, imagina que tenemos cinco variables siendo establecidas como `this.weight`, en lugar de solo una. 
+* Lo que realmente queremos es que el primer constructor llame al segundo constructor con dos parámetros. 
+* Entonces, ¿cómo puedes hacer que un constructor llame a otro constructor? Podrías estar tentado a reescribir el primer constructor de la siguiente manera:
+
+```java
+public Hamster(int weight) { // Second constructor
+  Hamster(weight, "brown"); // DOES NOT COMPILE
+}
+```
+
+* Este intento sí compila. No hace lo que queremos, sin embargo. 
+* Cuando este constructor es llamado, crea un nuevo objeto con el peso y color por defecto. 
+* Luego construye un objeto diferente con el peso y color deseados. 
+* De esta manera, terminamos con dos objetos, uno de los cuales se descarta después de que se crea. Eso no es lo que queremos. 
+* Queremos que el peso y color se establezcan en el objeto que estamos tratando de instanciar en primer lugar.
+
+
+
+
+
+
+
+
+
 
 
 
