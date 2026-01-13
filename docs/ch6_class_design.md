@@ -927,14 +927,76 @@ Concluimos esta sección listando reglas importantes que deberías conocer para 
 
 ### Overriding a Method
 
+* ¿Qué pasa si un método con la misma firma está definido tanto en la clase padre como en las clases hijas? 
+* Por ejemplo, puedes querer definir una nueva versión del método y hacer que se comporte de manera diferente para esa subclase. 
+* La solución es sobrescribir el método en la clase hija. 
+* En Java, overriding (sobrescribir) un método ocurre cuando una subclase declara una nueva implementación para un método heredado con la misma firma y tipo de retorno compatible.
 
+* Cuando sobrescribes un método, aún puedes referenciar la versión padre del método usando la palabra clave `super`. 
+* De esta manera, las palabras clave `this` y `super` te permiten seleccionar entre las versiones actuales y padre de un método, respectivamente. 
+* Ilustramos esto con el siguiente ejemplo:
 
+```java
+public class Marsupial {
+  public double getAverageWeight() {
+    return 50;
+  }
+}
+public class Kangaroo extends Marsupial {
+  public double getAverageWeight() {
+    return super.getAverageWeight() + 20;
+  }
+  public static void main(String[] args) {
+    System.out.println(new Marsupial().getAverageWeight()); // 50.0
+    System.out.println(new Kangaroo().getAverageWeight()); // 70.0
+  }
+}
+```
 
+En este ejemplo, la clase `Kangaroo` sobrescribe el método `getAverageWeight()` pero en el proceso llama a la versión padre usando la referencia `super`.
 
+Para sobrescribir un método, debes seguir una serie de reglas. El compilador realiza las siguientes verificaciones cuando sobrescribes un método:
 
+1. El método en la clase hija debe tener la misma firma que el método en la clase padre.
+2. El método en la clase hija debe ser al menos tan accesible como el método en la clase padre.
+3. El método en la clase hija no puede declarar una excepción verificada que sea nueva o más amplia que la clase de cualquier excepción declarada en el método de la clase padre.
+4. Si el método retorna un valor, debe ser del mismo tipo o un subtipo del método en la clase padre, conocido como covariant return types (tipos de retorno covariantes).
 
+* Aunque estas reglas pueden parecer confusas o arbitrarias al principio, son necesarias para la consistencia. 
+* Sin estas reglas en su lugar, es posible crear contradicciones dentro del lenguaje Java.
 
+**Rule #1: Method Signatures**
 
+* La primera regla para sobrescribir un método es algo auto-explicativa. 
+* Si dos métodos tienen el mismo nombre, pero firmas diferentes, los métodos están sobrecargados, no sobrescritos. 
+* Los métodos sobrecargados se consideran independientes y no comparten las mismas propiedades polimórficas que los métodos sobrescritos.
+
+**Rule #2: Access Modifiers**
+
+¿Cuál es el propósito de la segunda regla sobre modificadores de acceso? Intentemos un ejemplo ilustrativo:
+
+```java
+public class Camel {
+  public int getNumberOfHumps() {
+    return 1;
+  } }
+
+public class BactrianCamel extends Camel {
+  private int getNumberOfHumps() { // DOES NOT COMPILE
+    return 2;
+  } }
+```
+
+* En este ejemplo, `BactrianCamel` intenta sobrescribir el método `getNumberOfHumps()` definido en la clase padre, pero falla porque el modificador de acceso `private` es más restrictivo que el definido en la versión padre del método. 
+* Digamos que se permitiera compilar `BactrianCamel`, sin embargo. ¿Compilaría esta clase?
+
+```java
+public class Rider {
+  public static void main(String[] args) {
+    Camel c = new BactrianCamel();
+    System.out.print(c.getNumberOfHumps()); // ???
+  } }
+```
 
 
 
