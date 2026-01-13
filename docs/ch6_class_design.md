@@ -1398,7 +1398,193 @@ abstract public class Tiger {
 * El modificador `abstract` no puede ser colocado después de la palabra clave class en una declaración de clase o después del tipo de retorno en una declaración de método. 
 * Las siguientes declaraciones `Bear` y `howl()` no compilan por estas razones:
 
+```java
+public class abstract Bear { // DOES NOT COMPILE
+    public int abstract howl(); // DOES NOT COMPILE
+}
+```
 
+### Creating a Concrete Class
+
+* Una clase abstracta se vuelve utilizable cuando es extendida por una subclase concreta. 
+* Una concrete class es una clase no abstracta. La primera subclase concreta que extiende una clase abstracta está obligada a implementar todos los métodos `abstract` heredados. 
+* Esto incluye implementar cualquier método abstract heredado de interfaces heredadas, como verás en el próximo capítulo.
+
+* Cuando ves una clase concreta extendiendo una clase abstracta en el examen, verifica para asegurarte de que implemente todos los métodos `abstract` requeridos. 
+* ¿Puedes ver por qué la siguiente clase Walrus no compila?
+
+```java
+public abstract class Animal {
+    public abstract String getName();
+}
+
+public class Walrus extends Animal {} // DOES NOT COMPILE
+```
+
+* En este ejemplo, vemos que `Animal` está marcado como `abstract` y `Walrus` no lo está, haciendo de `Walrus` una subclase concreta de `Animal`. 
+* Como `Walrus` es la primera subclase concreta, debe implementar todos los métodos abstract heredados—`getName()` en este ejemplo. 
+* Debido a que no lo hace, el compilador reporta un error con la declaración de `Walrus`.
+
+* Destacamos la first subclase concreta por una razón. Una clase abstracta puede extender una clase no abstracta y viceversa. 
+* Cada vez que una clase concreta está extendiendo una clase abstracta, debe implementar todos los métodos que están heredados como abstract. 
+* Ilustremos esto con un conjunto de clases heredadas:
+
+```java
+public abstract class Mammal {
+    abstract void showHorn();
+    abstract void eatLeaf();
+}
+
+public abstract class Rhino extends Mammal {
+    void showHorn() {} // Inherited from Mammal
+}
+
+public class BlackRhino extends Rhino {
+    void eatLeaf() {} // Inherited from Mammal
+}
+```
+
+* En este ejemplo, la clase `BlackRhino` es la primera subclase concreta, mientras que las clases `Mammal` y `Rhino` son abstractas. 
+* La clase `BlackRhino` hereda el método `eatLeaf()` como abstract y, por lo tanto, está obligada a proporcionar una implementación, lo cual hace.
+
+* ¿Qué hay del método `showHorn()`? Como la clase padre, `Rhino`, proporciona una implementación de `showHorn()`, el método se hereda en `BlackRhino` como un método no abstracto. 
+* Por esta razón, la clase `BlackRhino` está permitida pero no obligada a sobreescribir el método `showHorn()`. 
+* Las tres clases en este ejemplo están correctamente definidas y compilan.
+
+¿Qué pasaría si cambiáramos la declaración de Rhino para eliminar el modificador abstract?
+
+```java
+public class Rhino extends Mammal { // DOES NOT COMPILE
+    void showHorn() {}
+}
+```
+
+* Al cambiar `Rhino` a una clase concreta, se convierte en la primera clase no abstracta que extiende la clase abstracta `Mammal`. 
+* Por lo tanto, debe proporcionar una implementación de tanto el método `showHorn()` como `eatLeaf()`. 
+* Como solo proporciona uno de estos métodos, la declaración modificada de `Rhino` no compila.
+
+Intentemos un ejemplo más. La siguiente clase concreta Lion hereda dos métodos `abstract`, `getName()` y `roar()`:
+
+```java
+public abstract class Animal {
+    abstract String getName();
+}
+
+public abstract class BigCat extends Animal {
+    protected abstract void roar();
+}
+
+public class Lion extends BigCat {
+    public String getName() {
+        return "Lion";
+    }
+    public void roar() {
+        System.out.println("The Lion lets out a loud ROAR!");
+    }
+}
+```
+
+* En este código de ejemplo, `BigCat` extiende `Animal`, pero está marcado como `abstract`; por lo tanto, no está obligado a proporcionar una implementación para el método `getName()`. 
+* La clase `Lion` no está marcada como `abstract`, y como la primera subclase concreta, debe implementar todos los métodos `abstract` heredados no definidos en una clase padre. 
+
+### Creating Constructors in Abstract Classes
+
+* Aunque las clases abstractas no pueden ser instanciadas, todavía se inicializan a través de constructores por sus subclases. 
+* Por ejemplo, considera el siguiente programa:
+
+```java
+abstract class Mammal {
+    abstract CharSequence chew();
+    public Mammal() {
+        System.out.println(chew()); // Does this line compile?
+    }
+}
+
+public class Platypus extends Mammal {
+    String chew() { return "yummy!"; }
+    public static void main(String[] args) {
+        new Platypus();
+    }
+}
+```
+
+* Usando las reglas de constructor que aprendiste anteriormente en este capítulo, el compilador inserta un constructor por defecto sin argumentos en la clase `Platypus`, que primero llama a `super()` en la clase `Mammal`. 
+* El constructor `Mammal` solo es llamado cuando la clase abstracta está siendo inicializada a través de una subclase; por lo tanto, hay una implementación de `chew()` al momento en que el constructor es llamado. 
+* Este código compila e imprime `yummy!` en tiempo de ejecución.
+
+* Para el examen, recuerda que las clases abstractas se inicializan con constructores de la misma manera que las clases no abstractas. 
+* Por ejemplo, si una clase abstracta no proporciona un constructor, el compilador insertará automáticamente un constructor por defecto sin argumentos.
+
+* La diferencia primaria entre un constructor en una clase abstracta y una clase no abstracta es que un constructor en una clase abstracta solo puede ser llamado cuando está siendo inicializado por una subclase no abstracta. 
+* Esto tiene sentido, ya que las clases abstractas no pueden ser instanciadas.
+
+### Spotting Invalid Declarations
+
+* Concluimos nuestra discusión sobre clases abstractas con una revisión de problemas potenciales que es más probable que encuentres en el examen que en la vida real. 
+* Los escritores del examen son aficionados a preguntas con métodos marcados como abstract para los cuales también se define una implementación. 
+* Por ejemplo, ¿puedes ver por qué cada uno de los siguientes métodos no compila?
+
+```java
+public abstract class Turtle {
+    public abstract long eat()  // DOES NOT COMPILE
+    public abstract void swim() {}; // DOES NOT COMPILE
+    public abstract int getAge() { // DOES NOT COMPILE
+        return 10;
+    }
+    public abstract void sleep;  // DOES NOT COMPILE
+    public void goInShell();  // DOES NOT COMPILE
+}
+```
+
+* El primer método, `eat()`, no compila porque está marcado `abstract` pero no termina con un punto y coma `(;).` 
+* Los siguientes dos métodos, `swim()` y `getAge()`, no compilan porque están marcados `abstract`, pero proporcionan un bloque de implementación encerrado entre llaves ({}). 
+* Para el examen, recuerda que una declaración de método `abstract` debe terminar en un punto y coma sin ninguna llave. 
+* El siguiente método, sleep, no compila porque le faltan paréntesis, (), para argumentos del método. 
+* El último método, `goInShell()`, no compila porque no está marcado `abstract` y, por lo tanto, debe proporcionar un cuerpo encerrado entre llaves.
+
+* Asegúrate de entender por qué cada uno de los métodos anteriores no compila y que puedas detectar errores como estos en el examen. 
+* Si te encuentras con una pregunta en el examen en la cual una clase o método está marcado `abstract`, asegúrate de que la clase esté implementada apropiadamente antes de intentar resolver el problema.
+
+**abstract and final Modifiers**
+
+* ¿Qué pasaría si marcaras una clase o método tanto abstract como final? 
+* Si marcas algo `abstract`, tu intención es que alguien más lo extienda o implemente. 
+* Pero si lo marcas `final`, estás previniendo que alguien lo extienda o implemente. Estos conceptos están en conflicto directo entre sí.
+
+* Debido a esta incompatibilidad, Java no permite que una clase o método sea marcado tanto abstract como final. 
+* Por ejemplo, el siguiente fragmento de código no compilará:
+
+```java
+public abstract final class Tortoise { // DOES NOT COMPILE
+    public abstract final void walk(); // DOES NOT COMPILE
+}
+```
+
+* En este ejemplo, ni la clase ni las declaraciones de método compilarán porque están marcadas tanto abstract como final. 
+* El examen no tiende a usar modificadores `final` en clases o métodos con frecuencia, así que si los ves, asegúrate de que no se usen con el modificador `abstract`.
+
+**abstract and private Modifiers**
+
+* Un método no puede ser marcado tanto abstract como `private`. 
+* Esta regla tiene sentido si piensas en ello. 
+* ¿Cómo definirías una subclase que implemente un método requerido si el método no es heredado por la subclase? 
+* La respuesta es que no puedes, por lo cual el compilador se quejará si intentas hacer lo siguiente:
+
+```java
+public abstract class Whale {
+    private abstract void sing(); // DOES NOT COMPILE
+}
+
+public class HumpbackWhale extends Whale {
+    private void sing() {
+        System.out.println("Humpback whale is singing");
+    }
+}
+```
+
+* En este ejemplo, el método `abstract sing()` definido en la clase padre `Whale` no es visible para la subclase `HumpbackWhale`. 
+* Aunque `HumpbackWhale` proporciona una implementación, no se considera una sobreescritura del método abstract, ya que el método `abstract` no está heredado. 
+* El compilador reconoce esto en la clase padre y reporta un error tan pronto como `private` y `abstract` se aplican al mismo método.
 
 
 
