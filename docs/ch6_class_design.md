@@ -998,6 +998,131 @@ public class Rider {
   } }
 ```
 
+* La respuesta es, no lo sabemos. El tipo de referencia para el objeto es `Camel`, donde el método está declarado como `public`, pero el objeto en realidad es una instancia del tipo `BactrianCamel`, donde el método está declarado como `private`. 
+* Java evita estos tipos de problemas de ambigüedad al limitar la sobrescritura de un método a modificadores de acceso que son tan accesibles o más accesibles que la versión en el método heredado.
+
+**Rule #3: Checked Exceptions**
+
+* La tercera regla dice que sobrescribir un método no puede declarar excepciones verificadas nuevas o excepciones verificadas más amplias que el método heredado. 
+* Esto se hace por razones polimórficas similares a limitar modificadores de acceso. 
+* En otras palabras, podrías terminar con un objeto que es más restrictivo que el tipo de referencia al que está asignado, resultando en una excepción verificada que no es manejada o declarada. 
+* Una implicación de esta regla es que los métodos sobrescritos son libres de declarar cualquier número de nuevas excepciones no verificadas.
+
+Intentemos un ejemplo:
+
+```java
+public class Reptile {
+  protected void sleep() throws IOException {}
+
+  protected void hide() {}
+
+  protected void exitShell() throws FileNotFoundException {}
+}
+public class GalapagosTortoise extends Reptile {
+    public void sleep() throws FileNotFoundException {}
+
+    public void hide() throws FileNotFoundException {} // DOES NOT COMPILE
+
+    public void exitShell() throws IOException {} // DOES NOT COMPILE
+}
+```
+
+* En este ejemplo, tenemos tres métodos sobrescritos. 
+* Estos métodos sobrescritos usan el modificador más accesible `public`, lo cual está permitido según nuestra segunda regla para métodos sobrescritos. 
+* El primer método sobrescrito `sleep()` en `GalapagosTortoise` compila sin problema porque la excepción declarada es más estrecha que la excepción declarada en la clase padre.
+
+* El método sobrescrito `hide()` no compila porque declara una nueva excepción verificada no presente en la declaración padre. 
+* El método sobrescrito `exitShell()` tampoco compila, ya que `IOException` es una excepción verificada más amplia que `FileNotFoundException`. 
+
+**Rule #4: Covariant Return Types**
+
+* La cuarta y última regla sobre sobrescribir un método es probablemente la más complicada, ya que requiere conocer las relaciones entre los tipos de retorno. 
+* El método sobrescrito debe usar un tipo de retorno que sea covariante con el tipo de retorno del método heredado.
+
+Intentemos un ejemplo con propósitos ilustrativos:
+
+```java
+public class Rhino {
+  protected CharSequence getName() {
+    return "rhino";
+  }
+  protected String getColor() {
+    return "grey, black, or white";
+  } }
+
+public class JavanRhino extends Rhino {
+  public String getName() {
+    return "javan rhino";
+  }
+  public CharSequence getColor() { // DOES NOT COMPILE
+      return "grey";
+  } }
+```
+
+* La subclase `JavanRhino` intenta sobrescribir dos métodos de Rhino: `getName()` y `getColor()`. 
+* Ambos métodos sobrescritos tienen el mismo nombre y firma que los métodos heredados. 
+* Los métodos sobrescritos también tienen un modificador de acceso más amplio, `public`, que los métodos heredados. 
+* Recuerda, un modificador de acceso más amplio es aceptable en un método sobrescrito.
+
+* Desde Chapter 4, "Core APIs," aprendimos que `String` implementa la interfaz `CharSequence`, haciendo que `String` sea un subtipo de `CharSequence`. 
+* Por lo tanto, el tipo de retorno de `getName()` en `JavanRhino` es covariante con el tipo de retorno de `getName()` en `Rhino`.
+
+* Por otro lado, el método sobrescrito `getColor()` no compila porque `CharSequence` no es un subtipo de `String`. 
+* Dicho de otra manera, todos los valores `String` son valores `CharSequence`, pero no todos los valores `CharSequence` son valores `String`. 
+* Por ejemplo, un `StringBuilder` es un `CharSequence` pero no un `String`. 
+* Para el examen, necesitas saber si el tipo de retorno del método sobrescrito es el mismo o un subtipo del tipo de retorno del método heredado.
+
+### Redeclaring private Methods
+
+* ¿Qué sucede si intentas sobrescribir un método `private`? En Java, no puedes sobrescribir métodos `private` ya que no son heredados. 
+* Solo porque una clase hija no tiene acceso al método padre no significa que la clase hija no puede definir su propia versión del método. 
+* Simplemente, significa, estrictamente hablando, que el nuevo método no es una versión sobrescrita del método de la clase padre.
+
+* ¿Qué sucede si intentas sobrescribir un método `private`? 
+* En Java, no puedes sobrescribir métodos `private` ya que no son heredados. 
+* Solo porque una clase hija no tiene acceso al método padre no significa que la clase hija no puede definir su propia versión del método. 
+* Simplemente, significa, estrictamente hablando, que el nuevo método no es una versión sobrescrita del método de la clase padre.
+
+* Java te permite redeclarar un nuevo método en la clase hija con la misma firma o modificada que el método en la clase padre. 
+* Este método en la clase hija es un método separado e independiente, no relacionado con la versión del método padre, así que ninguna de las reglas para sobrescribir métodos se invoca. 
+* Por ejemplo, estas dos declaraciones compilan:
+
+```java
+public class Beetle {
+  private String getSize() {
+    return "Undefined";
+  } }
+
+public class RhinocerosBeetle extends Beetle {
+  private int getSize() {
+    return 5;
+  } }
+```
+
+* Nota que el tipo de retorno difiere en el método hijo de `String` a `int`. 
+* En este ejemplo, el método `getSize()` en la clase padre se redeclara, así que el método en la clase hija es un nuevo método y no una sobrescritura del método en la clase padre.
+
+* ¿Qué pasaría si el método `getSize()` fuera declarado `public` en `Beetle`? 
+* En este caso, el método en `RhinocerosBeetle` sería una sobrescritura inválida. 
+* El modificador de acceso en `RhinocerosBeetle` es más restrictivo, y los tipos de retorno no son covariantes.
+
+### Hiding Static Methods
+
+* Un método estático no puede ser sobrescrito porque los objetos de clase no heredan entre sí de la misma manera que los objetos de instancia.
+* Por otro lado, pueden ser ocultados. Un hidden method (método oculto) ocurre cuando una clase hija define un método estático con el mismo nombre y firma que un método estático heredado definido en una clase padre. 
+* El ocultamiento de métodos es similar pero no exactamente lo mismo que la sobrescritura de métodos. 
+* Las cuatro reglas anteriores para sobrescribir un método deben seguirse cuando un método se oculta. 
+* Además, se añade una nueva quinta regla para ocultar un método:
+
+```java
+public class Bear {
+  public static void eat() {
+```
+
+continuar en la 38
+
+
+
 
 
 
