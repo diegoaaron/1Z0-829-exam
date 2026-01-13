@@ -1117,10 +1117,104 @@ public class RhinocerosBeetle extends Beetle {
 ```java
 public class Bear {
   public static void eat() {
+      System.out.println("Bear is eating");
+  }}
+
+public class Panda extends Bear {
+    public static void eat() {
+        System.out.println("Panda is chewing");
+    }
+    public static void main(String[] args) {
+        eat();
+    }
+}
 ```
 
-continuar en la 38
+* En este ejemplo, el código compila y se ejecuta. 
+* El método `eat()` en la clase `Panda` oculta el método `eat()` en la clase `Bear`, imprimiendo "Panda is chewing" en tiempo de ejecución. 
+* Debido a que ambos están marcados como `static`, esto no se considera un método sobrescrito. Dicho esto, todavía hay algo de herencia en juego. 
+* Si eliminas la declaración `eat()` en la clase `Panda`, entonces el programa imprime "Bear is eating" en su lugar.
 
+Observa si puedes descubrir por qué cada una de las declaraciones de métodos en la clase SunBear no compila:
+
+```java
+public class Bear {
+    public static void sneeze() {
+        System.out.println("Bear is sneezing");
+    }
+
+    public void hibernate() {
+        System.out.println("Bear is hibernating");
+    }
+
+    public static void laugh() {
+        System.out.println("Bear is laughing");
+    }
+}
+
+public class SunBear extends Bear {
+
+    public void sneeze() {  // DOES NOT COMPILE
+        System.out.println("Sun Bear sneezes quietly");
+    }
+
+    public static void hibernate() {  // DOES NOT COMPILE
+        System.out.println("Sun Bear is going to sleep");
+    }
+
+    protected static void laugh() {  // DOES NOT COMPILE
+        System.out.println("Sun Bear is laughing");
+    }
+}
+```
+
+* En este ejemplo, `sneeze()` está marcado como `static` en la clase padre pero no en la clase hija. 
+* El compilador detecta que estás intentando sobreescribir usando un método de instancia. 
+* Sin embargo, `sneeze()` es un método `static` que debería estar oculto, causando que el compilador genere un error. 
+* El segundo método, `hibernate()`, no compila por la razón opuesta. 
+* El método está marcado static en la clase hija pero no en la clase padre.
+
+* Finalmente, el método `laugh()` no compila.
+* Aunque ambas versiones del método están marcadas `static`, la versión en `SunBear` tiene un modificador de acceso más restrictivo que el que hereda, y rompe la segunda regla para sobreescribir métodos. 
+* Recuerda, las cuatro reglas para sobreescribir métodos deben seguirse cuando se ocultan métodos `static`.
+
+### Hiding Variables
+
+* Como viste con la sobreescritura de métodos, hay muchas reglas cuando dos métodos tienen la misma firma y están definidos tanto en la clase padre como en las clases hijas. 
+* Afortunadamente, las reglas para variables con el mismo nombre en las clases padre e hijas son mucho más simples. 
+* De hecho, Java no permite que las variables sean sobrescritas. Sin embargo, las variables pueden ser ocultadas.
+
+* Una hidden variable ocurre cuando una clase hija define una variable con el mismo nombre que una variable heredada definida en la clase padre. 
+* Esto crea dos copias distintas de la variable dentro de una instancia de la clase hija: una instancia definida en la clase padre y una definida en la clase hija.
+
+* Al igual que cuando se oculta un método `static`, no puedes sobreescribir una variable; solo puedes ocultarla. 
+* Echemos un vistazo a una variable oculta. ¿Qué crees que imprime la siguiente aplicación?
+
+```java
+class Carnivore {
+    protected boolean hasFur = false;
+}
+
+public class Meerkat extends Carnivore {
+    protected boolean hasFur = true;
+    
+    public static void main(String[] args) {
+        Meerkat m = new Meerkat();
+        Carnivore c = m;
+        System.out.println(m.hasFur); // true
+        System.out.println(c.hasFur); // false
+    }
+}
+```
+
+* ¿Confundido acerca de la salida? Ambas clases definen una variable `hasFur`, pero con valores diferentes. 
+* Aunque solo un objeto es creado por el método `main()`, ambas variables existen independientemente una de otra. 
+* La salida cambia dependiendo de la variable de referencia utilizada.
+
+* Un método reemplaza el método padre en todas las variables de referencia (distintas de `super`). 
+* Mientras que ocultar un método o variable reemplaza el miembro solo si se utiliza un tipo de referencia hijo.
+
+## Writing `final` Methods
 
 
 
