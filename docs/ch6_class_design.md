@@ -1216,6 +1216,188 @@ public class Meerkat extends Carnivore {
 
 ## Writing `final` Methods
 
+* Concluimos nuestra discusión sobre herencia de métodos con una regla algo autoexplicativa: los métodos `final` no pueden ser sobrescritos. 
+* Al marcar un método `final`, prohíbes que una clase hija reemplace este método. 
+* Esta regla está vigente tanto cuando sobrescribes un método como cuando ocultas un método. 
+* En otras palabras, no puedes ocultar un método `static` en una clase hija si está marcado `final` en la clase padre.
+
+Echemos un vistazo a un ejemplo:
+
+```java
+public class Bird {
+    public final boolean hasFeathers() {
+        return true;
+    }
+    public final static void flyAway() {}
+}
+
+public class Penguin extends Bird {
+    public final boolean hasFeathers() { // DOES NOT COMPILE
+        return false;
+    }
+    public final static void flyAway() {} // DOES NOT COMPILE
+}
+```
+
+* En este ejemplo, el método de instancia `hasFeathers()` está marcado como `final` en la clase padre `Bird`.
+* Por lo que la clase hija `Penguin` no puede sobreescribir el método padre, resultando en un error de compilación. 
+* El método `static flyAway()` también está marcado `final`, por lo que no puede ser ocultado en la subclase. 
+* En este ejemplo, si el método hijo usa o no la palabra clave `final` es irrelevante, el código no compilará de cualquier manera.
+
+* Esta regla se aplica solo a métodos heredados. 
+* Por ejemplo, si los dos métodos estuvieran marcados `private` en la clase padre Bird, entonces la clase Penguin, como está definida, compilaría. 
+* En ese caso, los métodos `private` serían redeclarados, no sobrescritos u ocultados.
+
+## Creating Abstract Classes
+
+### Introducing Abstract Classes
+
+* Entremos a las clases abstractas. Una `abstract class` es una clase declarada con el modificador `abstract` que no puede ser instanciada directamente y puede contener métodos abstractos. 
+* Echemos un vistazo a un ejemplo basado en el modelo de datos Canine:
+
+```java
+public abstract class Canine {}
+
+public class Wolf extends Canine {}
+
+public class Fox extends Canine {}
+
+public class Coyote extends Canine {}
+```
+
+En este ejemplo, otros desarrolladores pueden crear instancias de Wolf, Fox, o Coyote, pero no Canine. 
+Seguro, pueden pasar una variable de referencia como Canine, pero el objeto subyacente debe ser una subclase de Canine en tiempo de ejecución.
+
+Pero espera, ¡hay más! Una clase abstracta puede contener métodos abstractos. Un abstract method es un método declarado con el modificador abstract que no define un cuerpo. Dicho de otra manera, un método abstract obliga a las subclases a sobreescribir el método.
+
+¿Por qué querríamos esto? Polimorfismo, ¡por supuesto! Al declarar un método abstract, podemos garantizar que alguna versión estará disponible en una instancia sin tener que especificar qué versión está en la clase padre abstracta.
+
+```java
+public abstract class Canine {
+    public abstract String getSound();
+    public void bark() { System.out.println(getSound()); }
+}
+
+public class Wolf extends Canine {
+    public String getSound() {
+        return "Wooooooof!";
+    }
+}
+
+public class Fox extends Canine {
+    public String getSound() {
+        return "Squeak!";
+    }
+}
+
+public class Coyote extends Canine {
+    public String getSound() {
+        return "Roar!";
+    }
+}
+```
+
+Entonces podemos crear una instancia de Fox y asignarla al tipo padre Canine. El método sobrescrito será usado en tiempo de ejecución.
+
+```java
+public static void main(String[] p) {
+    Canine w = new Fox();
+    w.bark(); // Squeak!
+}
+```
+
+Fácil hasta ahora. Pero hay algunas reglas que necesitas conocer:
+
+* Solo los métodos de instancia pueden ser marcados abstract dentro de una clase, no variables, constructores, o métodos static.
+* Un método abstract solo puede ser declarado en una clase abstracta.
+* Una clase no abstracta que extiende una clase abstracta debe implementar todos los métodos abstractos heredados.
+* Sobreescribir un método abstract sigue las reglas existentes para sobreescribir métodos que aprendiste anteriormente en el capítulo.
+
+Veamos si puedes identificar por qué cada una de estas declaraciones de clase no compila:
+
+```java
+public class FennecFox extends Canine {
+    public int getSound() {
+        return 10;
+    }
+}
+
+public class ArcticFox extends Canine {}
+
+public class Direwolf extends Canine {
+    public abstract rest();
+    public String getSound() {
+        return "Roof!";
+    }
+}
+
+public class Jackal extends Canine {
+    public abstract String name;
+    public String getSound() {
+        return "Laugh";
+    }
+}
+```
+
+* Primero, la clase FennecFox no compila porque es una sobreescritura de método inválida. 
+* En particular, los tipos de retorno no son covariantes. 
+* La clase `ArcticFox` no compila porque no sobreescribe el método abstract `getSound()`. 
+* La clase `Direwolf` no compila porque no es abstracta, pero declara un método abstract `rest()`. 
+* Finalmente, la clase Jackal no compila porque las variables no pueden ser marcadas `abstract`.
+
+Una clase abstracta se utiliza más comúnmente cuando quieres que otra clase herede propiedades de una clase en particular, pero quieres que la subclase complete algunos de los detalles de implementación.
+
+* Anteriormente, dijimos que una clase abstracta es una que no puede ser instanciada. 
+* Esto significa que si intentas instanciarla, el compilador reportará una excepción, como en este ejemplo:
+
+```java
+abstract class Alligator {
+    public static void main(String... food) {
+        var a = new Alligator(); // DOES NOT COMPILE
+    }
+}
+```
+
+Una clase abstracta puede ser inicializada, pero solo como parte de la instanciación de una subclase no abstracta.
+
+### Declaring Abstract Methods
+
+* Un método abstract siempre se declara sin un cuerpo. 
+* También incluye un punto y coma `(;)` después de la declaración del método. 
+* Como viste en el ejemplo anterior, una clase abstracta puede incluir métodos no abstractos, en este caso con el método `bark()`. 
+* De hecho, una clase abstracta puede incluir todos los mismos miembros que una clase no abstracta, incluyendo variables, métodos static y de instancia, constructores, etc.
+
+* Podría sorprenderte saber que una clase abstracta no está obligada a incluir ningún método abstracto. 
+* Por ejemplo, el siguiente código compila aunque no define ningún método abstracto:
+
+```java
+public abstract class Llama {
+    public void chew() {}
+}
+```
+
+* Incluso sin métodos `abstract`, la clase no puede ser instanciada directamente. 
+* Para el examen, mantén un ojo abierto para métodos abstract declarados fuera de clases abstractas, como el siguiente:
+
+```java
+public class Egret { // DOES NOT COMPILE
+    public abstract void peck();
+}
+```
+
+Los creadores del examen les gusta incluir declaraciones de clase inválidas, mezclando clases no abstractas con métodos `abstract`.
+
+Como el modificador final, el modificador `abstract` puede ser colocado antes o después del modificador de acceso en declaraciones de clase y método, como se muestra en esta clase Tiger:
+
+```java
+abstract public class Tiger {
+    abstract public int claw();
+}
+```
+
+* El modificador `abstract` no puede ser colocado después de la palabra clave class en una declaración de clase o después del tipo de retorno en una declaración de método. 
+* Las siguientes declaraciones `Bear` y `howl()` no compilan por estas razones:
+
 
 
 
@@ -1232,5 +1414,4 @@ public class Meerkat extends Carnivore {
 
 ```
 
-Creating Abstract Classes
 Creating Immutable Objects
