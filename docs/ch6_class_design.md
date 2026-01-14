@@ -1743,14 +1743,5 @@ public Animal(List<String> favoriteFoods) {
 }
 ```
 
-
----------------------------------------------------------------------
-**Palabra** cuando es una palabra en inglés importante que tiene sentido traducirla, pero no es una palabra reservada
-
-() version en ingles de la palabra anterior
-
-`   `  solo cúando es una línea de código o una palabra reservada que va a ser explicada
-
-```java
-
-```
+* La operación de copia se llama defensive copy porque la copia se está haciendo en caso de que otro código haga algo inesperado. 
+* Es la misma idea que la conducción defensiva: prevenir un problema antes de que exista. Con este enfoque, nuestra clase Animal es una vez más inmutable.
