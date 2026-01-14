@@ -1586,7 +1586,162 @@ public class HumpbackWhale extends Whale {
 * Aunque `HumpbackWhale` proporciona una implementación, no se considera una sobreescritura del método abstract, ya que el método `abstract` no está heredado. 
 * El compilador reconoce esto en la clase padre y reporta un error tan pronto como `private` y `abstract` se aplican al mismo método.
 
+Si cambiáramos el modificador de acceso de `private` a `protected` en la clase padre Whale, ¿compilaría el código?
 
+```java
+public abstract class Whale {
+    protected abstract void sing();
+}
+
+public class HumpbackWhale extends Whale {
+    private void sing() { // DOES NOT COMPILE
+        System.out.println("Humpback whale is singing");
+    }
+}
+```
+
+* En este ejemplo modificado, el código seguirá sin compilar, pero por una razón completamente diferente. 
+* Si recuerdas las reglas para sobreescribir un método, la subclase no puede reducir la visibilidad del método padre, `sing()`. 
+* Como el método está declarado `protected` en la clase padre, debe estar marcado como `protected` o `public` en la clase hija. 
+* Incluso con métodos `abstract`, las reglas para sobreescribir métodos deben seguirse.
+
+**abstract and static Modifiers**
+
+* Como discutimos anteriormente en el capítulo, un método static solo puede ser ocultado, no sobrescrito. 
+* Se define como perteneciente a la clase, no a una instancia de la clase. 
+* Si un método static no puede ser sobrescrito, entonces se deduce que tampoco puede ser marcado `abstract`, ya que nunca puede ser implementado. 
+* Por ejemplo, la siguiente clase no compila:
+
+```java
+abstract class Hippopotamus {
+    abstract static void swim(); // DOES NOT COMPILE
+}
+```
+
+Para el examen, asegúrate de saber qué modificadores pueden y no pueden ser usados uno con otro, especialmente para clases abstractas e interfaces.
+
+## Creating Immutable Objects
+
+### Declaring an Immutable Class
+
+Aunque hay una variedad de técnicas para escribir una clase inmutable, deberías estar familiarizado con una estrategia común para hacer una clase inmutable:
+
+1. Marque la clase como final o haga que todos los constructores sean privados.
+2. Marque todas las variables de instancia como privadas y finales.
+3. No defina ningún método setter.
+4. No permitir que se modifiquen los objetos mutables referenciados.
+5. Use a constructor to set all properties of the object, making a copy if needed.
+
+* La primera regla previene que alguien cree una subclase mutable. 
+* La segunda y tercera reglas aseguran que los llamadores no hagan cambios a las variables de instancia y son las características distintivas de una buena encapsulación.
+* La cuarta regla para crear objetos inmutables es sutil. 
+* Básicamente, significa que no deberías exponer un método accessor (o getter) para campos de instancia mutables. 
+
+```java
+import java.util.*;
+public final class Animal { // Not an immutable object declaration
+    private final ArrayList<String> favoriteFoods;
+    
+    public Animal() {
+        this.favoriteFoods = new ArrayList<String>();
+        this.favoriteFoods.add("Apples");
+    }
+    
+    public List<String> getFavoriteFoods() {
+        return favoriteFoods;
+    }
+}
+```
+
+Seguimos cuidadosamente las primeras tres reglas, pero desafortunadamente, un llamador malicioso aún podría modificar nuestros datos:
+
+```java
+var zebra = new Animal();
+System.out.println(zebra.getFavoriteFoods()); // [Apples]
+
+zebra.getFavoriteFoods().clear();
+zebra.getFavoriteFoods().add("Chocolate Chip Cookies");
+System.out.println(zebra.getFavoriteFoods()); // [Chocolate Chip Cookies]
+```
+
+* ¡Oh no! ¡Las Zebras no deberían comer Chocolate Chip Cookies! No es un objeto inmutable si podemos cambiar sus contenidos. 
+* Si no tenemos un getter para el objeto favoriteFoods, ¿cómo acceden los llamadores a él? Simple: usando métodos `delegate` o `wrapper` para leer los datos.
+
+```java
+import java.util.*;
+public final class Animal { // An immutable object declaration
+    private final List<String> favoriteFoods;
+    
+    public Animal() {
+        this.favoriteFoods = new ArrayList<String>();
+        this.favoriteFoods.add("Apples");
+    }
+    
+    public int getFavoriteFoodsCount() {
+        return favoriteFoods.size();
+    }
+    
+    public String getFavoriteFoodsItem(int index) {
+        return favoriteFoods.get(index);
+    }
+}
+```
+
+* En esta versión mejorada, los datos todavía están disponibles. 
+* Sin embargo, es un verdadero objeto inmutable porque la variable mutable no puede ser modificada por el llamador.
+
+### Performing a Defensive Copy
+
+* Entonces, ¿de qué trata esta quinta y última regla para crear objetos inmutables? 
+* Al diseñar nuestra clase, digamos que queremos una regla de que los datos para favoriteFoods son proporcionados por el llamador y que siempre contiene al menos un elemento. 
+* Esto regla a menudo se llama un invariante: es verdadera cada vez que tenemos una instancia del objeto.
+
+```java
+import java.util.*;
+public final class Animal { // Not an immutable object declaration
+    private final ArrayList<String> favoriteFoods;
+    
+    public Animal(ArrayList<String> favoriteFoods) {
+        if (favoriteFoods == null || favoriteFoods.size() == 0)
+            throw new RuntimeException("favoriteFoods is required");
+        this.favoriteFoods = favoriteFoods;
+    }
+    
+    public int getFavoriteFoodsCount() {
+        return favoriteFoods.size();
+    }
+    
+    public String getFavoriteFoodsItem(int index) {
+        return favoriteFoods.get(index);
+    }
+}
+```
+
+* Para asegurar que favoriteFoods es proporcionado, lo validamos en el constructor y lanzamos una excepción si no es proporcionado. 
+* Entonces, ¿es esto inmutable? ¡No del todo! Un llamador malicioso podría ser astuto y mantener su propia referencia secreta a nuestro objeto favoriteFoods, el cual pueden modificar directamente.
+
+```java
+var favorites = new ArrayList<String>();
+favorites.add("Apples");
+
+var zebra = new Animal(favorites); // Caller still has access to favorites
+System.out.println(zebra.getFavoriteFoodsItem(0)); // [Apples]
+
+favorites.clear();
+favorites.add("Chocolate Chip Cookies");
+System.out.println(zebra.getFavoriteFoodsItem(0)); // [Chocolate Chip Cookies]
+```
+
+* ¡Whoops! Parece que Animal no es inmutable después de todo, ya que sus contenidos pueden cambiar después de ser creado. 
+* La solución es hacer una copia del objeto list que contiene los mismos elementos.
+
+```java
+public Animal(List<String> favoriteFoods) {
+    if (favoriteFoods == null || favoriteFoods.size() == 0)
+        throw new RuntimeException("favoriteFoods is required");
+    this.favoriteFoods = new ArrayList<String>(favoriteFoods);
+}
+```
 
 
 ---------------------------------------------------------------------
@@ -1599,5 +1754,3 @@ public class HumpbackWhale extends Whale {
 ```java
 
 ```
-
-Creating Immutable Objects
