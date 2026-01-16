@@ -55,8 +55,8 @@ public class FieldMouse implements Climb, CanBurrow {
 }
 
 // La covarianza en tipos de retorno significa que cuando una subclase o implementación sobrescribe un método, 
-// puede devolver un tipo de dato más específico (una subclase) del tipo declarado originalmente.
-// en este caso, FieldMouse implementa el método getSpeed de la interfaz Climb, devolviendo un Float, 
+// puede devolver un tipo de dato más específico (subclase) respecto al tipo declarado originalmente.
+// En este caso, FieldMouse implementa el método getSpeed de la interfaz Climb, devolviendo un Float, 
 // cuando el método original devuelve un Number.
 ```
 
@@ -88,14 +88,13 @@ public interface HasWhiskers {
     public int getNumberOfWhiskers();
 }
 
-public abstract class HarborSeal extends HasTail, HasWhiskers {
-    // No necesita implementar los métodos aqui ya que es una clase abstracta
-}
+// Al ser abstract la clase puede omitir la implementación de los métodos de las interfaces
+public abstract class HarborSeal implements HasTail, HasWhiskers {}
 
 // No compila porque CommonSeal no implementa los métodos de la clase abstracta HarborSeal
-public class CommonSeal extends HarborSeal {} 
-}
+public class CommonSeal extends HarborSeal {}
 ```
+
 * Una clase puede implementar una interfaz, pero una clase no puede extender una interfaz
 * Una interfaz puede extender otra interfaz, pero una interfaz no puede implementar otra interfaz
 
@@ -118,7 +117,7 @@ public interface Omnivore {
     public void eatPlants();
 }
 
-public class  Bear implements Herbivore, Omnivore {
+public class Bear implements Herbivore, Omnivore {
     public void eatPlants() {
         System.out.println("Eating plants");
     }
