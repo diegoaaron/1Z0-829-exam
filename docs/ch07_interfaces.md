@@ -4,6 +4,8 @@
 
 Tipo de dato abstracto que define una lista de métodos abstractos en la que cualquier clase que implemente la interfaz debe aprovisionarlos.
 
+![ch07_01.png](images/ch07/ch07_01.png)
+
 ```java
 public abstract interface CanBurrow {
     public abstract Float getSpeed(int age);
@@ -36,6 +38,8 @@ public final interface WalksOnEightLegs {}
 
 * Una clase puede usar (implementar) las interfaces a través de la palabra reservada `implements`.
 * Una clase puede implementar múltiples interfaces, separándolas con una `,` coma.
+
+![ch07_02.png](images/ch07/ch07_02.png)
 
 ```java
 public interface Climb {
