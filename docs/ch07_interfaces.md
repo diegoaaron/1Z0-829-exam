@@ -14,11 +14,9 @@ public abstract interface CanBurrow {
     public static final int MINIUM_DEPTH = 1;
 }
 ```
-* una interfaz siempre es considerada abstracta
-* una interfaz tiene modificadores implícitos a diferencia de las clases abstractas
-* una interfaz no requiere tener definido ningún método para existir
-
-Un modificador implícito es uno que el compilador inserta automáticamente en el código
+* una interfaz siempre es considerada abstracta.
+* una interfaz tiene modificadores implícitos (el compilador los inserta automáticamente en el código) a diferencia de las clases abstractas.
+* una interfaz no requiere tener definido ningún método para existir.
 
 ```java
 // compila
