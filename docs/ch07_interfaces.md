@@ -4,9 +4,6 @@
 
 Tipo de dato abstracto que define una lista de métodos abstractos en la que cualquier clase que implemente la interfaz debe aprovisionarlos.
 
-* una interfaz solo puede contener métodos abstractos, estáticos, por defecto y constantes.
-* una interfaz puede estar totalmente vacía.
-
 ```java
 public abstract interface CanBurrow {
     public abstract Float getSpeed(int age);
@@ -14,6 +11,9 @@ public abstract interface CanBurrow {
     public static final int MINIUM_DEPTH = 1;
 }
 ```
+
+* una interfaz solo puede contener métodos abstractos, estáticos, por defecto y constantes.
+* una interfaz puede estar totalmente vacía.
 * una interfaz siempre es considerada abstracta.
 * una interfaz tiene modificadores implícitos (el compilador los inserta automáticamente en el código) a diferencia de las clases abstractas.
 * una interfaz no requiere tener definido ningún método para existir.
@@ -30,34 +30,33 @@ public class Biped {
     }
 }
 
-// no compila porque una interfaz no puede ser marcada como final (marcarla asi indicaria que no se puede utilizar por otra clase)
+// no compila porque una interfaz no puede ser final (marcarla asi indicaria que no se puede utilizar por otra clase)
 public final interface WalksOnEightLegs {}
 ```
 
-Haciendo uso de las interfaces a través de la palabra reservada `implements`:
-
-* El modificador de acceso del método de la interfaz es implícitamente público en `Climb`, pero la clase `FieldMouse` debe declararlo explícitamente.
+* Una clase puede usar (implementar) las interfaces a través de la palabra reservada `implements`.
 * Una clase puede implementar múltiples interfaces, separándolas con una `,` coma.
 
 ```java
 public interface Climb {
-    Number getSpeed(int age);
+    Number getSpeed(int age); // tiene modificador 'public' implícito
 }
 
 public class FieldMouse implements Climb, CanBurrow {
 
-    // implementación del método de la interfaz Climb
+    // implementación del método de la interfaz Climb debe declarar explicitamente 'public' para funcionar
     public Float getSpeed(int age) {
-        return 11f; // retorna un tipo covariante
+        return 11f; // retorna un tipo de dato covariante
     }
 }
 
 // La covarianza en tipos de retorno significa que cuando una subclase o implementación sobrescribe un método, 
-// puede devolver un tipo que es más específico (una subclase) del tipo declarado originalmente.
+// puede devolver un tipo de dato más específico (una subclase) del tipo declarado originalmente.
 // en este caso, FieldMouse implementa el método getSpeed de la interfaz Climb, devolviendo un Float, 
 // cuando el método original devuelve un Number.
 ```
-* Una interfaz puede ser extendida por otra utilizando la palabra reservada `extends`
+
+* Una interfaz puede ser aumentada (extendida) por otra utilizando la palabra reservada `extends`.
 * Una interfaz puede extenderse utilizando otras interfaces, separándolas con una `,` coma.
 
 ```java
