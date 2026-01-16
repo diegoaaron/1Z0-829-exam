@@ -137,11 +137,10 @@ public class Wolf implements CanBark, CanHowl {}
 
 Una interfaz puede tener modificadores implícitos los cuales son: 
 
-* `abstract` es por defecto en las interfaces
-* `public`, `static`, `final` son por defecto en las variables de una interfaz
+* La interfaz por defecto tiene implícito `abstract`
+* Las variables de una interfaz son por defecto `public`, `static`, `final`
 * Los métodos de las interfaces con un cuerpo vació son `abstract` por defecto
-* Los métodos de una interfaz sin el modificador `private` son implícitamente `public`
-  * Esto aplica a los métodos abstractos, estáticos y por defecto
+* Los métodos de una interfaz sin el modificador `private` son implícitamente `public` (aplica a los métodos abstractos, estáticos y por defecto)
 
 En el siguiente fragmento de código, se muestra cómo el compilador agrega los modificadores implícitos a la interfaz:
 
@@ -187,6 +186,7 @@ interface Poodle {
 
 // Ambas definiciones de métodos se consideran abstractas pero la clase Husky no se compilara si el método play() 
 // no está marcado como abstract, mientras que el método en la interfaz Poodle se compilará con o sin el modificador abstract.
+// porque Java lo pone implícitamente.
 
 public class Webby extends Husky {
     void play() {}
@@ -197,7 +197,7 @@ public class Georgette implements Poodle {
 }
 
 // el métotdo play() de Webby al ser de tipo paquete, compilara ya que es producto de una herencia mientras que 
-// el método play() de Georgette no compilará ya que es producto de una implementación de una interfaz y debe ser público.
+// el método play() de Georgette no compilará ya que es producto de una implementación de una interfaz y debe estar definido explicitamente como público.
 ```
 
 ### Métodos concretos en las interfaces
