@@ -213,15 +213,17 @@ Las interfaces contemplas más elementos que solo métodos abstractos y constant
 | private method        | Instance        | private               | —                     | Yes                  |
 | private static method | Class           | private, static       | —                     | Yes                  |
 
-_**¿Qué pasa con los miembros de tipo paquete o protegido para una interfaz?**_
+¿Qué pasa con los miembros de tipo paquete o protegido en una interfaz?
 
-* El modificador protected existe para permitir acceso a subclases (herencia). Como las interfaces no se extienden, sino que se implementan, el concepto de protected no tiene sentido en este contexto.
-* Las interfaces no soportan package access (el nivel de acceso sin modificador), porque todos los métodos sin modificador en interfaces son implícitamente public, cambiar esto rompería programas.
+* El modificador `protected` existe para permitir acceso a subclases (herencia). 
+* Como las interfaces no se extienden, sino que se implementan, el concepto de protected no tiene sentido en este contexto.
+
+* Las interfaces no soportan el acceso `package` (el nivel de acceso sin modificador), porque todos los métodos sin modificador en interfaces son implícitamente `public`, cambiar esto rompería programas.
 
 #### Método por defecto de una interfaz
 
-Un método por defecto usando la palabra clave `default` permite a las interfaces proporcionar una implementación predeterminada para los métodos, y esta ser modificada por la clase que lo implementa si en verdad requiere utilizarla.
-Esto ayuda a tener que modificar implementaciones de interfaces sin romper el código existente.
+* En una interfaz se define un método por defecto usando la palabra clave `default` que permite a las interfaces proporcionar una implementación predeterminada para los métodos, y esta ser modificada por la clase que lo implementa si en verdad requiere utilizarla.
+* Esto ayuda a tener que modificar implementaciones de interfaces sin romper el código existente.
 
 ```java
 public interface IsColdBlooded {
@@ -267,7 +269,7 @@ public interface Carnivore {
     }
 }
 
-// la clase Cat no compilara porque por regla debe implementar el método getSpeed() mientras que Dog si.
+// la clase Cat no compilara porque por regla debe implementar el método getSpeed() por otra parte la clase Dog si compila.
 public interface Walk {
     public default int getSpeed() {
         return 5;
