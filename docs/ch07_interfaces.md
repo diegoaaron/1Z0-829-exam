@@ -298,12 +298,12 @@ public class Dog implements Walk, Run {
 
 #### Método estático de una interfaz
 
-Estos métodos se definen con la palabra clave static y casi siempre se comportan igual que los métodos estáticos definidos en las clases.
+Estos métodos se definen con la palabra clave `static` y casi siempre se comportan igual que los métodos estáticos definidos en las clases.
 
 **Reglas para los métodos estáticos:**
 
-* Un método estático debe ser marcado con la palabra `static` y debe tener un cuerpo
-* Un método estático sin un modificador de acceso es implícitamente `public` (se puede usar un modificador de acceso `private`)
+* Un método estático debe ser marcado con la palabra `static` y debe tener un cuerpo.
+* Un método estático sin un modificador de acceso es implícitamente `public` (se puede usar un modificador de acceso `private`).
 * Un método estático no puede ser marcado como `abstract` o `final`
 * Un método estático no se puede heredar y no se puede acceder a él en una clase que implementa la interfaz sin una referencia al nombre de la interfaz
 
