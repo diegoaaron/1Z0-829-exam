@@ -338,6 +338,7 @@ public interface Schedule {
     default void wakeUp() {checkTime(7);}
     private void haveBreakfast() {checkTime(7);}
     static void workOut() {checkTime(18);}
+    
     private static void checkTime(int hour) {
         if (hour > 17) {
             System.out.println("Estas llegando tarde al trabajo!");
@@ -347,8 +348,8 @@ public interface Schedule {
     }
 }
 // Podrías escribir esta interfaz sin usar un método privado copiando el contenido del método checkTime() donde lo requieras, 
-//  pero de esta forma será más fácil de leer, ya que no se está repitiendo en más lugares. También se podría definir como checkTime() público 
-//  pero eso expondría a todos este método entrando en conflicto con el principio de encapsulación.
+//  pero de esta forma será más fácil de leer, ya que no se está repitiendo el mismo código en varios lugares. 
+//  También se podría definir checkTime() como público pero eso expondría a todos este método entrando en conflicto con el principio de encapsulación.
 ```
 
 La diferencia entre un método privado no estático y uno estático es que el primero se puede llamar desde métodos default u otros privados no estáticos de la interfaz. Mientras que el privado estático puede ser llamado desde métodos static, default y cualquier otro privado.
