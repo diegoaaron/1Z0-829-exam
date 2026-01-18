@@ -359,9 +359,9 @@ public interface Schedule {
 
 * Un método de interfaz privado debe estar marcado como `private` e incluir un cuerpo de método.
 * Un método de interfaz estático privado puede ser llamado por cualquier método dentro de la definición de la interfaz.
-* Un método de interfaz privado solo puede ser llamado por un método por defecto otros métodos privados no estáticos dentro ode la interfaz.
+* Un método de interfaz privado solo puede ser llamado por un método por defecto y otros métodos privados no estáticos dentro ode la interfaz.
 
-_Para ambos tipos de métodos privados, una clase que implementa la interfaz no puede invocarlos directamente_
+Para ambos tipos de métodos privados, una clase que implementa la interfaz no puede invocarlos directamente.
 
 **Llamar a métodos abstractos** 
 
