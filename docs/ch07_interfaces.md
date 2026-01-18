@@ -352,7 +352,8 @@ public interface Schedule {
 //  También se podría definir checkTime() como público pero eso expondría a todos este método entrando en conflicto con el principio de encapsulación.
 ```
 
-La diferencia entre un método privado no estático y uno estático es que el primero se puede llamar desde métodos default u otros privados no estáticos de la interfaz. Mientras que el privado estático puede ser llamado desde métodos static, default y cualquier otro privado.
+* La diferencia entre un método privado no estático y uno estático es que el primero se puede llamar desde métodos `default` u otros privados no estáticos de la interfaz. 
+* Mientras que el privado estático puede ser llamado desde métodos static, default y cualquier otro privado.
 
 **Reglas para los métodos privados:**
 
