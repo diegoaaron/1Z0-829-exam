@@ -328,6 +328,7 @@ public class Bunny implements Hop {
     }
 }
 ```
+
 #### Método privado de una interfaz
 
 Los métodos privados y los métodos de interfaz estáticos privados solo se pueden usar dentro de la interfaz donde se declararon y su uso es principalmente para reducir la duplicación de código.
