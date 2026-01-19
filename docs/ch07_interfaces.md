@@ -365,6 +365,7 @@ Para ambos tipos de métodos privados, una clase que implementa la interfaz no p
 
 **Llamar a métodos abstractos** 
 
+
 Los métodos `default` y `private` no-estáticos pueden llamar a métodos abstractos de la misma interfaz. Esto es posible porque estos métodos se ejecutan en el contexto de una instancia concreta de una clase que implementa la interfaz. Cuando se invoca un método default, ya existe un objeto real que tiene implementaciones concretas de todos los métodos abstractos.
 
 ```java
