@@ -348,12 +348,12 @@ public interface Schedule {
     }
 }
 // Podrías escribir esta interfaz sin usar un método privado copiando el contenido del método checkTime() donde lo requieras, 
-//  pero de esta forma será más fácil de leer, ya que no se está repitiendo el mismo código en varios lugares. 
+//  pero de esta forma es más fácil de leer, ya que no se está repitiendo el mismo código en varios lugares. 
 //  También se podría definir checkTime() como público pero eso expondría a todos este método entrando en conflicto con el principio de encapsulación.
 ```
 
 * La diferencia entre un método privado no estático y uno estático es que el primero se puede llamar desde métodos `default` u otros privados no estáticos de la interfaz. 
-* Mientras que el privado estático puede ser llamado desde métodos static, default y cualquier otro privado.
+* Por otra parte, el método privado estático puede ser llamado desde métodos static, default y cualquier otro privado.
 
 **Reglas para los métodos privados:**
 
@@ -365,9 +365,9 @@ Para ambos tipos de métodos privados, una clase que implementa la interfaz no p
 
 **Llamar a métodos abstractos** 
 
-Los métodos `default` y `private` no-estáticos pueden llamar a métodos abstractos de la misma interfaz. Esto es posible porque estos métodos se ejecutan en el contexto de una instancia concreta de una clase que implementa la interfaz. Cuando se invoca un método default, ya existe un objeto real que tiene implementaciones concretas de todos los métodos abstractos.
-
-
+* Los métodos `default` y `private` no-estáticos pueden llamar a métodos abstractos de la misma interfaz. 
+* Esto es posible porque estos métodos se ejecutan en el contexto de una instancia concreta de una clase que implementa la interfaz. 
+* Cuando se invoca un método default, ya existe un objeto real que tiene implementaciones concretas de todos los métodos abstractos.
 
 ```java
 public interface ZooRenovation {
@@ -383,19 +383,11 @@ public interface ZooRenovation {
 // y se pueden llamar mediante el método predeterminado printStatus()
 ```
 
-#### Comentarios finales de la sección 
-
-* Trata los métodos privados, abstractos, predeterminados y no estáticos como pertenecientes a una instancia de la interfaz.
-* Trata los métodos y variables estáticos como pertenecientes al objeto de clase de la interfaz. 
-* Todos los tipos de métodos de interfaz privados solo son accesibles dentro de la declaración de la interfaz.
-
 ## Enumeraciones
 
-En programación, es común tener variables con un grupo específico de valores como días de la semana o estaciones del año, una enumeración es un conjunto fijo de constantes.
-
-En una enumeración simple el `;` al final es opcional.
-
-Las enumeraciones se consideran constantes por lo que se escriben usando el formato SNAKE_CASE.
+* En programación, es común tener variables con un grupo específico de valores como días de la semana o estaciones del año, una enumeración es un conjunto fijo de constantes.
+* En una enumeración simple el `;` al final es opcional.
+* Las enumeraciones se consideran constantes por lo que se escriben usando el formato `SNAKE_CASE`.
 
 * Las enumeraciones son como constantes estáticas y finales, ya que se inicializan solo una vez en la JVM
 * No se puede extender una enumeración, sus valores son fijos.
