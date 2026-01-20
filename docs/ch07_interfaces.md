@@ -538,24 +538,6 @@ public enum Season {
 // podemos crear el método para el que se quiera. Solo codificamos los casos especiales y dejamos que los demás 
 // usen la implementación proporcionada por la enumeración. 
 
-public enum Season {
-    WINTER {
-        public String getHours() {
-            return "9am - 5pm";
-        }
-    },
-    SUMMER {
-        public String getHours() {
-            return "8am - 6pm";
-        }
-    },
-    SPRING, FALL {
-        public String getHours() {
-            return "10am - 8pm";
-        }
-    }
-}
-
 // Una enumeración puede incluso implementar una interfaz, ya que esto solo requiere sobrecargar métodos abstractos.
 
 public interface Weather { int getAverageTemperature(); }
