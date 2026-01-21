@@ -826,19 +826,16 @@ var cusin = new Crane(2, "Anna");
 var friend = new Crane(cousin.numberEggs(), "Anna");
 ```
 
-Teniendo como analogía que las interfaces son implícitamente abstractas, los registros son implícitamente finales. El modificador final es opcional.
+* Teniendo como analogía que las interfaces son implícitamente abstractas, los records son implícitamente finales. 
+* El modificador final es opcional: `public final record Crane(int numbersEggs, String name) {}`
 
-```java
-public final record Crane(int numbersEggs, String name) {}
-```
-
-También al igual que las enumeraciones eso significa que no puedes extender ni heredar un registro.
+También al igual que las enumeraciones eso significa que no puedes extender ni heredar un record.
 
 ```java
 public record BlueCrane() extends Crane {} // No compila
 ```
 
-Al igual que las enumeraciones, un registro puede implementar una interfaz regular o sellada siempre que implemente todos los métodos abstractos.
+Al igual que las enumeraciones, un record puede implementar una interfaz regular o sellada siempre que implemente todos los métodos abstractos.
 
 ```java
 public interface Bird {}
@@ -847,11 +844,11 @@ public record Crane(int numbersEggs, String name) implements Bird {}
 
 ### Creando constructores
 
-Podemos definir la creación de un constructor dentro del registro de forma denominado;
+Podemos definir la creación de un constructor dentro del record de forma denominada;
 
-#### El constructor largo
+**El constructor largo**
 
-El cual el compilador lo inserta automáticamente, ya que utiliza todos los campos del registro:
+El cual el compilador lo inserta automáticamente, ya que utiliza todos los campos del record:
 
 ![ch07_06.png](images/ch07/ch07_06.png)
 
@@ -867,15 +864,15 @@ public record Crane(int numbersEggs, String name) {
 }
 ```
 
-El compilador no insertará un constructor si define uno con la misma lista de parámetros, pero internamente no se incluyen todos los campos del registro.
+El compilador no insertará un constructor si define uno con la misma lista de parámetros, pero internamente no se incluyen todos los campos del record.
 
 ```java
 public record Crane(int numbersEggs, String name) {
-    public Crane(int numbersEggs, String name) {} // No compila, ya que no se incluyen todos los campos del registro
+    public Crane(int numbersEggs, String name) {} // No compila, ya que no se incluyen todos los campos del record
 }
 ```
 
-#### El constructor corto
+**El constructor corto**
 
 Este tipo es util, ya que permite que los registros procesen la validación y las transformaciones. No requiere que nombremos a los parámetros.
 
