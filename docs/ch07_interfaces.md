@@ -971,8 +971,8 @@ Si bien puedo agregar métodos, campos estáticos y otros tipos de datos, no se 
 
 public record Crane(int numbersEggs, String name) {
     private static int type = 10;
-    public int size; // No compila, ya que no se pueden agregar campos de instancia fuera de la declaración del registro
-    private boolean friendly; // No compila, ya que no se pueden agregar campos de instancia fuera de la declaración del registro
+    public int size; // No compila, ya que no se pueden agregar campos de instancia fuera de la declaración del record
+    private boolean friendly; // No compila, ya que no se pueden agregar campos de instancia fuera de la declaración del record
 }
 ```
 
@@ -980,16 +980,17 @@ public record Crane(int numbersEggs, String name) {
 
 Una clase anidada es una clase que se define dentro de otra clase y puede ser de cuatro tipos:
 
-* Clase anidada interna: Un tipo no estático definido en el nivel de miembro de una clase
-* Clase anidada estática: Un tipo estático definido en el nivel de miembro de una clase
-* Clase local: Una clase definida dentro del cuerpo de un método
+* Clase anidada interna: Un tipo no estático definido en el nivel de miembro de una clase.
+* Clase anidada estática: Un tipo estático definido en el nivel de miembro de una clase.
+* Clase local: Una clase definida dentro del cuerpo de un método.
 * Clase anónima: Un caso especial de una clase local que no tiene nombre.
 
 Entre sus beneficios está la capacidad de definir clases auxiliares y restringir su acceso, mejora la encapsulación, limpieza y legibilidad de código.
 
 ### Definiendo una clase anidada interna
 
-Una clase interna "inner class" o clase interna miembro "member inner class" es un tipo no estático definido en el nivel de miembro de una clase (el mismo nivel que los métodos, las variables de instancia y los constructores). Debido a que no son tipos de nivel superior, pueden usar cualquiera de los cuatro niveles de acceso.
+* Una clase interna "inner class" o clase interna miembro "member inner class" es un tipo no estático definido en el nivel de miembro de una clase (el mismo nivel que los métodos, las variables de instancia y los constructores). 
+* Debido a que no son tipos de nivel superior, pueden usar cualquiera de los cuatro niveles de acceso.
 
 * Se pueden declarar públicas, protegidas, de paquete o privadas
 * Pueden extender una clase e implementar interfaces
@@ -997,19 +998,20 @@ Una clase interna "inner class" o clase interna miembro "member inner class" es 
 * Puede acceder a los miembros de la clase externa, incluyendo los miembros privados
 
 ```java
-// La linea "greet(greeting);" muestra que la clase interna simplemente se refiere a un "greeting" como si estuviera disponible en la clase Room. 
-// Esto funciona porque, de hecho, esta disponible. Aunque la variabl es privada, se accede a ella dentro de esa misma clase.
+// La linea 9 muestra que la clase interna simplemente se refiere a un "greeting" como si estuviera disponible en la clase Room. 
+// Esto funciona porque, de hecho, esta disponible. Aunque la variable es privada, se accede a ella dentro de esa misma clase.
 
-// Dado que una clase interna no es estática, debe llamarse utilizando una instancia de clase. Esto significa que debe crear dos objetos. 
-// La linea 45 crea un objeto externo Home, mientras que la 40 crea una instancia de Room, hay que entender 
-// que la linea 40 no requiere una instancia explicita de Home porque es un método de instancia dentro de Home. 
-//  Esto funciona porque enterRoom() es un método de instancia dentro de la clase Home. Tanto Room como enterRoom() son miembros de Home.
+// Dado que una clase interna no es estática, debe llamarse utilizando una instancia de la clase externa; por lo cual se deben crear dos objetos. 
+// La linea 23 crea un objeto externo Home, mientras que la 18 crea una instancia de Room, pero hay que entender que la linea 18 no requiere   
+// una instancia explicita de Home porque es un método de instancia dentro de Home. 
+// Esto funciona porque enterRoom() es un método de instancia dentro de la clase Home. Tanto Room como enterRoom() son miembros de Home.
 
-public class Home {
+public class Home { // declaración de clase externa
     private Strring greeting = "Hi"; // variable de clase externa
     
     protected class Room { // declaración de clase interna
         public int repeat = 3;
+        
         public void enter() {
             for(int i = 0; i < repeat; i++) {
                 greet(greeting);
@@ -1026,7 +1028,7 @@ public class Home {
     }
     
     public static void main(String[] args) {
-        var home = new Home(); // crea una instancia de la clase externa
+        var home = new Home(); // Crea una instancia de la clase externa
         home.enterRoom();
     }
 }
@@ -1042,24 +1044,14 @@ public static void main(String[] args) {
 }
 ```
 
-Desde una instancia de Home podemos directamente crear la instancia de Room, la línea 64 se puede reducir más usando solo la 63 `var home = new Home().new Room().enter();`
+Desde una instancia de `Home` podemos directamente crear la instancia de `Room`, la línea 64 se puede reducir más usando solo la 63 `var home = new Home().new Room().enter();`
 
 **Referencia de miembros en una clase interna**
 
-Las clases internas pueden tener los mismos nombres de variable que las clases externas, lo que hace que el alcance sea un poco confuso. Hay una forma especial de llamar a estos para indicar a qué variable quieres acceder.
+* Las clases internas pueden tener los mismos nombres de variable que las clases externas, lo que hace que el alcance sea un poco confuso. 
+* Hay una forma especial de llamar a estos para indicar a qué variable quieres acceder.
 
 ```java
-// Línea 102: Instancia la clase más externa de forma normal
-
-// Línea 103: Usa la sintaxis "awkward" (incómoda) para instanciar B
-// Punto clave: Podrías haber escrito simplemente B como tipo porque está disponible a nivel de miembro de A
-// Java sabe dónde buscar la clase B
-//
-// Línea 104: Aquí SÍ es necesario especificar el tipo completo A.B.C
-// C está "demasiado profunda" para que Java sepa dónde buscarla sin la ruta completa
-//
-// Las líneas del método allTheX() demuestran diferentes formas de acceder a variables
-
 public class A {
     private int x = 10;
     class B {
@@ -1075,9 +1067,9 @@ public class A {
         }
     }
     public static void main(String[] args) {
-        A a = new A();
-        A.B b = a.new B();
-        A.B.C c = b.new C();
+        A a = new A(); // Instancia la clase más externa de forma normal
+        A.B b = a.new B(); // Usa la sintaxis "awkward" (incómoda) para instanciar B (Se puedes escribir simplemente B como tipo porque está disponible a nivel de miembro de A, Java sabe dónde buscar la clase B)
+        A.B.C c = b.new C(); // Aquí SÍ es necesario especificar el tipo completo A.B.C (C está "demasiado profunda" para que Java sepa dónde buscarla sin la ruta completa)
         c.allTheX();
     } 
 }
