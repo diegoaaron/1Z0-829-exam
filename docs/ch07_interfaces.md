@@ -775,15 +775,17 @@ public final class Crane {
 // y 'final' en la clase que protege la implementación de herencia)
 ```
 
-### Definiendo un registro
+### Definiendo un record
+
+* Un record es una clase especial e inmutable diseñada específicamente para ser un contenedor transparente de datos. 
+* Es básicamente una forma concisa de declarar clases que solo almacenan datos, sin comportamiento complejo.
 
 ![ch07_05.png](images/ch07/ch07_05.png)
 
 `public record Crane(int numbersEggs, String name) {}`
 
-La línea anterior crea un registro con el cual el compilador inserta la implementación de las variables asi como los métodos de objeto `equals()`, `hashCode()` y `toString()`.
-
-Ya que por defecto el compilador inyecta un constructor con el mismo orden de los parámetros al crear el registro, si se crea una instancia sin respetar ese orden u omitiendo un valor se genera un error de compilación.
+* La línea anterior crea un record con el cual el compilador inserta la implementación de las variables asi como los métodos de objeto `equals()`, `hashCode()` y `toString()`.
+* Ya que por defecto el compilador inyecta un constructor con el mismo orden de los parámetros al crear el record, si se crea una instancia sin respetar ese orden u omitiendo un valor se genera un error de compilación.
 
 ```java
 var mommy = new Crane(4, "Cathy"); // Correcto
@@ -794,13 +796,13 @@ var mommy = new Crane("Luis", 5); // Error
 var mommy = new Crane(5); // Error
 ```
 
-Elementos agregados automáticamente por el compilador al definir un registro:
+Elementos agregados automáticamente por el compilador al definir un record:
 
-* Constructor: un constructor público con los parámetros en el mismo orden que se definieron en el registro.
-* Métodos de acceso: métodos públicos con el mismo nombre que los componentes del registro (para cada variable).
-* equals(): un método que compara dos instancias del registro para ver si son iguales.
-* hashCode(): un método que devuelve un valor hash para la instancia del registro.
-* toString(): un método que devuelve una representación de cadena de la instancia del registro.
+* constructor: un constructor público con los parámetros en el mismo orden que se definieron en el record.
+* métodos de acceso: métodos públicos con el mismo nombre que los componentes del record (para cada variable).
+* equals(): un método que compara dos instancias del record para ver si son iguales.
+* hashCode(): un método que devuelve un valor hash para la instancia del record.
+* toString(): un método que devuelve una representación de cadena de la instancia del record.
 
 ```java
 var father = new Crane(3, "Bob");
@@ -813,13 +815,11 @@ System.out.println(father.equals(copy)); // true (porque son records y tienen el
 System.out.println(father.hashCode() + "," + copy.hashCode()); // 1007, 1007
 ```
 
-Es permitido crear un registro sin ningún componente, aunque no es muy útil.
+Es permitido crear un record sin ningún componente, aunque no es muy útil: `public record Empty() {}`
 
-`public record Empty() {}`
+### Entendiendo la inmutabilidad de los records
 
-### Entendiendo la inmutabilidad de los registros
-
-Ya que los registros no tienen setters y no se pueden modificar de ninguna forma después de su creación, la unica opción es crear otro objeto.
+Ya que los records no tienen setters y no se pueden modificar de ninguna forma después de su creación, la unica opción es crear otro objeto.
 
 ```java
 var cusin = new Crane(2, "Anna");
