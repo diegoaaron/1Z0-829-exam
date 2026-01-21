@@ -653,12 +653,13 @@ public class MyWolf extends Timber {}
 
 public class MyFurryWolf extends MyWolf {}
 
-// Para este ejemplo, MyFurryWolf se considera una sub-clase de Wolf gracias al polimorfismo (una instancia de una subclase puede ser tratada como una instancia de su superclase) ya que no-sealed permite que Timber sea extendida sin restricciones.
+// Para este ejemplo, MyFurryWolf se considera una sub-clase de Wolf gracias al polimorfismo 
+// (una instancia de una subclase puede ser tratada como una instancia de su superclase) ya que no-sealed permite que Timber sea extendida sin restricciones.
 ```
 
 **Omitiendo la palabra clave `permits`**
 
-Hasta ahora todos los ejemplos que has visto han requerido una cláusula `permits` al declarar una clase sellada, pero no siempre será necesario
+Hasta ahora todos los ejemplos que has visto han requerido una cláusula `permits` al declarar una clase sellada, pero no siempre será necesario.
 
 ```java
 // Snake.java
