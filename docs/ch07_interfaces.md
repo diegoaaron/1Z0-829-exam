@@ -392,6 +392,8 @@ public interface ZooRenovation {
 * Las enumeraciones son como constantes estáticas y finales, ya que se inicializan solo una vez en la JVM
 * No se puede extender, sus valores son fijos.
 
+![ch07_03.png](images/ch07/ch07_03.png)
+
 ```java
 public enum Season {
     VERANO, OTONO, INVIERNO, PRIMAVERA;
@@ -557,6 +559,8 @@ La lista de valores de enumeración siempre van la inicio.
 ## Clases Selladas - Sealing Classes
 
 Una clase sellada es una clase que restringe qué otras clases pueden extenderla directamente.
+
+![ch07_04.png](images/ch07/ch07_04.png)
 
 ```java
 public sealed class Bear permits Kodiak, Panda {} // solo Kodiak y Panda pueden extender Bear
@@ -781,6 +785,8 @@ public class Vet {
 
 ### Definiendo un registro
 
+![ch07_05.png](images/ch07/ch07_05.png)
+
 `public record Crane(int numbersEggs, String name) {}`
 
 La línea anterior crea un registro con el cual el compilador inserta la implementación de las variables asi como los métodos de objeto `equals()`, `hashCode()` y `toString()`.
@@ -854,6 +860,8 @@ Podemos definir la creación de un constructor dentro del registro de forma deno
 #### El constructor largo
 
 El cual el compilador lo inserta automáticamente, ya que utiliza todos los campos del registro:
+
+![ch07_06.png](images/ch07/ch07_06.png)
 
 ```java
 public record Crane(int numbersEggs, String name) {
