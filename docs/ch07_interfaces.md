@@ -715,12 +715,10 @@ Hay que tener en cuenta que las interfaces son implícitamente abstractas y no s
 * La cláusula `permits` es opcional si la clase sellada y sus subclases directas se declaran dentro del mismo archivo o si las subclases están anidadas dentro de la clase sellada.
 * Las interfaces se pueden sellar para limitar las clases que las implementan o las interfaces que las extienden. 
 
-
 ## Registros - Records
 
-Una clase sellada es una clase que restringe qué otras clases pueden extenderla directamente.
-
-Antes de avanzar debemos entender el concepto de encapsulación, para eso debemos saber que es un **POJO "Plan Old Java Object"** el cual es una clase usada pra modelar y pasar datos sencillos.
+* Una clase sellada es una clase que restringe qué otras clases pueden extenderla directamente.
+* Antes de avanzar debemos entender el concepto de encapsulación, para eso debemos saber que es un **POJO "Plan Old Java Object"** el cual es una clase usada pra modelar y pasar datos sencillos.
 
 ```java
 public class Crane {
