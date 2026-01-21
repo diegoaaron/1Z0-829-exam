@@ -615,9 +615,8 @@ Mientras que en las interfaces se puede tener un cierto número de modificadores
 
 **Una sub-clase `final`**
 
-Este modificador se puede aplicar directamente a una sub-clase sellada
-
-Al igual que una clase regular, el modificador `final` impide que la subclase Gazelle se extienda más
+* Este modificador se puede aplicar directamente a una sub-clase sellada.
+* Al igual que una clase regular, el modificador `final` impide que la subclase Gazelle se extienda más.
 
 ```java
 public sealed class Antelope permits Gazelle {}
