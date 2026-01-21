@@ -874,7 +874,7 @@ public record Crane(int numbersEggs, String name) {
 
 **El constructor corto**
 
-Este tipo es util, ya que permite que los registros procesen la validación y las transformaciones. No requiere que nombremos a los parámetros.
+Este tipo es util, ya que permite que los records procesen la validación y las transformaciones. No requiere que nombremos a los parámetros.
 
 ```java
 public record Crane(int numbersEggs, String name) {
@@ -887,7 +887,7 @@ public record Crane(int numbersEggs, String name) {
 }
 ```
 
-Si bien los constructores compactos pueden modificar parámetros del constructor, no pueden sobreescribirlos los campos finales (ya que aún no existen al momento de la ejecución del constructor, sino después de completar esta parte).
+Si bien los constructores cortos pueden modificar parámetros del constructor, no pueden sobreescribir los campos finales (ya que aún no existen al momento de la ejecución del constructor, sino después de completar esta parte).
 
 ```java
 public record Crane(int numbersEggs, String name) {
@@ -908,7 +908,7 @@ public record Crane(int numbersEggs, String name) {
 También podemos crear constructores sobrecargados que tomen una lista de parámetros diferentes, esto se relaciona directamente con los constructores de forma larga.
 
 ```java
-// La primera línea de un constructor sobrecargado deb ser una llamada explicita a otro constructor a través de this() 
+// La primera línea de un constructor sobrecargado debe ser una llamada explicita a otro constructor a través de 'this()' 
 // si no hay otro se llama al constructor largo.
 
 public record Crane(int numbersEggs, String name) {
@@ -939,18 +939,19 @@ public record Crane(int numbersEggs, String name) {
 }
 ```
 
-### Personalizando registros
+### Personalizando records
 
-Los registros aceptan muchos de los modificadores que se pueden aplicar a las clases como:
+Los records aceptan muchos de los modificadores que se pueden aplicar a las clases como:
 
 * Constructores sobrecargados y compactos
 * Métodos de instancia, incluyendo la anulación de cualquier método proporcionado (`equals()`, `hashCode()`, `toString()`)
-* Clases anidadas, interfaces, anotaciones, enumeraciones y registros
+* Clases anidadas, interfaces, anotaciones, enumeraciones y records
 
 ```java
 // Como ejemplo lo siguiente anula 2 metodos de instancia utilizando la anotación opcional @Override
 
 public record Crane(int numbersEggs, String name) {
+    
     @Override
     public String numbersEggs() {
         return 10;
@@ -963,7 +964,7 @@ public record Crane(int numbersEggs, String name) {
 }
 ```
 
-Si bien puedo agregar métodos, campos estáticos y otros tipos de datos, no se puede agregar campos de instancia fuera de la declaración de registro incluso si son privados, ya que esto anulan el propósito de crear un registro y podría romper la inmutabilidad que lo caracteriza.
+Si bien puedo agregar métodos, campos estáticos y otros tipos de datos, no se puede agregar campos de instancia fuera de la declaración de record incluso si son privados, ya que esto anulan el propósito de crear un record y podría romper la inmutabilidad que lo caracteriza.
 
 ```java
 // Como ejemplo lo siguiente anula 2 metodos de instancia utilizando la anotación opcional @Override
@@ -975,8 +976,7 @@ public record Crane(int numbersEggs, String name) {
 }
 ```
 
-
-## Clases anidadas - Nested Classes
+## Nested Classes (Clases anidadas) 
 
 Una clase anidada es una clase que se define dentro de otra clase y puede ser de cuatro tipos:
 
