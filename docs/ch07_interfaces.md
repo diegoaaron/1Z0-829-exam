@@ -719,10 +719,10 @@ Hay que tener en cuenta que las interfaces son implícitamente abstractas y no s
 * La cláusula `permits` es opcional si la clase sellada y sus subclases directas se declaran dentro del mismo archivo o si las subclases están anidadas dentro de la clase sellada.
 * Las interfaces se pueden sellar para limitar las clases que las implementan o las interfaces que las extienden. 
 
-## Registros - Records
+## Records (registros) 
 
 * Una clase sellada es una clase que restringe qué otras clases pueden extenderla directamente.
-* Antes de avanzar debemos entender el concepto de encapsulación, para eso debemos saber que es un **POJO "Plan Old Java Object"** el cual es una clase usada pra modelar y pasar datos sencillos.
+* Debemos saber que es un **POJO "Plan Old Java Object"** el cual es una clase usada pra modelar y pasar datos sencillos.
 
 ```java
 public class Crane {
@@ -735,7 +735,7 @@ public class Crane {
     }
 }
 
-// Los campos son de acceso al paquete, lo que signfica que desde otra clase del mismo paquete podrían cambiar valores y crear datos no válidos como: 
+// Los campos tiene acceso de tipo paquete, lo que signfica que desde otra clase del mismo paquete podrían cambiar valores y crear datos no válidos como: 
 
 public class Poacher {
     public void badActor() {
@@ -745,9 +745,9 @@ public class Poacher {
 }
 
 // Esto claramente no es bueno por lo que podemos recurrir a la encapsulación, es una forma de proteger a los miembros de 
-// la clase al restringir el acceso a ellos. la encapsulación nos permite modificar los métodos y el comportamiento de la 
+// la clase al restringir el acceso a ellos. La encapsulación nos permite modificar los métodos y el comportamiento de la 
 // clase posteriormente sin que alguien tenga acceso directo a una variable de instancia dentro de la clase. Por ejemplo, 
-// podemos cambiar el tipo de datos de una variable de instancia, pero manteenr las mismas firmas del método con lo 
+// podemos cambiar el tipo de datos de una variable de instancia, pero mantener las mismas firmas del método con lo 
 // cual mantenemos el control total sobre el funcionamiento interno de la clase. Por ejemplo la clase Crane podría quedar así:
 
 public final class Crane {
@@ -769,18 +769,10 @@ public final class Crane {
     }
 }
 
-// Esto nos asegura tener una clase inmutable (gracias a la definición final en la clase y variables, la ausencia de 
-// setter y tipos de datos int y string) y encapsulada (gracias a la definición private que no deja un acceso directo 
-// a las vairables desde afuera, final para que no sean reasiganda  una valor despues de inicializarlo, 
-// metodos getter que dan un acceso controlado a las variables, final en la clase que protege la implementación de herencia) 
-
-
-// En el siguiente ejemplo, podemos ver como siempre que hagamos privadas las variables de instancia la clase se encapsulara bien
-
-public class Vet {
-    private String name = "Dr. Smith";
-    private int yearsOfExperience = 10;
-}
+// Esto nos asegura tener una clase inmutable (gracias a la definición 'final' en la clase y variables, la ausencia de 
+// setter) y encapsulada (gracias a la definición 'private' que no deja un acceso directo a las vairables desde afuera, 
+// 'final' para que no sea reasignado una valor despues de inicializarlo, metodos getter que dan un acceso controlado a las variables 
+// y 'final' en la clase que protege la implementación de herencia)
 ```
 
 ### Definiendo un registro
