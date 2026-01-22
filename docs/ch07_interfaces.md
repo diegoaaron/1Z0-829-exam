@@ -1459,9 +1459,7 @@ public class EmperorPenguin extends Penguin {
 
 ```java
 class Penguin {
-    public static int getHeight() {
-        return 3;
-    }
+    public static int getHeight() { return 3; }
     
     public void printInfo() {
         System.out.print(this.getHeight());
@@ -1469,9 +1467,7 @@ class Penguin {
 }
 
 public class CrestedPenguin extends Penguin {
-    public static int getHeight() {
-        return 8;
-    }
+    public static int getHeight() { return 8; }
     
     public static void main(String... fish) {
         new CrestedPenguin().printInfo(); // 3
@@ -1479,50 +1475,39 @@ public class CrestedPenguin extends Penguin {
 }
 ```
 
-El ejemplo de `CrestedPenguin` es casi idéntico a nuestro ejemplo anterior de `EmperorPenguin`, aunque como probablemente ya habrás adivinado, imprime 3 en lugar de 8.
-
-El método `getHeight()` es estático y, por lo tanto, está oculto, no sobrescrito. El resultado es que llamar a `getHeight()` en `CrestedPenguin` devuelve un valor diferente que llamarlo en `Penguin`, incluso si el objeto subyacente es el mismo.
+* El método `getHeight()` es estático y, por lo tanto, está oculto, no sobrescrito. 
+* El resultado es que llamar a `getHeight()` en `CrestedPenguin` devuelve el valor asociado a `Penguin`.
+* La resolución de métodos estáticos se hace en tiempo de compilación basándose en el tipo declarado, no en el tipo real del objeto.
 
 Contrasta esto con la sobrescritura de un método, donde devuelve el mismo valor para un objeto independientemente de en qué clase se llame.
 
-¿Qué pasa con el hecho de que usamos `this` para acceder a un método estático en `this.getHeight()`?
-
-Aunque se te permite usar una referencia de instancia para acceder a una variable o método estático, hacerlo a menudo se desaconseja.
-
-El compilador te advertirá cuando accedas a miembros estáticos de una manera no estática. En este caso, la referencia this no tuvo impacto en la salida del programa.
+* ¿Qué pasa con el hecho de que usamos `this` para acceder a un método estático en `this.getHeight()`?
+* Aunque se te permite usar una referencia de instancia para acceder a una variable o método estático, hacerlo a menudo se desaconseja.
+* El compilador te advertirá cuando accedas a miembros estáticos de una manera no estática. 
+* En este caso, la referencia `this` no tuvo impacto en la salida del programa.
 
 ```java
 class Marsupial {
     protected int age = 2;
-    public static boolean isBiped() {
-        return false;
-    }
+    public static boolean isBiped() { return false; }
 }
 
 public class Kangaroo extends Marsupial {
     protected int age = 6;
-    public static boolean isBiped() {
-        return true;
-    }
+    public static boolean isBiped() { return true; }
     
     public static void main(String[] args) {
         Kangaroo joey = new Kangaroo();
         Marsupial moey = joey;
-        System.out.println(joey.isBiped());
-        System.out.println(moey.isBiped());
-        System.out.println(joey.age);
-        System.out.println(moey.age);
+        System.out.println(joey.isBiped()); // true
+        System.out.println(moey.isBiped()); // false
+        System.out.println(joey.age); // 6
+        System.out.println(moey.age); // 2
     }
 }
-
-// true
-// false
-// 6
-// 2
 ```
 
-En este ejemplo, solo un objeto (de tipo Kangaroo) es creado y almacenado en memoria.
-
-Dado que los métodos estáticos solo pueden ser ocultos, no sobrescritos, Java usa el tipo de referencia para determinar qué versión de `isBiped()` debe ser llamada, resultando en que `joey.isBiped()` imprima true y `moey.isBiped()` imprima false.
-
-Del mismo modo, la variable age está oculta, no sobrescrita, por lo que el tipo de referencia se usa para determinar qué valor mostrar. Esto resulta en que `joey.age` devuelva 6 y `moey.age` devuelva 2.
+* En este ejemplo, solo un objeto (de tipo Kangaroo) es creado y almacenado en memoria. Dado que los métodos estáticos solo pueden ser ocultados, no sobrescritos.
+* Java usa el tipo de referencia para determinar qué versión de `isBiped()` debe ser llamada, resultando en que `joey.isBiped()` imprima 'true' y `moey.isBiped()` imprima 'false'.
+* Del mismo modo, la variable 'age' está oculta, no sobrescrita, por lo que el tipo de referencia se usa para determinar qué valor mostrar. 
+* Esto resulta en que `joey.age` devuelva 6 y `moey.age` devuelva 2.
