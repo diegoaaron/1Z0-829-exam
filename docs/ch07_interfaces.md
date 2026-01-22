@@ -1196,7 +1196,7 @@ public class ZooGiftShop {
     }
 }
 
-// Ahora convertimos este ejemplo para implementar una interfaz en lugar de extender una clase abstracta
+// Ahora convertimos este ejemplo para implementar una interfaz en lugar de extender una clase abstracta.
 
 public class ZooGiftShop {
     interface SaleTodayOnly { // definiendo una clase abstracta.
@@ -1214,21 +1214,19 @@ public class ZooGiftShop {
 }
 ```
 
-¿Qué pasa si queremos implementar una interfaz y extender una clase? No se puede hacer con una clase anónima a menos que la clase a extender sea `java.lang.Object`
-
-Recuerda que una clase anónima es simplemente una clase local sin nombre.
-
-Puedes escribir una clase local y darle un nombre si tienes este problema. Luego, puedes implementar tantas interfaces como quieras y extender esta clase.
+* ¿Qué pasa si queremos implementar una interfaz y extender una clase? 
+* No se puede hacer con una clase anónima a menos que la clase a extender sea `java.lang.Object`
+* Recuerda que una clase anónima es simplemente una clase local sin nombre.
 
 ```java
-// aunque parece que estamos "instanciando una interfaz", en realidad estamos creando una clase anónima que implementa esa interfaz (indicado por las llaves {} después del nombre de la interfaz)
+// aunque parece que estamos "instanciando una interfaz", en realidad estamos creando una clase anónima 
+// que implementa esa interfaz (indicado por las llaves {} después del nombre de la interfaz).
 
 public class Gorilla {
     interface Climb {}
     Climb climbing = new Climb() {};
 }
 ```
-
 
 ## Entendiendo el polimorfismo
 
@@ -1241,15 +1239,13 @@ El polimorfismo es la propiedad de un objeto para adoptar muchas formas diferent
 Además, no se requiere una conversión si el objeto se reasigna a un supertipo o interfaz del objeto.
 
 ```java
-// Lo más importante a tener en cuenta en este ejemplo es que solo se crea un objeto Lemur. 
-// El polimorfismo permite reasignar una instancia de Lemur o pasarla a un método utilizando uno de sus supertipos, como Primate o HasTail. 
-// Una vez que el objeto ha sido asignado a un nuevo tipo de referencia, solo se pueden llamar en el objeto a los métodos 
-// y variables disponibles para ese tipo de referencia sin una conversión explícita.
+// Lo más importante a tener en cuenta en este ejemplo es que solo se crea un objeto 'Lemur'. 
+// El polimorfismo permite reasignar una instancia de 'Lemur' o pasarla a un método utilizando uno de sus supertipos, como 'Primate' o 'HasTail'. 
+// Una vez que el objeto ha sido asignado a un nuevo tipo de referencia, solo se pueden llamar en el objeto
+// a los métodos y variables disponibles para ese tipo de referencia sin una conversión explícita.
 
 public class Primate {
-    public boolean hasHair() {
-        return true;
-    }
+    public boolean hasHair() { return true; }
 }
 
 public interface HasTail {
@@ -1257,11 +1253,11 @@ public interface HasTail {
 }
 
 public class Lemur extends Primate implements HasTail {
+    public int age = 10;
+    
     public boolean isTailStriped() {
         return false;
     }
-    
-    public int age = 10;
     
     public static void main(String[] args) {
         Lemur lemur = new Lemur();
@@ -1274,12 +1270,10 @@ public class Lemur extends Primate implements HasTail {
         System.out.println(primate.hasHair()); // true
     }
 }
-```
 
-```java
-// En este ejemplo, la referencia hasTail solo tiene acceso directo a los métodos definidos con la interfaz HasTail; por lo tanto, 
-// no sabe que la variable age es parte del objeto. Del mismo modo, la referencia primate solo tiene acceso a los 
-// métodos definidos en la clase Primate y no tiene acceso directo al método isTailStriped()
+// En este ejemplo, la referencia 'hasTail' solo tiene acceso directo a los métodos definidos con la interfaz 'HasTail';  
+// por lo tanto, no sabe que la variable 'age' es parte del objeto. Del mismo modo, la referencia 'primate' solo tiene acceso  
+// a los métodos definidos en la clase 'Primate' y no tiene acceso directo al método 'isTailStriped()'
 
 HasTail hasTail = new Lemur();
 System.out.println(hasTail.age); // Error de compilación
@@ -1290,7 +1284,9 @@ System.out.println(primate.isTailStriped()); // Error de compilación
 
 ### Objeto vs Referencia
 
-En Java, todos los objetos se acceden por referencia, por lo que como desarrollador nunca tienes acceso directo al objeto mismo. Conceptualmente, sin embargo, deberías considerar el objeto como la entidad que existe en memoria, asignada por el Java Runtime Environment. Independientemente del tipo de referencia que tengas para el objeto en memoria, el objeto en sí mismo no cambia. Por ejemplo, dado que todos los objetos heredan de `java.lang.Object`, todos pueden ser referenciados a `java.lang.Object`, como se muestra en el siguiente ejemplo:
+En Java, todos los objetos se acceden por referencia, por lo que como desarrollador nunca tienes acceso directo al objeto mismo. 
+Conceptualmente, sin embargo, deberías considerar el objeto como la entidad que existe en memoria, asignada por el Java Runtime Environment. 
+Independientemente del tipo de referencia que tengas para el objeto en memoria, el objeto en sí mismo no cambia. Por ejemplo, dado que todos los objetos heredan de `java.lang.Object`, todos pueden ser referenciados a `java.lang.Object`, como se muestra en el siguiente ejemplo:
 
 ```java
 // Aunque el objeto Lemur se haya asignado a una referencia con un tipo diferente, el objeto en sí no ha cambiado 
