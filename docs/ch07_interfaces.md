@@ -1284,15 +1284,15 @@ System.out.println(primate.isTailStriped()); // Error de compilación
 
 ### Objeto vs Referencia
 
-En Java, todos los objetos se acceden por referencia, por lo que como desarrollador nunca tienes acceso directo al objeto mismo. 
-Conceptualmente, sin embargo, deberías considerar el objeto como la entidad que existe en memoria, asignada por el Java Runtime Environment. 
-Independientemente del tipo de referencia que tengas para el objeto en memoria, el objeto en sí mismo no cambia. Por ejemplo, dado que todos los objetos heredan de `java.lang.Object`, todos pueden ser referenciados a `java.lang.Object`, como se muestra en el siguiente ejemplo:
+* En Java, todos los objetos se acceden por referencia, por lo que como desarrollador nunca tienes acceso directo al objeto mismo. 
+* Conceptualmente, sin embargo, deberías considerar el objeto como la entidad que existe en memoria, asignada por el JVM. 
+* Independientemente del tipo de referencia que tengas para el objeto en memoria, el objeto en sí mismo no cambia. 
+* Por ejemplo, dado que todos los objetos heredan de `java.lang.Object`, todos pueden ser referenciados a `java.lang.Object`, como se muestra en el siguiente ejemplo:
 
 ```java
-// Aunque el objeto Lemur se haya asignado a una referencia con un tipo diferente, el objeto en sí no ha cambiado 
-// y sigue existiendo como un objeto Lemur en memoria. Lo que ha cambiado, entonces, es nuestra capacidad para 
-// acceder a los métodos dentro de la clase Lemur con la referencia lemurAsObject. Sin una conversión explicita a Lemur, 
-// ya no tenemos acceso a las propiedades del objeto Lemur.
+// Aunque el objeto 'Lemur' se haya asignado a una referencia con un tipo diferente, el objeto en sí no ha cambiado y sigue existiendo como un objeto 'Lemur' en memoria.
+// Lo que ha cambiado, entonces, es nuestra capacidad para acceder a los métodos dentro de la clase 'Lemur' con la referencia 'lemurAsObject'.
+// Sin una conversión explicita a 'Lemur', ya no tenemos acceso a las propiedades del objeto 'Lemur'.
 
 Lemur lemur = new Lemur();
 Object lemurAsObject = lemur;
@@ -1303,11 +1303,14 @@ Podemos resumir este principio con las siguientes dos reglas:
 1. El tipo de objeto determina qué propiedades existen dentro del objeto en memoria.
 2. El tipo de referencia al objeto determina qué métodos y variables son accesibles para el programa Java.
 
-Por lo tanto, se deduce que cambiar correctamente una referencia de un objeto a un nuevo tipo de referencia puede dar acceso a nuevas propiedades del objeto; pero recuerde que esas propiedades existían antes de que ocurriera el cambio de referencia.
+* Por lo tanto, se deduce que cambiar correctamente una referencia de un objeto a un nuevo tipo de referencia puede dar acceso a nuevas propiedades del objeto.
+* Pero recuerde que esas propiedades existían antes de que ocurriera el cambio de referencia.
 
 ### Casting (conversión) de objetos
 
-En el ejemplo anterior creamos una única instancia de un objeto Lemur y accedimos a él mediante referencias de superclase e interfaz. Sin embargo, una vez que cambiamos el tipo de referencia, perdimos el acceso a miembros más específicos definidos en la subclase que aún existen dentro del objeto. Podemos recuperar esas referencias volviendo a convertir el objeto a la subclase específica de la que proviene:
+* En el ejemplo anterior creamos una única instancia de un objeto 'Lemur' y accedimos a él mediante referencias de superclase e interfaz. 
+* Sin embargo, una vez que cambiamos el tipo de referencia, perdimos el acceso a miembros más específicos definidos en la subclase que aún existen dentro del objeto. 
+* Podemos recuperar esas referencias volviendo a convertir el objeto a la subclase específica de la que proviene:
 
 ```java
 Lemur lemur = new Lemur();
@@ -1319,7 +1322,10 @@ Lemur lemur2 = (Lemur) primate; // explícito la conversión al subtipo
 Lemur lemur3 = primate; // No compila (falta el casteo)
 ```
 
-Al convertir objetos, no se necesita un operador de conversión si se convierte a un supertipo heredado (primer ejemplo). Esto se conoce como conversión implícita y se aplica a las clases o interfaces que hereda el objeto. Alternativamente, si se desea acceder a un subtipo de la referencia actual (segundo ejemplo), se debe realizar una conversión explícita con un tipo compatible. Si el objeto subyacente no es compatible con el tipo (tercer ejemplo), se lanzará una `ClassCastException` en tiempo de ejecución.
+* Al convertir objetos, no se necesita un operador de conversión si se convierte a un supertipo heredado (primer ejemplo). 
+  * Esto se conoce como conversión implícita y se aplica a las clases o interfaces que hereda el objeto. 
+* Alternativamente, si se desea acceder a un subtipo de la referencia actual (segundo ejemplo), se debe realizar una conversión explícita con un tipo compatible. 
+* Si el objeto subyacente no es compatible con el tipo (tercer ejemplo), se lanzará una `ClassCastException` en tiempo de ejecución.
 
 Resumiendo las reglas para el examen:
 
@@ -1330,10 +1336,10 @@ Resumiendo las reglas para el examen:
 
 ### Casting (conversión) no permitida
 
-Esta última regla es un poco más complicada. En el ejemplo anterior, pudimos convertir una referencia `Primate` a una referencia `Lemur` porque `Lemur` es una subclase de `Primate` y, por lo tanto, está relacionada.
+En el ejemplo anterior, pudimos convertir una referencia `Primate` a una referencia `Lemur` porque `Lemur` es una subclase de `Primate` y, por lo tanto, está relacionada.
 
 ```java
-// En este ejemplo, las clases Fish y Bird no están relacionadas a través de ninguna 
+// En este ejemplo, las clases 'Fish' y 'Bird' no están relacionadas a través de ninguna 
 // jerarquía de clases que el compilador conozca; por lo tanto, el código no se compilará. 
 
 public class Bird {}
