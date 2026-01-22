@@ -2,14 +2,17 @@
 
 ## Lambdas
 
-La programación funcional es una forma de escribir código de forma más declarativa. Se especifica lo que se quiere hacer en lugar de lidiar con el estado de los objetos. Se centra más en las expresiones que en los bucles.
+* La programación funcional es una forma de escribir código de forma más declarativa. 
+* Se especifica lo que se quiere hacer en lugar de lidiar con el estado de los objetos. 
 
-Una expresión lambda es como un método sin nombre que existe dentro de una clase anónima. Tiene parámetros y un cuerpo al igual que los métodos completos, pero no tiene un nombre.
+* Una expresión lambda es como un método sin nombre que existe dentro de una clase anónima. 
+* Tiene parámetros y un cuerpo al igual que los métodos completos, pero no tiene un nombre.
 
-Para mostrar la potencia de las lambdas, usaremos un ejemplo donde deseamos mostrar todos los animales de una lista según algunos criterios. Primero de forma normal:
+Para mostrar la potencia de las lambdas, usaremos un ejemplo donde deseamos mostrar todos los animales de una lista según algunos criterios. 
+Primero de forma normal:
 
 ```java
-//  Comenzamos creando un registro con 3 campos.
+//  Comenzamos creando un record con 3 campos.
 
 public record Animal(String species, boolean canHop, boolean canSwim) {}
 
@@ -20,11 +23,11 @@ public interface CheckTrait {
     boolean test(Animal a);
 }
 
-// Lo primero que queremos comprobar es si el Animal puede saltar por lo que creamos una clase que implementa la interfaz
+// Lo primero que queremos comprobar es si el Animal puede saltar por lo que creamos una clase que implementa la interfaz.
 
 public class CheckIfHopper implements CheckTrait {
     public boolean test(Animal a) {
-        return a.canHop();
+        return a.canHop(); // tener en cuenta que 'canHop()' es un método del record Animal generado automáticamente
     }
 }
 
@@ -43,7 +46,8 @@ public class TraditionalSearch {
         animals.add(new Animal("turtle", false, true));
         
         // pass class that does check
-        print(animals, new CheckIfHopper()); // (13)
+        print(animals, new CheckIfHopper()); // Animal[species=kangaroo, canHop=true, canSwim=false]
+                                             // Animal[species=rabbit, canHop=true, canSwim=false]
     }
 
     private static void print(List<Animal> animals, CheckTrait checker) {
@@ -56,10 +60,9 @@ public class TraditionalSearch {
         }
     }
 }
-
 ```
 
-¿Qué pasa si queremos imprimir los animales que nadan? Podriamos crear otra clase (CheckIfSwims). Si bien son solo unas pocas líneas, es carga. 
+¿Qué pasa si queremos imprimir los animales que nadan? Podríamos crear otra clase (CheckIfSwims). Si bien son solo unas pocas líneas, es carga. 
 
 Después agregar la línea debajo de la línea 13. Todo esto se puede simplificar con lambdas. La línea 13 se puede cambiar por: 
 
