@@ -1396,16 +1396,13 @@ public class Capybara extends  Rodent {
     }
 }
 
-// podemos cambiar la línea 160 por:
-// Ahora el fragmento de código no lanza una excepción en tiempo de ejecución y realiza la conversión solo si el operador instanceof tiene éxito. 
-
+// podemos cambiar la línea donde se lanza la excepción para usar el operador instanceof y evitar el error en tiempo de ejecución:
 if (rodent instanceof Capybara) {
     // Do stuff
 }
 ```
 
-Asi como el compilador no permite convertir un objeto a tipos no relacionados, tampoco permite que instanceof se use con tipos no relacionados.
-
+Asi como el compilador no permite convertir un objeto a tipos no relacionados, tampoco permite que `instanceof` se use con tipos no relacionados.
 Podemos demostrar esto con nuestras clases `Bird` y `Fish` no relacionadas:
 
 ```java
@@ -1427,19 +1424,13 @@ En Java, el polimorfismo establece que cuando se anula un método, se reemplazan
 
 ```java
 class Penguin {
-    public int getHeight() {
-        return 3;
-    }
+    public int getHeight() { return 3; }
     
-    public void printInfo() {
-        System.out.print(this.getHeight());
-    }
+    public void printInfo() { System.out.print(this.getHeight()); }
 }
 
 public class EmperorPenguin extends Penguin {
-    public int getHeight() {
-        return 8;
-    }
+    public int getHeight() { return 8; }
     
     public static void main(String[] args) {
         new EmperorPenguin().printInfo(); // 8
@@ -1447,21 +1438,24 @@ public class EmperorPenguin extends Penguin {
 }
 ```
 
-Si dijiste 8, entonces estás en camino a entender el polimorfismo. Este ejemplo, el objeto sobre el que opera en memoria es un `EmperorPenguin`. El método `getHeight()` se anula en la subclase, lo que significa que todas ls llamadas a este se reemplazan en tiempo de ejecución.
+* En este ejemplo, el objeto sobre el que opera en memoria es un `EmperorPenguin`. 
+* El método `getHeight()` se anula en la subclase, lo que significa que todas ls llamadas a este se reemplazan en tiempo de ejecución.
 
-A pesar de que `printInfo()` está definido en la clase `Penguin`, llamar a `getHeight()` en el objeto, llama al método asociado con el objeto preciso en memoria, no al tipo de referencia actual donde se llama. Incluso usando la referencia `this`, que es opcional en este ejemplo, no se llama a la versión padre porque el método ha sido reemplazado.
+* A pesar de que `printInfo()` está definido en la clase `Penguin`, llamar a `getHeight()` en el objeto, llama al método asociado con el objeto preciso en memoria, no al tipo de referencia actual donde se llama. 
+* Incluso usando la referencia `this`, que es opcional en este ejemplo, no se llama a la versión padre porque el método ha sido reemplazado.
 
-La capacidad del polimorfismo para reemplazar métodos en tiempo de ejecución mediante la anulación es una de las propiedades más importantes de Java. Permite crear modelos de herencia complejos con subclases que tienen su propia implementación personalizada de métodos anulados.
+* La capacidad del polimorfismo para reemplazar métodos en tiempo de ejecución mediante la anulación es una de las propiedades más importantes de Java. 
+* Permite crear modelos de herencia complejos con subclases que tienen su propia implementación personalizada de métodos anulados.
 
-También significa que la clase padre no necesita actualizarse para usar el método personalizado o anulado. Si el método se anula correctamente, entonces la versión anulada se usara en todos los lugares donde se llame. Recuerda que puedes optar por limitar el comportamiento polimórfico marcando los métodos como finales, lo que evita que una subclase lo sobrescriba.
+* También significa que la clase padre no necesita actualizarse para usar el método personalizado o anulado. 
+* Si el método se anula correctamente, entonces la versión anulada se usara en todos los lugares donde se llame. 
+* Recuerda que puedes optar por limitar el comportamiento polimórfico marcando los métodos como finales, lo que evita que una subclase lo sobrescriba.
 
 ### Sobrecarga vs. ocultación de miembros
 
-Mientras que la anulación de métodos reemplaza el método en todos los lugares donde se llama, la ocultación de métodos estáticos y variables no lo hace.
-
-Estrictamente hablando, ocultar miembros no es una forma de polimorfismo, ya que los métodos y las variables mantienen sus propiedades individuales.
-
-A diferencia de la anulación de métodos, ocultar miembros es muy sensible al tipo de referencia y la ubicación donde se utiliza el miembro.
+* Mientras que la anulación de métodos reemplaza el método en todos los lugares donde se llama, la ocultación de métodos estáticos y variables no lo hace.
+* Estrictamente hablando, ocultar miembros no es una forma de polimorfismo, ya que los métodos y las variables mantienen sus propiedades individuales.
+* A diferencia de la anulación de métodos, ocultar miembros es muy sensible al tipo de referencia y la ubicación donde se utiliza el miembro.
 
 ```java
 class Penguin {
