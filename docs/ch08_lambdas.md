@@ -8,8 +8,8 @@
 * Una expresión lambda es como un método sin nombre que existe dentro de una clase anónima. 
 * Tiene parámetros y un cuerpo al igual que los métodos completos, pero no tiene un nombre.
 
-Para mostrar la potencia de las lambdas, usaremos un ejemplo donde deseamos mostrar todos los animales de una lista según algunos criterios. 
-Primero de forma normal:
+* Para mostrar la potencia de las lambdas, usaremos un ejemplo donde deseamos mostrar todos los animales de una lista según algunos criterios. 
+* Primero de forma normal:
 
 ```java
 //  Comenzamos creando un record con 3 campos.
@@ -45,16 +45,16 @@ public class TraditionalSearch {
         animals.add(new Animal("rabbit", true, false));
         animals.add(new Animal("turtle", false, true));
         
-        // pass class that does check
-        print(animals, new CheckIfHopper()); // Animal[species=kangaroo, canHop=true, canSwim=false]
-                                             // Animal[species=rabbit, canHop=true, canSwim=false]
+        // la siguiente linea se denomina 13
+        print(animals, new CheckIfHopper());
     }
 
     private static void print(List<Animal> animals, CheckTrait checker) {
         for (Animal animal : animals) {
             // general check
             if(checker.test(animal)) {
-                System.out.println(animal + "");
+                System.out.println(animal + ""); // Animal[species=kangaroo, canHop=true, canSwim=false]
+                                                 // Animal[species=rabbit, canHop=true, canSwim=false]
             }
             System.out.println();
         }
@@ -64,40 +64,25 @@ public class TraditionalSearch {
 
 ¿Qué pasa si queremos imprimir los animales que nadan? Podríamos crear otra clase (CheckIfSwims). Si bien son solo unas pocas líneas, es carga. 
 
-Después agregar la línea debajo de la línea 13. Todo esto se puede simplificar con lambdas. La línea 13 se puede cambiar por: 
+* Todo esto se puede simplificar con lambdas. La línea 13 se puede cambiar por: `print(animals, a -> a.canHop());`
+* Al usar la lambda, se elimina la necesidad de crear la clase 'CheckIfHopper' para verificar.
+* La lambda `a -> a.canHop()` implementa el método `test()` de la interfaz CheckTrait.
 
-`print(animals, a -> a.canHop());`
+Ahora si queremos los animales que pueden nadar sería agregar la línea: `print(animals, a -> a.canSwim());`
 
-Esto le dice a Java que solo nos importa si una animal puede saltar.
+Y si queremos los animales que no pueden nadar sería: `print(animals, a -> !a.canSwim());`
 
-Ahora si queremos los animales que pueden nadar sería agregar la línea:
-
-`print(animals, a -> a.canSwim());`
-
-Y si queremos los animales que no pueden nadar sería: 
-
-`print(animals, a -> !a.canSwim());`
-
-Las lambdas usan un concepto llamado ejecución diferida que significa que el código se especifica ahora, pero se ejecuta más tarde. 
-
-En este caso "más tarde" está dentro del cuerpo del método `print()`, a diferencia de cuando se pasa al método de forma normal.
+* Las lambdas usan un concepto llamado ejecución diferida que significa que el código se especifica ahora, pero se ejecuta más tarde.
+* En este caso **más tarde** está dentro del cuerpo del método `print()`, a diferencia de cuando se pasa al método de forma normal.
 
 ### Sintaxis de las Lambdas
 
-La sintaxis mas basica de un lambda es:
-
-`a -> a.canHop()`
-
-Las lambdas funcionan con interfaces que tienen exactamente un método abstracto. En este caso, Java analiza la interfaz CheckTrait, que tiene un método. 
-
+La sintaxis más básica de una lambda es: `a -> a.canHop()`.
+Las lambdas funcionan con interfaces que tienen exactamente un método abstracto. En este caso, Java analiza la interfaz 'CheckTrait', que tiene un método. 
 La lambda en nuestro ejemplo sugiere que Java debería llamar a un método con un parámetro Animal que devuelva un valor booleano que sea el resultado de `a.canHop()`
-
 Java se basa en el contexto para determinar el significado de las expresiones lambda. Entendiendo contexto a donde y cómo se interpreta la lambda. 
 
-Refiriéndonos a nuestro ejemplo anterior, pasamos la lambda como segundo parámetro del método `print()`:
-
-`print(animals, a -> a.canHop());`
-
+Refiriéndonos a nuestro ejemplo anterior, pasamos la lambda como segundo parámetro del método `print()`: `print(animals, a -> a.canHop());`
 El método `print()` espera un objeto `CheckTrait` como segundo parámetro:
 
 `private static void print(List<Animal> animals, CheckTrait checker) {}`
@@ -114,7 +99,7 @@ La sintaxis de las lambdas son complicadas porque tiene valores opciones, por ej
 
 `(Animal a) -> { return a.canHop(); }`
 
-Los parentesis alrededor de los parámetros lambda se puede omitir solo si hay un solo parámetro y su tipo no se indica explicitamente.
+Los paréntesis alrededor de los parámetros lambda se puede omitir solo si hay un solo parámetro y su tipo no se indica explicitamente.
 
 Se puede omitir una sentencia `return` y un `;` cuando no se utilizan llaves, pero esto no aplica cuando se tiene dos o más declaraciones. 
 
