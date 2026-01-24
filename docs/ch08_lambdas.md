@@ -113,14 +113,12 @@ Las siguientes sentencias también son posibles: `a -> {return a.canHop();}` y `
 
 ### Codificando interfaces funcionales
 
-En las secciones anteriores declaramos la interfaz CheckTrait, que tiene un método que debe ser implementado. 
-
-Las lambdas tienen una relación con dichas interfaces. Una interfaz funcional es una interfaz que contiene un solo método abstracto. 
-
-Se le denomina **single abstract method** (SAM). 
+* En las secciones anteriores declaramos la interfaz `CheckTrait`, que tiene un método que debe ser implementado. 
+* Las lambdas tienen una relación con dichas interfaces. Una interfaz funcional es una interfaz que contiene un solo método abstracto. 
+* Se le denomina **single abstract method** (SAM). 
 
 ```java
-// En este ejemplo la interfaz Sprint es de tipo funcional (me aseguro al definir la anotación) porque solo tiene un método abstracto
+// En este ejemplo la interfaz 'Sprint' es de tipo funcional (me aseguro al definir la anotación) porque solo tiene un método abstracto.
 @FunctionalInterface
 public interface Sprint {
     public void sprint(int speed);
@@ -133,8 +131,7 @@ public class Tiger implements Sprint{
 }
 ```
 
-La anotación `@FunctionalInterface` le dice al compilador que el codigo es para una interfaz funcional y se validara para que esté alineado con estas reglas.
-
+La anotación `@FunctionalInterface` le dice al compilador que el código es para una interfaz funcional y se validara para que esté alineado con estas reglas.
 Pero tener en cuenta que lo que hace a una interfaz funcional no es la anotación, sino el solo tener un método abstracto definido. 
 
 Todas las clases heredan ciertos métodos de Object los cuales son:
