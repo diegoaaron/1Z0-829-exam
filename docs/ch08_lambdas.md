@@ -77,45 +77,26 @@ Y si queremos los animales que no pueden nadar sería: `print(animals, a -> !a.c
 
 ### Sintaxis de las Lambdas
 
-La sintaxis más básica de una lambda es: `a -> a.canHop()`.
-Las lambdas funcionan con interfaces que tienen exactamente un método abstracto. En este caso, Java analiza la interfaz 'CheckTrait', que tiene un método. 
-La lambda en nuestro ejemplo sugiere que Java debería llamar a un método con un parámetro Animal que devuelva un valor booleano que sea el resultado de `a.canHop()`
-Java se basa en el contexto para determinar el significado de las expresiones lambda. Entendiendo contexto a donde y cómo se interpreta la lambda. 
+* La sintaxis más básica de una lambda es: `a -> a.canHop()`.
+* Las lambdas funcionan con interfaces que tienen exactamente un método abstracto. En este caso, Java analiza la interfaz 'CheckTrait', que tiene un método. 
+* La lambda en nuestro ejemplo sugiere que Java debería llamar a un método con un parámetro Animal que devuelva un valor booleano que sea el resultado de `a.canHop()`
+* Java se basa en el contexto para determinar el significado de las expresiones lambda. Entendiendo contexto a donde y cómo se interpreta la lambda. 
 
-Refiriéndonos a nuestro ejemplo anterior, pasamos la lambda como segundo parámetro del método `print()`: `print(animals, a -> a.canHop());`
-El método `print()` espera un objeto `CheckTrait` como segundo parámetro:
+* Refiriéndonos a nuestro ejemplo anterior, pasamos la lambda como segundo parámetro del método `print()`: `print(animals, a -> a.canHop());`
+* El método `print()` espera un objeto `CheckTrait` como segundo parámetro: `private static void print(List<Animal> animals, CheckTrait checker) {}`
 
-`private static void print(List<Animal> animals, CheckTrait checker) {}`
-
-Como estamos pasando una lambda, Java intenta mapear nuestra lambda a la declaración del método abstracto en la interfaz CheckTrait:
-
-`boolean test(Animal a);`
-
-Dado que el método de esa interfaz toma un Animal, el parámetro lambada tiene que ser un Animal. Y como el método de esa interfaz devuelve un booleano, sabemos que la lambda devuelve un booleano.
+Como estamos pasando una lambda, Java intenta mapear la lambda a la declaración del método abstracto en la interfaz CheckTrait: `boolean test(Animal a);`
+Dado que el método de esa interfaz toma un Animal, el parámetro lambada tiene que ser un Animal. 
+Y como el método de esa interfaz devuelve un booleano, sabemos que la lambda devuelve un booleano.
 
 La sintaxis de las lambdas son complicadas porque tiene valores opciones, por ejemplo las siguientes expresiones son iguales:
 
-`a -> a.canHop()`
+`a -> a.canHop()` y `(Animal a) -> { return a.canHop(); }`
 
-`(Animal a) -> { return a.canHop(); }`
+* Los paréntesis alrededor de los parámetros lambda se puede omitir solo si hay un solo parámetro y su tipo no se indica explícitamente.
+* Se puede omitir una sentencia `return` y un `;` cuando no se utilizan llaves, pero esto no aplica cuando se tiene dos o más declaraciones. 
 
-Los paréntesis alrededor de los parámetros lambda se puede omitir solo si hay un solo parámetro y su tipo no se indica explicitamente.
-
-Se puede omitir una sentencia `return` y un `;` cuando no se utilizan llaves, pero esto no aplica cuando se tiene dos o más declaraciones. 
-
-Las siguientes sentencias también son posibles: 
-
-`a -> {return a.canHop();}`
-
-`(Animal a) -> a.canHop()`
-
-La primera fila toma cero parámetros y siempre devuelve el valor booleano verdadero. 
-
-La segunda fila toma un parámetro y llama a un método sobre él, devolviendo el resultado. 
-
-La tercera fila hace lo mismo, excepto que define explicitamente el tipo de la variable. 
-
-Las dos últimas filas toman 2 parámetros e ignoran uno de ellos.
+Las siguientes sentencias también son posibles: `a -> {return a.canHop();}` y `(Animal a) -> a.canHop()`
 
 | Lambda                                         | # de parametros |
 |------------------------------------------------|-----------------|
@@ -124,6 +105,11 @@ Las dos últimas filas toman 2 parámetros e ignoran uno de ellos.
 | `(String x) -> x.startsWith("test")`           | 1               |
 | `(x,y) -> {return x.startsWith("test");}`      | 2               |
 | `(String x, String y) -> x.startsWith("test")` | 2               |
+
+* La primera fila toma cero parámetros y siempre devuelve el valor booleano verdadero.
+* La segunda fila toma un parámetro y llama a un método sobre él, devolviendo el resultado.
+* La tercera fila hace lo mismo, excepto que define explícitamente el tipo de la variable.
+* Las dos últimas filas toman 2 parámetros e ignoran uno de ellos.
 
 ### Codificando interfaces funcionales
 
