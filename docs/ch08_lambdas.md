@@ -173,16 +173,16 @@ public interface Hibernate {
 
 ## Usando referencia de métodos
 
-La referencia a métodos es otra forma de hacer más fácil la lectura de código al solo mencionar el nombre del método.
-
-Supongamos que estamos codificando un patito que intenta aprender a graznar. Primero tenemos una interfaz funcional:
+* La referencia a métodos es otra forma de hacer más fácil la lectura de código al solo mencionar el nombre del método.
+* Supongamos que estamos codificando un patito que intenta aprender a graznar. Primero tenemos una interfaz funcional:
 
 ```java
 public interface LearnToSpeak {
     void speak(String sound);
 }
 ```
-A continuación, descubrimos que hay una clase auxiliar con la que el patito puede trabajar la cual se define de la siguiente forma
+
+A continuación, descubrimos que hay una clase auxiliar con la que el patito puede trabajar la cual se define de la siguiente forma.
 
 ```java
 public class DuckHelper {
@@ -192,7 +192,7 @@ public class DuckHelper {
 }
 ```
 
-Finalmente, juntamos todo y conocemos la implementación de la interfaz funcional usando lambda
+Finalmente, juntamos todo y conocemos la implementación de la interfaz funcional usando lambda.
 
 ```java
 public class Duckling {
@@ -203,9 +203,8 @@ public class Duckling {
 }
 ```
 
-Está bien la implementación, pero tiene una redundancia. La lambda declara un parámetro llamado `s`. 
-
-Sin embargo, ese parámetro solo se pasa a otro método. 
+* Está bien la implementación, pero tiene una redundancia. La lambda declara un parámetro llamado `s`.
+* Sin embargo, ese parámetro solo se pasa a otro método. 
 
 Una referencia a un método nos permite eliminar esa redundancia, y en su lugar, escribir esto: 
 
