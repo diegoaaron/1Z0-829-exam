@@ -145,14 +145,14 @@ Todas las clases heredan ciertos métodos de Object los cuales son:
 * Esto porque cualquier clase que implemente la interfaz heredara de `Object` esos métodos.
 
 ```java
-// No es una interfaz funcional  ya que toString() es un método público de Object por lo que no cuenta para la prueba de método abstracto único.
+// No es una interfaz funcional  ya que 'toString()' es un método público de 'Object' por lo que no cuenta para la prueba de método abstracto único.
 
 public interface Soar {
     abstract String toString();
 }
 
-// Dive si es una interfaz funcional.
-// Dive si es una interfaz funcional ya que el método dive() es el único método abstracto, mientras que los demas no se cuentan ya que son métodos públicos definidos en la clase Object. 
+// 'Dive' si es una interfaz funcional ya que el método 'dive()' es el único método abstracto, 
+//  mientras que los demas no se cuentan ya que son métodos públicos definidos en la clase 'Object'. 
 
 public interface Dive {
     String toString();
@@ -170,9 +170,10 @@ public interface Hibernate {
     public void rest();
 }
 ```
+
 ## Usando referencia de métodos
 
-La referencia a métodos es otra forma de hacer más facil la lectura de código al solo mencionar el nombre del método.
+La referencia a métodos es otra forma de hacer más fácil la lectura de código al solo mencionar el nombre del método.
 
 Supongamos que estamos codificando un patito que intenta aprender a graznar. Primero tenemos una interfaz funcional:
 
