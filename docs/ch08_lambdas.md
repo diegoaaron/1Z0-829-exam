@@ -131,8 +131,8 @@ public class Tiger implements Sprint{
 }
 ```
 
-La anotación `@FunctionalInterface` le dice al compilador que el código es para una interfaz funcional y se validara para que esté alineado con estas reglas.
-Pero tener en cuenta que lo que hace a una interfaz funcional no es la anotación, sino el solo tener un método abstracto definido. 
+* La anotación `@FunctionalInterface` le dice al compilador que el código es para una interfaz funcional y se validara para que esté alineado con estas reglas.
+* Pero tener en cuenta que lo que hace a una interfaz funcional no es la anotación, sino el solo tener un método abstracto definido. 
 
 Todas las clases heredan ciertos métodos de Object los cuales son:
 
@@ -140,11 +140,9 @@ Todas las clases heredan ciertos métodos de Object los cuales son:
 * `public boolean equals(Object)`
 * `public int hashCode()`
 
-Esto se menciona porque existe una excepción a la regla del método abstracto. 
-
-Si una interfaz funcional incluye un método abstracto con la misma firma que un método público que se encuentra en `Object`, esos métodos no cuentan para la prueba del método abstracto único. 
-
-Esto porque cualquier clase que implemente la interfaz heredara de `Object` esos métodos.
+* Esto se menciona porque existe una excepción a la regla del método abstracto.
+* Si una interfaz funcional incluye un método abstracto con la misma firma que un método público que se encuentra en `Object`, ese método no cuenta para la prueba del método abstracto único.
+* Esto porque cualquier clase que implemente la interfaz heredara de `Object` esos métodos.
 
 ```java
 // No es una interfaz funcional  ya que toString() es un método público de Object por lo que no cuenta para la prueba de método abstracto único.
