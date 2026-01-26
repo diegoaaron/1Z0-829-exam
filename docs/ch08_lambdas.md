@@ -224,7 +224,7 @@ public interface LearnToSpeak {
     void speak(String sound);
 }
 
-// 2. El helper que usa la estrategia
+// 2. El helper que usa la interfaz funcional
 public class DuckHelper {
     public static void teacher(String name, LearnToSpeak trainer){
         trainer.speak(name);
@@ -250,13 +250,12 @@ public class Main {
 }
 ```
 
-Una **referencia a un método** y **una lambda** se comportan de la misma manera en tiempo de ejecución. 
-
-Puedes imaginar que el compilador convierte tus referencias a métodos en lambdas por ti. 
+* Una **referencia a un método** y **una lambda** se comportan de la misma manera en tiempo de ejecución.
+* Puedes imaginar que el compilador convierte tus referencias a métodos en lambdas por ti. 
 
 Hay cuatro formas para las referencias a métodos:
 
-### Llamando a métodos estaticos
+### Llamando a métodos estáticos
 
 ```java
 interface Converter{
@@ -264,7 +263,8 @@ interface Converter{
 }
 ```
 
-La interfaz anterior podemos implementarla con el método `round()` en Math. Aquí asignamos una referencia a un método y una lambda a esta interfaz funcional:
+* La interfaz anterior podemos implementarla con el método `round()` del paquete Math. 
+* Aquí asignamos una referencia a un método y una lambda a esta interfaz funcional:
 
 ```java
 Converter methodRef = Math::round;
@@ -273,13 +273,12 @@ Converter lambda = x -> Math.round(x);
 System.out.println(methodRef.round(100.1)); // 100
 ```
 
-La primera linea usando referencia a un método con un parámetro, Java pasara el parámetro a ese método.
+* La primera línea usando referencia a un método con un parámetro, Java pasará el parámetro a ese método.
+* La segunda línea usa un método lambda con un parámetro que al final se pasa a la función.
 
-La segunda línea usa un método lambda con un parámetro que al final se pasa a la función.
-
-Para este ejemplo el método `round()` está sobrecargado por la definición de interfaz ¿Cómo Java sabe si usar la versión con double o float como parámetro?
-
-Esto lo hace por la información del contexto. Java busca un método que coincida con lo implementado. Si no encuentro o hay varias coincidencias, se arroja un error de tipo ambiguo.
+* Para este ejemplo el método `round()` está sobrecargado por la definición de interfaz ¿Cómo Java sabe si usar la versión con double o float como parámetro?
+* Esto lo hace por la información del contexto. Java busca un método que coincida con lo implementado. 
+* Si no encuentro o hay varias coincidencias, se arroja un error de tipo ambiguo.
 
 ### Llamando a métodos de instancia en un objeto específico
 
