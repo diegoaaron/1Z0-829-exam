@@ -208,17 +208,15 @@ public class Duckling {
 
 Una referencia a un método nos permite eliminar esa redundancia, y en su lugar, escribir esto: 
 
-```java
-LearnToSpeak learner = System.out::println;
-```
+`LearnToSpeak learner = System.out::println;`
 
-El operador `::` le indica a Java que llame al método println() más tarde. Este operador crea una referencia al método `println`, para eso: 
+El operador `::` le indica a Java que llame al método `println()` más tarde. Este operador crea una referencia al método `println`, para eso: 
 
 1. Reconoce que `LearnToSpeak.speak()` recibe un `String`
 2. Ve que `System.out.println()` también puede recibir un `String`
 3. Conecta ambos directamente sin necesidad de declarar parámetros intermedios
 
-**Explicación mas resumida**
+**Explicación resumida**
 
 ```java
 // 1. La interfaz funcional
