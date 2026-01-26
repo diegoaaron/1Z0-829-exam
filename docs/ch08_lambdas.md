@@ -297,7 +297,7 @@ StringStart lambda = s -> str.startsWith(s);
 
 System.out.println(methodRef.beginningCheck("A")); // false
 ```
-La segunda línea muestra que queremos llamar a  `str:startsWith()` y pasar un parametro en tiempo de ejecución 
+La segunda línea muestra que queremos llamar a  `str:startsWith()` y pasar un parámetro en tiempo de ejecución 
 
 En el siguiente ejemplo, creamos una interfaz funcional con un método que no acepta ningún parámetro, pero devuelve un valor.
 
