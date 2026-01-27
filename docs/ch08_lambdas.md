@@ -337,11 +337,9 @@ StringParameterChecker lambda = s -> s.isEmpty();
 System.out.println(methodRef.check("Zoo")); // false
 ```
 
-La primera línea indica que el método que queremos llamar está en `String`, parece un método estático, pero no lo es.
-
-En cambio, Java sabe que isEmpty() es un método de instancia que no toma ningún parámetro. 
-
-Java utiliza el parámetro proporcionado en tiempo de ejecución como la instancia en la que se llama al método. 
+* La primera línea indica que el método que queremos llamar está en `String`, parece un método estático, pero no lo es.
+* En cambio, Java sabe que `isEmpty()` es un método de instancia que no toma ningún parámetro.
+* Java utiliza el parámetro proporcionado en tiempo de ejecución como la instancia en la que se llama al método. 
 
 ```java
 interface StringTwoParameterChecker{
