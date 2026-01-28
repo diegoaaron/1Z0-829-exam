@@ -403,7 +403,7 @@ Hay que mirar el contexto para ver qué parámetros se utilizan y si hay un tipo
 
 ### Trabajando con interfaces funcionales integradas
 
-Las siguientes interfaces se encuentra definidas en el paquete `java.util.function`. Se veran los genericos en el siguiente capítulo,
+Las siguientes interfaces se encuentra definidas en el paquete `java.util.function`. Se veran los genéricos en el siguiente capítulo,
 pero se debe saber que `<T>` permite que la interfaz tome un objeto de un tipo específico. 
 
 Si se necesita un segundo parámetro, usamos la siguiente letra U, si se necesita un tipo de retorno distinto, elegimos R para el retorno con tipo genérico.
@@ -456,7 +456,7 @@ System.out.println(s1.get()); // Cadena vacia
 System.out.println(s2.get()); // Cadena vacia
 ```
 
-El siguiente ejemplo muestra la versatilidad en la cual utilizamos un generico dentro de otro generico 
+El siguiente ejemplo muestra la versatilidad en la cual utilizamos un genérico dentro de otro genérico 
 
 ```java
 Supplier<ArrayList<String>> s3 = ArrayList::new;
