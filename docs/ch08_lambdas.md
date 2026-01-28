@@ -626,8 +626,8 @@ En la primera parte del ejemplo se muestra como definir un, Predicate usando un 
 En la segúnda parte se muestra como se utiliza el mismo método, pero combinado par cumplir con lo que se requiere, pero 
 no es muy eficiente. 
 
-En la tercera parte se muestra como se utiliza uno de los metodos comunes de la interfaz junto con los que he creado para 
-hacer más facil el uso de Predicate. 
+En la tercera parte se muestra como se utiliza uno de los métodos comunes de la interfaz junto con los que he creado para 
+hacer más fácil el uso de Predicate. 
 
 ```java
 Consumer<String> c1 = x -> System.out.print("1:" + x);
@@ -665,7 +665,7 @@ La mayoría son para los tipos double, int y long.  Existe una excepción que es
 
 #### Interfaz funcional para boolean
 
-BooleanSupplier es un tipo separado y su método de implementacion es:
+BooleanSupplier es un tipo separado y su método de implementación es:
 
 ```java
 @FunctionalInterface
@@ -702,7 +702,7 @@ a las que se hace referencia desde el cuerpo de la lambda.
 
 ![ch08_01_06.png](images/ch08/ch08_01_06.png)
 
-#### Declaracion de parámetros
+#### Declaración de parámetros
 
 Esta sección enseña cómo declarar parámetros en las lambdas y cómo inferir sus tipos basándose en el contexto.
 
