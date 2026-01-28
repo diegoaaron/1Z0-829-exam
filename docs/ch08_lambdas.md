@@ -502,7 +502,7 @@ llamar a un método en la variable local map.
 
 #### Implementación de Predicate y BiPredicate
 
-Predicate se usa a menudo al filtrar o comparar. Ambas operaciones son parecidas solo que la segunda acepta dos parametros. 
+Predicate se usa a menudo al filtrar o comparar. Ambas operaciones son parecidas solo que la segunda acepta dos parámetros. 
 
 ```java
 @FunctionalInterface
@@ -600,9 +600,9 @@ En el ejemplo de UnaryOperator no necesitamos definir el retorno porque requiere
 
 En el ejemplo de BinaryOperator es más conciso que BiFunction, ya que el parámetro definido es suficiente porque todos son del mismo tipo.
 
-#### Usando metodos convenientes en interfaces funcionales 
+#### Usando métodos convenientes en interfaces funcionales 
 
-Por definicion todas las interfaces funcionales tienen un único método abstracto. Sin embargo, esto no significa que solo pueden tener un método.
+Por definición todas las interfaces funcionales tienen un único método abstracto. Sin embargo, esto no significa que solo pueden tener un método.
 
 Varias de las interfaces funcionales comunes proporcionan una serie de métodos de interfaz predeterminados útiles.
 
@@ -621,9 +621,9 @@ Predicate<String> brownEggs = egg.and(brown);
 Predicate<String> brownEggs = egg.and(brown.negate());
 ```
 
-En la primera parte del ejemplo se muestra como definir un, Predicate usando un metodo genera que cumpla él, Predicate. 
+En la primera parte del ejemplo se muestra como definir un, Predicate usando un método genera que cumpla él, Predicate. 
 
-En la segúnda parte se muestra como se utiliza el mismo metodo, pero combinado par cumplir con lo que se requiere, pero 
+En la segúnda parte se muestra como se utiliza el mismo método, pero combinado par cumplir con lo que se requiere, pero 
 no es muy eficiente. 
 
 En la tercera parte se muestra como se utiliza uno de los metodos comunes de la interfaz junto con los que he creado para 
